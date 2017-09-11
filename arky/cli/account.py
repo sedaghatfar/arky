@@ -59,6 +59,7 @@ def link(param):
 		else:
 			sys.stdout.write("No token found\n")
 			unlink({})
+			return
 
 	if param["<2ndSecret>"]:
 		keys = core.getKeys(param["<2ndSecret>"].encode("ascii"))
