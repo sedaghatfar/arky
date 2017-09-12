@@ -273,6 +273,7 @@ Returns None
 	PEERS = peerlist
 
 	# finish network conf
+	cfg.__FEES__.update(get('/api/blocks/getFees', returnKey="fees"))
 	autoconf = get('/api/loader/autoconfigure', returnKey="network")
 	cfg.__EXPLORER__ = autoconf.get("explorer", False)
 	cfg.__SYMBOL__ = autoconf.get("symbol", False)

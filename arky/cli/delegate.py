@@ -69,6 +69,7 @@ def link(param):
 			USERNAME = _checkIfDelegate()
 		else:
 			sys.stdout.write("No token found\n")
+			unlink({})
 			return
 
 	if not USERNAME:
@@ -125,10 +126,10 @@ def share(param):
 			if param["--complement"]:
 				amount = float(api.Account.getBalance(ADDRESS, returnKey="balance"))/100000000. - amount
 
-			if param["--lowest"] : minimum = float(param["--lowest"])
-			else: minimum = 0.
+			if param["--lowest"] : minimum = float(param["--lowest"]) + cfg.__FEES__["send"]
+			else: minimum = cfg.__FEES__["send"]
 
-			if param["--highest"] : maximum = float(param["--highest"])
+			if param["--highest"] : maximum = float(param["--highest"]) + cfg.__FEES__["send"]
 			else: maximum = amount
 
 			if amount > 1:

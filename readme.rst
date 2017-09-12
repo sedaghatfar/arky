@@ -158,6 +158,11 @@ Toons Bitcoin address: ``3Jgib9SQiDLYML7QKBYtJUkHq2nyG6Z63D``
 Version
 =======
 
+**0.3-rc7**
+
++ Fees values loaded from blockchain
++ ``cli`` pkg: code tweak
+
 **0.3-rc6**
 
 + Default timeout changed to 10s
