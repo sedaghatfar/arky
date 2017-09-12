@@ -159,6 +159,7 @@ Version
 =======
 
 **0.3-rc7**
+
 + Fees values loaded from blockchain
 + ``cli`` pkg: code tweak
 
