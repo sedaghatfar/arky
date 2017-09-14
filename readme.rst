@@ -165,6 +165,9 @@ Toons Bitcoin address: ``3Jgib9SQiDLYML7QKBYtJUkHq2nyG6Z63D``
 Version
 =======
 
+**0.3-rc8**
++ ``cli`` pkg: tweaks
+
 **0.3-rc7**
 
 + Fees values loaded from blockchain
