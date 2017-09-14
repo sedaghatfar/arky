@@ -126,10 +126,10 @@ def share(param):
 			if param["--complement"]:
 				amount = float(api.Account.getBalance(ADDRESS, returnKey="balance"))/100000000. - amount
 
-			if param["--lowest"] : minimum = float(param["--lowest"]) + cfg.__FEES__["send"]
-			else: minimum = cfg.__FEES__["send"]
+			if param["--lowest"] : minimum = float(param["--lowest"]) + cfg.__FEES__["send"]/100000000.
+			else: minimum = cfg.__FEES__["send"]/100000000.
 
-			if param["--highest"] : maximum = float(param["--highest"]) + cfg.__FEES__["send"]
+			if param["--highest"] : maximum = float(param["--highest"]) + cfg.__FEES__["send"]/100000000.
 			else: maximum = amount
 
 			if amount > 1:
