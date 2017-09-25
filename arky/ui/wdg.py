@@ -167,13 +167,12 @@ class AmountFrame(yawTtk.Frame):
 			if what == "%":
 				value = (float(api.Account.getBalance(AddressPanel.address).get("balance", 0)) * amount/100 - cfg.__FEES__["send"])/100000000.
 			elif what in ["$", "€", "£", "¥"]:
-				price = util.getArkPrice({"$":"usd", "€":"eur", "£":"gbp", "¥":"cny"}[what])
+				price = util.getTokenPrice(cfg.__TOKEN__, {"$":"usd", "€":"eur", "£":"gbp", "¥":"cny"}[what])
 				value = amount / price
 			else:
 				value = amount
-		finally:
-			self.satoshi = 100000000.*max(0., value)
-			self.value.set("%s %.8f" % (cfg.__SYMBOL__, value))
+		self.satoshi = 100000000.*max(0., value)
+		self.value.set("%s %.8f" % (cfg.__SYMBOL__, value))
 
 	def get(self):
 		return self.satoshi

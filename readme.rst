@@ -167,7 +167,10 @@ Version
 =======
 
 **0.3-rc8**
+
 + ``cli`` pkg: tweaks
++ ``ui`` pkg: widget behaviour fixes
++ ``util`` pkg: ``coinmarketcap`` api update
 
 **0.3-rc7**
 
