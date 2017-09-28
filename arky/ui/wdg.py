@@ -117,7 +117,7 @@ class AddressPanel(yawTtk.Frame):
 				self.balance.set("%s %.8f" % (cfg.__SYMBOL__, 0.))
 				self.label.configure(
 					image = self._cloud,
-					background = "SystemButtonFace",
+					background = self["background"], #"SystemButtonFace",
 					compound = "image"
 				)
 		else:
@@ -127,7 +127,7 @@ class AddressPanel(yawTtk.Frame):
 			AddressPanel.vote = []
 			self.label.configure(
 				image = self._cloud,
-				background = "SystemButtonFace",
+				background = self["background"], #"SystemButtonFace",
 				compound = "image"
 			)
 
