@@ -17,11 +17,12 @@ import io
 import os
 import sys
 import json
-import random
-import requests
-import logging
-import traceback
 import pytz
+import random
+import logging
+import requests
+import importlib
+import traceback
 
 #################
 ## API methods ##
@@ -190,6 +191,8 @@ def use(network, npeers=10, latency=0.5):
 					break
 		# if endpoints found, create them and update network
 		if loadEndPoints(cfg.endpoints):
+			exec("from . import %s as bclib"%cfg.familly, globals())
+			bclib.init()
 			cfg.network = network
 			cfg.hotmode = True
 	else:
