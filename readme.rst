@@ -64,6 +64,8 @@ Toons Bitcoin address: ``3Jgib9SQiDLYML7QKBYtJUkHq2nyG6Z63D``
 Version
 =======
 
+**1.0 ``AIP11``**
+
 **0.3**
 
 + ``stick-arky`` released : bring all arky every where on your usb stick

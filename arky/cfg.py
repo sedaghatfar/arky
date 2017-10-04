@@ -1,4 +1,5 @@
 # -*- encoding: utf8 -*-
 # © Toons
 
-timeout = 3
+network = "..."
+hotmode = False

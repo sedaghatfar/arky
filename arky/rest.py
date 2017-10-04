@@ -30,7 +30,7 @@ import pytz
 def get(entrypoint, dic={}, **kw):
 	"""
 generic GET call using requests lib. It returns server response as dict object.
-It uses default peers registered in SEEDS list.
+It uses default peers registered in cfg.peers list.
 
 Argument:
 entrypoint (str) -- entrypoint url path
@@ -177,16 +177,19 @@ def use(network, npeers=10, latency=0.5):
 		# blockchain can use differents begin time
 		cfg.begintime = slots.datetime.datetime(*cfg.begintime, tzinfo=slots.pytz.UTC)
 		# build peers
-		n, cfg.peers = 0, []
-		for peer in data.get("peers", []):
-			n += 1
-			peer = "http://%s:%s"%(peer, cfg.port)
-			if checkPeerLatency(peer) < latency:
-				cfg.peers.append(peer)
-			if n > npeers:
-				break
+		if data.get("seeds", []):
+			cfg.peers = cfg.seeds
+		else:
+			n, cfg.peers = 0, []
+			for peer in data.get("peers", []):
+				n += 1
+				peer = "http://%s:%s"%(peer, data.get("port", 22))
+				if checkPeerLatency(peer) < latency:
+					cfg.peers.append(peer)
+				if n >= npeers:
+					break
 		# if endpoints found, create them and update network
-		if loadEndPoints(cfg.ndpt):
+		if loadEndPoints(cfg.endpoints):
 			cfg.network = network
 			cfg.hotmode = True
 	else:

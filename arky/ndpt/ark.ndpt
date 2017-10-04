@@ -52,8 +52,11 @@
 		"/peer/height",
 		"/peer/status"
 	],
+
 	"PUT" : [
 	],
+	
 	"POST" : [
+		"/peer/transactions"
 	]
 }
