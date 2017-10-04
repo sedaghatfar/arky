@@ -68,9 +68,6 @@ Returns dict
 def post(entrypoint, dic={}, **kw):
 	# merge dic and kw values
 	payload = dict(dic, **kw)
-	# API response contains several fields and wanted one can be extracted using
-	# a returnKey that match the field name
-	returnKey = payload.pop("returnKey", False)
 	try:
 		text = requests.post(
 			random.choice(cfg.peers) + entrypoint,
@@ -89,9 +86,6 @@ def post(entrypoint, dic={}, **kw):
 def put(entrypoint, dic={}, **kw):
 	# merge dic and kw values
 	payload = dict(dic, **kw)
-	# API response contains several fields and wanted one can be extracted using
-	# a returnKey that match the field name
-	returnKey = payload.pop("returnKey", False)
 	try:
 		text = requests.put(
 			random.choice(cfg.peers) + entrypoint,
