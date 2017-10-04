@@ -23,8 +23,6 @@ import logging
 import traceback
 import pytz
 
-POST, PUT, GET = [], [], []
-
 #################
 ## API methods ##
 #################
@@ -83,7 +81,6 @@ def post(entrypoint, dic={}, **kw):
 		).text
 		data = json.loads(text)
 	except Exception as error:
-		sys.stdout.write(text + "\n")
 		data = {"success":False, "error":error}
 		if hasattr(error, "__traceback__"):
 			data["details"] = "\n"+("".join(traceback.format_tb(error.__traceback__)).rstrip())
@@ -105,7 +102,6 @@ def put(entrypoint, dic={}, **kw):
 		).text
 		data = json.loads(text)
 	except Exception as error:
-		sys.stdout.write(text + "\n")
 		data = {"success":False, "error":error}
 		if hasattr(error, "__traceback__"):
 			data["details"] = "\n"+("".join(traceback.format_tb(error.__traceback__)).rstrip())
@@ -178,9 +174,8 @@ def use(network, npeers=10, latency=0.5):
 
 	if len(networks) and network in networks:
 		# load json file
-		in_ = open(os.path.join(ROOT, network+".net"), "r" if __PY3__ else "rb")
-		data = json.load(in_)
-		in_.close()
+		with open(os.path.join(ROOT, network+".net"), "r" if __PY3__ else "rb") as _in:
+			data = json.load(_in)
 		# save json data as variables in cfg.py module
 		cfg.__dict__.update(data)
 		# for https uses
@@ -201,9 +196,9 @@ def use(network, npeers=10, latency=0.5):
 			cfg.network = network
 			cfg.hotmode = True
 	else:
-		raise NetworkError("Unknown %s network properties" % network)
 		cfg.network = "..."
 		cfg.hotmode = False
+		raise NetworkError("Unknown %s network properties" % network)
 
 	# update logger data so network appear on log
 	logger = logging.getLogger()
