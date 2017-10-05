@@ -28,5 +28,6 @@
   "explorer" : "https://dexplorer.ark.io",
   "token" : "DARK",
 	"symbol" : "DѦ",
-	"delegate": 51
+	"delegate": 51,
+  "blocktime": 8
 }

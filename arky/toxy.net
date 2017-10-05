@@ -18,5 +18,7 @@
   "explorer" : "https://texplorer.oxycoin.io",
   "token" : "OXY",
   "symbol" : "OXY",
-  "delegate": 201
+  "delegate": 201,
+  "blocktime": 15
+
 }

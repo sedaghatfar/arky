@@ -28,6 +28,3 @@ logging.basicConfig(
 	format    = '[...][%(asctime)s] %(message)s',
 	level     = logging.INFO,
 )
-
-from . import rest
-rest.use("dark")

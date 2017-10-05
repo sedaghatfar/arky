@@ -21,7 +21,6 @@ import pytz
 import random
 import logging
 import requests
-import importlib
 import traceback
 
 #################
@@ -164,6 +163,17 @@ def loadEndPoints(network):
 ## network selection ##
 #######################
 
+def load(name):
+	sys.modules[__package__].core = __import__("%s.%s"%(__package__, name), globals(), locals(), ["*"], 0)
+	try:
+		sys.modules[__package__].core.init()
+	except AttributeError:
+		raise Exception("%s package is not a valid blockchain familly" % name)
+	try:
+		sys.modules[__package__].__delattr__(name)
+	except AttributeError:
+		pass
+
 def use(network, npeers=10, latency=0.5):
 	networks = [os.path.splitext(name)[0] for name in os.listdir(ROOT) if name.endswith(".net")]
 
@@ -191,13 +201,16 @@ def use(network, npeers=10, latency=0.5):
 					break
 		# if endpoints found, create them and update network
 		if loadEndPoints(cfg.endpoints):
-			exec("from . import %s as bclib"%cfg.familly, globals())
-			bclib.init()
+			load(cfg.familly)
 			cfg.network = network
 			cfg.hotmode = True
 	else:
 		cfg.network = "..."
 		cfg.hotmode = False
+		try:
+			sys.modules[__package__].__delattr__(name)
+		except AttributeError:
+			pass
 		raise NetworkError("Unknown %s network properties" % network)
 
 	# update logger data so network appear on log

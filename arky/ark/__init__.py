@@ -1,6 +1,8 @@
 # -*- encoding: utf8 -*-
 # © Toons
 
+__all__ = []
+
 from .. import rest
 from .. import cfg
 
