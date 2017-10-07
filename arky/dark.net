@@ -4,8 +4,8 @@
   "endpoints": "ark",
   "familly": "ark",
 
-  "wif": 239,
-  "marker": 30,
+  "wif": "ef",
+  "marker": "1e",
   "bip32": {
     "private": 70617039,
     "public": 70615956

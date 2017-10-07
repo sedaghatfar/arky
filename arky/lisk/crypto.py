@@ -3,6 +3,7 @@
 
 from nacl.bindings.crypto_sign import crypto_sign_seed_keypair, crypto_sign
 from nacl.bindings import crypto_sign_BYTES
+
 from .. import __PY3__, __FROZEN__
 from .. import cfg, slots
 
@@ -15,8 +16,16 @@ import struct
 import hashlib
 import binascii
 
-unpack =     lambda fmt, fileobj: struct.unpack(fmt, fileobj.read(struct.calcsize(fmt)))
-pack =       lambda fmt, fileobj, value: fileobj.write(struct.pack(fmt, *value))
+# byte as int conversion
+basint = lambda e:e if __PY3__ else \
+         lambda e:ord(e)
+# read value as binary data from buffer
+unpack =  lambda fmt, fileobj: struct.unpack(fmt, fileobj.read(struct.calcsize(fmt)))
+# write value as binary data into buffer
+pack = lambda fmt, fileobj, value: fileobj.write(struct.pack(fmt, *value))
+# read bytes from buffer
+unpack_bytes = lambda f,n: unpack("<"+"%ss"%n, f)[0]
+# write bytes into buffer
 pack_bytes = lambda f,v: pack("!"+"%ss"%len(v), f, (v,)) if __PY3__ else \
              lambda f,v: pack("!"+"c"*len(v), f, v)
 
@@ -46,8 +55,9 @@ def getId(tx):
 def getBytes(tx):
 	buf = StringIO()
 
-	pack("<b", buf, (tx["type"],))
-	pack("<i", buf, (int(tx["timestamp"]),))
+	# write type and timestamp
+	pack("<bi", buf, (tx["type"],int(tx["timestamp"])))
+	# write senderPublicKey as bytes in buffer
 	pack_bytes(buf, unhexlify(tx["senderPublicKey"]))
 
 	# if there is a requesterPublicKey
@@ -63,11 +73,11 @@ def getBytes(tx):
 	pack("<Q", buf, (int(tx["amount"]),))
 
 	# if there is a signature
-	if "signature" in tx:
+	if tx.get("signature", False):
 		pack_bytes(buf, unhexlify(tx["signature"]))
 	
 	# if there is a second signature
-	if tx.get("signSignature", None):
+	if tx.get("signSignature", False):
 		pack_bytes(buf, unhexlify(tx["signSignature"]))
 
 	result = buf.getvalue()
@@ -76,13 +86,15 @@ def getBytes(tx):
 
 def bakeTransaction(**kw):
 
-	if "publicKey" in kw and "privateKey" in kw: public, private = kw["publicKey"], kw["privateKey"]
-	elif "secret" in kw: public, private = getKeys(kw["secret"])
-	else: raise Exception("Can not initialize transaction (no secret or keys given)")
+	if "publicKey" in kw and "privateKey" in kw:
+		public, private = kw["publicKey"], kw["privateKey"]
+	elif "secret" in kw:
+		public, private = getKeys(kw["secret"])
+	else:
+		raise Exception("Can not initialize transaction (no secret or keys given)")
 		
 	# put mandatory data
 	payload = {
-		"signSignature": None,
 		"timestamp": int(slots.getTime()),
 		"type": int(kw.get("type", 0)),
 		"amount": int(kw.get("amount", 0)),
