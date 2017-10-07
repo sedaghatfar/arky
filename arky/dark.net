@@ -4,6 +4,7 @@
   "endpoints": "ark",
   "familly": "ark",
 
+  "compressed": true,
   "wif": "ef",
   "marker": "1e",
   "bip32": {
@@ -24,6 +25,7 @@
     "167.114.29.54",
     "167.114.29.55"
   ],
+  "broadcast": 10,
   
   "explorer" : "https://dexplorer.ark.io",
   "token" : "DARK",

@@ -67,10 +67,11 @@ Returns dict
 
 def post(entrypoint, dic={}, **kw):
 	# merge dic and kw values
+	peer = kw.pop("peer", False)
 	payload = dict(dic, **kw)
 	try:
 		text = requests.post(
-			random.choice(cfg.peers) + entrypoint,
+			(peer if peer else random.choice(cfg.peers)) + entrypoint,
 			data=json.dumps(payload),
 			headers=cfg.headers,
 			verify=cfg.verify,
@@ -85,10 +86,11 @@ def post(entrypoint, dic={}, **kw):
 
 def put(entrypoint, dic={}, **kw):
 	# merge dic and kw values
+	peer = kw.pop("peer", False)
 	payload = dict(dic, **kw)
 	try:
 		text = requests.put(
-			random.choice(cfg.peers) + entrypoint,
+			(peer if peer else random.choice(cfg.peers)) + entrypoint,
 			data=json.dumps(payload),
 			headers=cfg.headers,
 			verify=cfg.verify,
@@ -174,7 +176,7 @@ def load(name):
 	except AttributeError:
 		pass
 
-def use(network, npeers=10, latency=0.5):
+def use(network): #, npeers=10, latency=1.0):
 	networks = [os.path.splitext(name)[0] for name in os.listdir(ROOT) if name.endswith(".net")]
 
 	if len(networks) and network in networks:
@@ -195,9 +197,9 @@ def use(network, npeers=10, latency=0.5):
 			for peer in data.get("peers", []):
 				n += 1
 				peer = "http://%s:%s"%(peer, data.get("port", 22))
-				if checkPeerLatency(peer) < latency:
+				if checkPeerLatency(peer) < cfg.timeout:
 					cfg.peers.append(peer)
-				if n >= npeers:
+				if n >= cfg.broadcast:
 					break
 		# if endpoints found, create them and update network
 		if loadEndPoints(cfg.endpoints):

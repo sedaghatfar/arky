@@ -9,6 +9,8 @@ import base58
 from .. import __PY3__, __FROZEN__
 from .. import cfg, slots
 
+from . import asset
+
 if not __PY3__:
 	from StringIO import StringIO
 else:
@@ -106,7 +108,6 @@ def getBytes(tx):
 	Returns bytes sequence
 	"""
 	buf = StringIO()
-
 	# write type and timestamp
 	pack("<bi", buf, (tx["type"], int(tx["timestamp"])))
 	# write senderPublicKey as bytes in buffer
@@ -119,19 +120,18 @@ def getBytes(tx):
 	pack_bytes(buf, recipientId)
 	# if there is a vendorField
 	if tx.get("vendorField", False):
-		vendorField = tx["vendorField"][:64].encode().ljust(64, "\x00")
+		vendorField = tx["vendorField"][:64].ljust(64, "\x00")
 	else:
 		vendorField = "\x00"*64
 	pack_bytes(buf, vendorField.encode("utf8"))
 	# write amount and fee value
 	pack("<QQ", buf, (int(tx["amount"]), int(tx["fee"])))
-
-	# HERE PUT ASSET
-
+	# if there is asset data
+	if tx.get("asset", False):
+		pack_bytes(buf, asset.bytifyAsset(tx["asset"], type=tx["type"]))
 	# if there is a signature
 	if tx.get("signature", False):
 		pack_bytes(buf, unhexlify(tx["signature"]))
-
 	# if there is a second signature
 	if tx.get("signSignature", False):
 		pack_bytes(buf, unhexlify(tx["signSignature"]))
@@ -150,7 +150,6 @@ def bakeTransaction(**kw):
 		keys = getKeys(kw["secret"])
 	else:
 		raise Exception("Can not initialize transaction (no secret or keys given)")
-
 	# put mandatory data
 	payload = {
 		"timestamp": int(slots.getTime()),
@@ -166,13 +165,9 @@ def bakeTransaction(**kw):
 		}[kw.get("type", 0)])
 	}
 	payload["senderPublicKey"] = keys["public"]
-
 	# add optional data
-	if "requesterPublicKey" in kw:
-		payload["senderPublicKey"] = kw["requesterPublicKey"]
-	if "recipientId" in kw:
-		payload["recipientId"] = kw["recipientId"]
-
+	for key in (k for k in ["requesterPublicKey", "recipientId", "vendorField", "asset"] if k in kw):
+		payload[key] = kw[key]
 	# sign payload
 	payload["signature"] = getSignature(payload, keys["signingKey"])
 	if kw.get("secondSecret", False):
@@ -180,7 +175,6 @@ def bakeTransaction(**kw):
 		payload["signSignature"] = getSignature(payload, secondKeys["signingKey"])
 	elif kw.get("secondSigningKey", False):
 		payload["signSignature"] = getSignature(payload, kw["secondSigningKey"])
-
 	# identify payload
 	payload["id"] = getId(payload)
 

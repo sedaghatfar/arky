@@ -7,6 +7,8 @@ from nacl.bindings import crypto_sign_BYTES
 from .. import __PY3__, __FROZEN__
 from .. import cfg, slots
 
+from . import asset
+
 if not __PY3__:
 	from StringIO import StringIO
 else:
@@ -59,23 +61,22 @@ def getBytes(tx):
 	pack("<bi", buf, (tx["type"],int(tx["timestamp"])))
 	# write senderPublicKey as bytes in buffer
 	pack_bytes(buf, unhexlify(tx["senderPublicKey"]))
-
 	# if there is a requesterPublicKey
 	if "requesterPublicKey" in tx:
 		pack_bytes(buf, unhexlify(tx["requesterPublicKey"]))
-
 	# if there is a recipientId
 	if "recipientId" in tx:
 		pack(">Q", buf, (int(tx["recipientId"][:-1]),))
 	else:
 		pack("<Q", buf, (0,))
-
+	# write amount
 	pack("<Q", buf, (int(tx["amount"]),))
-
+	# if there is asset data
+	if tx.get("asset", False):
+		pack_bytes(buf, asset.bytifyAsset(tx["asset"], type=tx["type"]))
 	# if there is a signature
 	if tx.get("signature", False):
 		pack_bytes(buf, unhexlify(tx["signature"]))
-	
 	# if there is a second signature
 	if tx.get("signSignature", False):
 		pack_bytes(buf, unhexlify(tx["signSignature"]))
@@ -110,10 +111,8 @@ def bakeTransaction(**kw):
 	payload["senderPublicKey"] = public
 
 	# add optional data
-	if "requesterPublicKey" in kw:
-		payload["senderPublicKey"] = kw["requesterPublicKey"]
-	if "recipientId" in kw:
-		payload["recipientId"] = kw["recipientId"]
+	for key in (k for k in ["requesterPublicKey", "recipientId", "asset"] if k in kw):
+		payload[key] = kw[key]
 
 	# sign payload
 	payload["signature"] = getSignature(payload, private)
