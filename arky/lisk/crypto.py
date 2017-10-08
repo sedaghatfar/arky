@@ -7,8 +7,6 @@ from nacl.bindings import crypto_sign_BYTES
 from .. import __PY3__, __FROZEN__
 from .. import cfg, slots
 
-from . import asset
-
 if not __PY3__:
 	from StringIO import StringIO
 else:
@@ -73,7 +71,16 @@ def getBytes(tx):
 	pack("<Q", buf, (int(tx["amount"]),))
 	# if there is asset data
 	if tx.get("asset", False):
-		pack_bytes(buf, asset.bytifyAsset(tx["asset"], type=tx["type"]))
+		asset = tx["asset"]
+		typ = tx["type"]
+		if typ == 1 and "signature" in asset:
+			pack_bytes(buf, unhexlify(asset["signature"]["publicKey"]))
+		elif typ == 2 and "delegate" in asset:
+			pack_bytes(buf, asset["delegate"]["username"].encode("utf-8"))
+		elif typ == 3 and "votes" in asset:
+			pack_bytes(buf, "".join(asset["votes"]).encode("utf-8"))
+		else:
+			pass
 	# if there is a signature
 	if tx.get("signature", False):
 		pack_bytes(buf, unhexlify(tx["signature"]))
@@ -101,9 +108,9 @@ def bakeTransaction(**kw):
 		"amount": int(kw.get("amount", 0)),
 		"fee": cfg.fees.get({
 			0: "send",
-			# 1: "delegate",
-			# 2: "secondsignature",
-			# 3: "vote",
+			1: "secondsignature",
+			2: "delegate",
+			3: "vote",
 			# 4: "multisignature",
 			# 5: "dapp"
 		}[kw.get("type", 0)])

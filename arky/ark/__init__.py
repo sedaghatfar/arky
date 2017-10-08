@@ -19,7 +19,7 @@ def init():
 	cfg.fees = rest.GET.api.blocks.getFees(returnKey="fees")
 
 def sendTransaction(**kw):
-	tx = crypto.bakeTransaction(**kw)
+	tx = crypto.bakeTransaction(**dict([k,v] for k,v in kw.items() if v))
 	result = rest.POST.peer.transactions(peer=cfg.peers[0], transactions=[tx])
 	success = 1 if result["success"] else 0
 	for peer in cfg.peers[1:]:
@@ -28,6 +28,67 @@ def sendTransaction(**kw):
 	result["broadcast"] = "%.1f%%" % (100.*success/len(cfg.peers))
 	return result
 
+def sendToken(amount, recipientId, vendorField, secret, secondSecret=None):
+	return sendTransaction(
+		amount=amount,
+		recipientId=recipientId,
+		vendorField=VendorField,
+		secret=secret,
+		secondSecret=secondSecret
+	)
+
+def registerSecondPublicKey(secondPublicKey, secret, secondSecret=None):
+	keys = crypto.getKeys(secret)
+	return sendTransaction(
+		type=1,
+		publicKey=keys["public"],
+		asset={"signature":{"publicKey":secondPublicKey}},
+		signingKey=keys["signingKey"],
+		secondSecret=secondSecret
+	)
+
+def registerSecondPassphrase(secondPassphrase, secret, secondSecret=None):
+	secondKeys = crypto.getKeys(secondPassphrase)
+	return registerSecondPublicKey(secondKeys["public"], secret, secondSecret)
+
+def registerDelegate(username, secret, secondSecret=None):
+	keys = crypto.getKeys(secret)
+	return sendTransaction(
+		type=2,
+		publicKey=keys["public"],
+		asset={"delegate":{"username":username, "publicKey":keys["public"]}},
+		signingKey=keys["signingKey"],
+		secondSecret=secondSecret
+	)
+
+def upVoteDelegate(username, secret, secondSecret=None):
+	keys = crypto.getKeys(secret)
+	address = crypto.getAddress(keys)
+	req = rest.GET.api.delegates.get(username=username)
+	if req["success"]:
+		return sendTransaction(
+			type=3,
+			publicKey=keys["public"],
+			recipientId=address,
+			asset={"votes":["+%s"%req["delegate"]["publicKey"]]},
+			signingKey=keys["signingKey"],
+			secondSecret=secondSecret
+		)
+
+def downVoteDelegate(username, secret, secondSecret=None):
+	keys = crypto.getKeys(secret)
+	address = crypto.getAddress(keys)
+	req = rest.GET.api.delegates.get(username=username)
+	if req["success"]:
+		return sendTransaction(
+			type=3,
+			publicKey=keys["public"],
+			recipientId=address,
+			asset={"votes":["-%s"%req["delegate"]["publicKey"]]},
+			signingKey=keys["signingKey"],
+			secondSecret=secondSecret
+		)
+
 def selectPeers():
 	peers = [p for p in rest.GET.api.peers().get("peers", []) if p.get("status", "") == "OK" and p.get("delay", 0) <= cfg.timeout*1000]
 	selection = []
@@ -35,8 +96,9 @@ def selectPeers():
 		selection.append("http://%(ip)s:%(port)s" % random.choice(peers))
 	if len(selection):
 		cfg.peers = selection
-selectPeers()
 
+# select peers
+selectPeers()
 @setInterval(8*51)
 def rotatePeers():
 	selectPeers()
