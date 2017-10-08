@@ -9,13 +9,6 @@ from . import crypto
 
 import random
 
-def init():
-	network = rest.GET.api.loader.autoconfigure(returnKey="network")
-	cfg.headers["version"] = network.pop("version")
-	cfg.headers["nethash"] = network.pop("nethash")
-	cfg.__dict__.update(network)
-	cfg.fees = rest.GET.api.blocks.getFees(returnKey="fees")
-
 def selectPeers():
 	peers = [p for p in rest.GET.api.peers().get("peers", []) if p.get("status", "") == "OK" and p.get("delay", 0) <= cfg.timeout*1000]
 	selection = []
@@ -24,12 +17,19 @@ def selectPeers():
 	if len(selection):
 		cfg.peers = selection
 
-# manage peers for tx broadcasting
-selectPeers()
-@setInterval(8*51)
-def rotatePeers():
+def init():
+	global _deamon
+	network = rest.GET.api.loader.autoconfigure(returnKey="network")
+	cfg.headers["version"] = network.pop("version")
+	cfg.headers["nethash"] = network.pop("nethash")
+	cfg.__dict__.update(network)
+	cfg.fees = rest.GET.api.blocks.getFees(returnKey="fees")
+	# manage peers for tx broadcasting
 	selectPeers()
-_daemon = rotatePeers()
+	@setInterval(8*51)
+	def rotatePeers():
+		selectPeers()
+	_daemon = rotatePeers()
 
 # This function is a high-level broadcasting for a single tx
 def sendTransaction(**kw):
