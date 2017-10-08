@@ -65,7 +65,7 @@ def getKeys(secret, seed=None):
 		"wif": getWIF(seed)
 	}
 
-def getAddress(keys):
+def getAddress(publicKey):
 	"""
 	Computes ARK address from keyring.
 
@@ -74,7 +74,7 @@ def getAddress(keys):
 
 	Returns str
 	"""
-	ripemd160 = hashlib.new('ripemd160', unhexlify(keys["public"])).digest()[:20]
+	ripemd160 = hashlib.new('ripemd160', unhexlify(publicKey)).digest()[:20]
 	seed = unhexlify(cfg.marker) + ripemd160
 	return base58.b58encode_check(seed)
 
