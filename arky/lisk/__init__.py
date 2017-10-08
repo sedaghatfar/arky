@@ -22,7 +22,7 @@ def sendTransaction(**kw):
 ## basic transaction ##
 #######################
 
-def sendToken(amount, recipientId, vendorField, secret, secondSecret=None):
+def sendToken(amount, recipientId, secret, secondSecret=None):
 	return sendTransaction(
 		amount=amount,
 		recipientId=recipientId,
@@ -54,28 +54,32 @@ def registerDelegate(username, secret, secondSecret=None):
 		asset={"delegate":{"username":username, "publicKey":publicKey}}
 	)
 
-def upVoteDelegate(username, secret, secondSecret=None):
-	publicKey, privateKey = crypto.getKeys(secret)
-	req = rest.GET.api.delegates.get(username=username)
-	if req["success"]:
-		return sendTransaction(
-			type=3,
-			publicKey=publicKey,
-			recipientId=crypto.getAddress(publicKey),
-			privateKey=privateKey,
-			secondSecret=secondSecret,
-			asset={"votes":["+%s"%req["delegate"]["publicKey"]]}
-		)
+def getDelegatesPublicKeys(*usernames):
+	candidates = {}
+	req = rest.GET.api.delegates(offset=len(candidates), limit=cfg.delegate).get("delegates", [])
+	while not len(req) < cfg.delegate:
+		candidates.update(dict([c["username"],c["publicKey"]] for c in req))
+		req = rest.GET.api.delegates(offset=len(candidates), limit=cfg.delegate).get("delegates", [])
+	return [p for u,p in candidates.items() if u in usernames]
 
-def downVoteDelegate(username, secret, secondSecret=None):
+def upVoteDelegate(usernames, secret, secondSecret=None):
 	publicKey, privateKey = crypto.getKeys(secret)
-	req = rest.GET.api.delegates.get(username=username)
-	if req["success"]:
-		return sendTransaction(
-			type=3,
-			publicKey=publicKey,
-			recipientId=crypto.getAddress(publicKey),
-			privateKey=privateKey,
-			secondSecret=secondSecret,
-			asset={"votes":["-%s"%req["delegate"]["publicKey"]]}
-		)
+	return sendTransaction(
+		type=3,
+		publicKey=publicKey,
+		recipientId=crypto.getAddress(publicKey),
+		privateKey=privateKey,
+		secondSecret=secondSecret,
+		asset={"votes":["+%s"%pk for pk in getDelegatesPublicKeys(*usernames)]}
+	)
+
+def downVoteDelegate(usernames, secret, secondSecret=None):
+	publicKey, privateKey = crypto.getKeys(secret)
+	return sendTransaction(
+		type=3,
+		publicKey=publicKey,
+		recipientId=crypto.getAddress(publicKey),
+		privateKey=privateKey,
+		secondSecret=secondSecret,
+		asset={"votes":["-%s"%pk for pk in getDelegatesPublicKeys(*usernames)]}
+	)
