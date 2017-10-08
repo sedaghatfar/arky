@@ -14,7 +14,7 @@ def init():
     cfg.fees = rest.GET.api.blocks.getFees(returnKey="fees")
 
 def sendTransaction(**kw):
-    tx = crypto.bakeTransaction(**kw)
+	tx = crypto.bakeTransaction(**dict([k,v] for k,v in kw.items() if v))
     result = rest.POST.peer.transactions(transactions=[tx])
     if result["success"]:
         result["id"] = tx["id"]

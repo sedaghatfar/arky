@@ -43,7 +43,7 @@ def compressEcdsaPublicKey(pubkey):
 	first, last = pubkey[:32], pubkey[32:]
 	# check if last digit of second part is even (2%2 = 0, 3%2 = 1)
 	even = not bool(basint(last[-1]) % 2)
-	return hexlify((b"\x02" if even else b"\x03") + first)
+	return (b"\x02" if even else b"\x03") + first
 
 def getKeys(secret, seed=None):
 	"""
@@ -56,14 +56,14 @@ def getKeys(secret, seed=None):
 
     Returns dict
     """
-	keys = {}
 	seed = hashlib.sha256(secret.encode("utf8") if not isinstance(secret, bytes) else secret).digest() if not seed else seed
-	keys["wif"] = getWIF(seed)
-	keys["signingKey"] = SigningKey.from_secret_exponent(int(binascii.hexlify(seed), 16), SECP256k1, hashlib.sha256)
-	keys["checkingKey"] = keys["signingKey"].get_verifying_key()
-	publicKey = keys["checkingKey"].to_string()
-	keys["public"] = compressEcdsaPublicKey(publicKey) if cfg.compressed else publicKey
-	return keys
+	signingKey = SigningKey.from_secret_exponent(int(binascii.hexlify(seed), 16), SECP256k1, hashlib.sha256)
+	publicKey = signingKey.get_verifying_key().to_string()
+	return {
+		"publicKey": hexlify(compressEcdsaPublicKey(publicKey) if cfg.compressed else publicKey),
+		"privateKey": hexlify(signingKey.to_string()),
+		"wif": getWIF(seed)
+	}
 
 def getAddress(keys):
 	"""
@@ -90,7 +90,8 @@ def getWIF(seed):
 	seed = unhexlify(cfg.wif) + seed[:32] + (b"\x01" if cfg.compressed else b"")
 	return base58.b58encode_check(seed)
 
-def getSignature(tx, signingKey):
+def getSignature(tx, privateKey):
+	signingKey = SigningKey.from_string(unhexlify(privateKey), SECP256k1, hashlib.sha256)
 	return hexlify(signingKey.sign_deterministic(getBytes(tx), hashlib.sha256, sigencode=sigencode_der_canonize))
 
 def getId(tx):
@@ -152,10 +153,10 @@ def getBytes(tx):
 
 def bakeTransaction(**kw):
 
-	if "publicKey" in kw and "signingKey" in kw:
+	if "publicKey" in kw and "privateKey" in kw:
 		keys = {}
-		keys["public"] = kw["publicKey"]
-		keys["signingKey"] = kw["signingKey"]
+		keys["publicKey"] = kw["publicKey"]
+		keys["privateKey"] = kw["privateKey"]
 	elif "secret" in kw:
 		keys = getKeys(kw["secret"])
 	else:
@@ -174,17 +175,17 @@ def bakeTransaction(**kw):
 			# 5: "dapp"
 		}[kw.get("type", 0)])
 	}
-	payload["senderPublicKey"] = keys["public"]
+	payload["senderPublicKey"] = keys["publicKey"]
 	# add optional data
 	for key in (k for k in ["requesterPublicKey", "recipientId", "vendorField", "asset"] if k in kw):
 		payload[key] = kw[key]
 	# sign payload
-	payload["signature"] = getSignature(payload, keys["signingKey"])
+	payload["signature"] = getSignature(payload, keys["privateKey"])
 	if kw.get("secondSecret", False):
 		secondKeys = getKeys(kw["secondSecret"])
-		payload["signSignature"] = getSignature(payload, secondKeys["signingKey"])
-	elif kw.get("secondSigningKey", False):
-		payload["signSignature"] = getSignature(payload, kw["secondSigningKey"])
+		payload["signSignature"] = getSignature(payload, secondKeys["privateKey"])
+	elif kw.get("secondPrivateKey", False):
+		payload["signSignature"] = getSignature(payload, kw["secondPrivateKey"])
 	# identify payload
 	payload["id"] = getId(payload)
 

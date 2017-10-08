@@ -41,23 +41,23 @@ def registerSecondPublicKey(secondPublicKey, secret, secondSecret=None):
 	keys = crypto.getKeys(secret)
 	return sendTransaction(
 		type=1,
-		publicKey=keys["public"],
+		publicKey=keys["publicKey"],
 		asset={"signature":{"publicKey":secondPublicKey}},
-		signingKey=keys["signingKey"],
+		privateKey=keys["privateKey"],
 		secondSecret=secondSecret
 	)
 
 def registerSecondPassphrase(secondPassphrase, secret, secondSecret=None):
 	secondKeys = crypto.getKeys(secondPassphrase)
-	return registerSecondPublicKey(secondKeys["public"], secret, secondSecret)
+	return registerSecondPublicKey(secondKeys["publicKey"], secret, secondSecret)
 
 def registerDelegate(username, secret, secondSecret=None):
 	keys = crypto.getKeys(secret)
 	return sendTransaction(
 		type=2,
-		publicKey=keys["public"],
-		asset={"delegate":{"username":username, "publicKey":keys["public"]}},
-		signingKey=keys["signingKey"],
+		publicKey=keys["publicKey"],
+		asset={"delegate":{"username":username, "publicKey":keys["publicKey"]}},
+		privateKey=keys["privateKey"],
 		secondSecret=secondSecret
 	)
 
@@ -68,10 +68,10 @@ def upVoteDelegate(username, secret, secondSecret=None):
 	if req["success"]:
 		return sendTransaction(
 			type=3,
-			publicKey=keys["public"],
+			publicKey=keys["publicKey"],
 			recipientId=address,
 			asset={"votes":["+%s"%req["delegate"]["publicKey"]]},
-			signingKey=keys["signingKey"],
+			privateKey=keys["privateKey"],
 			secondSecret=secondSecret
 		)
 
@@ -82,10 +82,10 @@ def downVoteDelegate(username, secret, secondSecret=None):
 	if req["success"]:
 		return sendTransaction(
 			type=3,
-			publicKey=keys["public"],
+			publicKey=keys["publicKey"],
 			recipientId=address,
 			asset={"votes":["-%s"%req["delegate"]["publicKey"]]},
-			signingKey=keys["signingKey"],
+			privateKey=keys["privateKey"],
 			secondSecret=secondSecret
 		)
 
