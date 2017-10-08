@@ -152,7 +152,14 @@ def getBytes(tx):
 	return result.encode() if not isinstance(result, bytes) else result
 
 def bakeTransaction(**kw):
+	"""
+	Create transaction localy.
 
+	Argument:
+	tx (dict) -- transaction object
+
+	Returns dict
+	"""
 	if "publicKey" in kw and "privateKey" in kw:
 		keys = {}
 		keys["publicKey"] = kw["publicKey"]

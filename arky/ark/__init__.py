@@ -1,8 +1,6 @@
 # -*- encoding: utf8 -*-
 # © Toons
 
-# __all__ = []
-
 from .. import setInterval
 from .. import rest
 from .. import cfg
@@ -44,6 +42,10 @@ def sendTransaction(**kw):
 	result["broadcast"] = "%.1f%%" % (100.*success/len(cfg.peers))
 	return result
 
+#######################
+## basic transaction ##
+#######################
+
 def sendToken(amount, recipientId, vendorField, secret, secondSecret=None):
 	return sendTransaction(
 		amount=amount,
@@ -59,8 +61,8 @@ def registerSecondPublicKey(secondPublicKey, secret, secondSecret=None):
 		type=1,
 		publicKey=keys["publicKey"],
 		privateKey=keys["privateKey"],
-		secondSecret=secondSecret
-		asset={"signature":{"publicKey":secondPublicKey}},
+		secondSecret=secondSecret,
+		asset={"signature":{"publicKey":secondPublicKey}}
 	)
 
 def registerSecondPassphrase(secondPassphrase, secret, secondSecret=None):
@@ -73,8 +75,8 @@ def registerDelegate(username, secret, secondSecret=None):
 		type=2,
 		publicKey=keys["publicKey"],
 		privateKey=keys["privateKey"],
-		secondSecret=secondSecret
-		asset={"delegate":{"username":username, "publicKey":keys["publicKey"]}},
+		secondSecret=secondSecret,
+		asset={"delegate":{"username":username, "publicKey":keys["publicKey"]}}
 	)
 
 def upVoteDelegate(username, secret, secondSecret=None):
@@ -86,8 +88,8 @@ def upVoteDelegate(username, secret, secondSecret=None):
 			publicKey=keys["publicKey"],
 			recipientId=crypto.getAddress(keys["publicKey"]),
 			privateKey=keys["privateKey"],
-			secondSecret=secondSecret
-			asset={"votes":["+%s"%req["delegate"]["publicKey"]]},
+			secondSecret=secondSecret,
+			asset={"votes":["+%s"%req["delegate"]["publicKey"]]}
 		)
 
 def downVoteDelegate(username, secret, secondSecret=None):
@@ -99,6 +101,6 @@ def downVoteDelegate(username, secret, secondSecret=None):
 			publicKey=keys["publicKey"],
 			recipientId=crypto.getAddress(keys["publicKey"]),
 			privateKey=keys["privateKey"],
-			secondSecret=secondSecret
-			asset={"votes":["-%s"%req["delegate"]["publicKey"]]},
+			secondSecret=secondSecret,
+			asset={"votes":["-%s"%req["delegate"]["publicKey"]]}
 		)
