@@ -4,10 +4,14 @@
 import sys, imp, json, requests, traceback
 # from .. import setInterval
 
+
 def getTokenPrice(token, fiat="usd"):
-	cmc_ark = json.loads(requests.get("https://api.coinmarketcap.com/v1/ticker/"+token+"/?convert="+fiat.upper()).text)
-	try: return float(cmc_ark[0]["price_%s"%fiat.lower()])
-	except: return 1.
+    cmc_ark = json.loads(requests.get("https://api.coinmarketcap.com/v1/ticker/"+token+"/?convert="+fiat).text)
+    try:
+        return float(cmc_ark[0]["price_%s" % fiat])
+    except:
+        return 1
+
 
 # def getTokenPrice(token, fiat="usd"):
 # 	cmc_ark = json.loads(requests.get("http://coinmarketcap.northpole.ro/api/v5/%s.json" % token).text)
