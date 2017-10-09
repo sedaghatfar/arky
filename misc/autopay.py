@@ -11,9 +11,9 @@ print(sys.version)
 while cfg.__NET__ != "ark":
 	api.use("ark")
 
-__daily_fees__ =  5./30 # daily server cost
+__daily_fees__ = 5./30  # daily server cost
 __investments__ = "AUahWfkfr5J4tYakugRbfow7RWVTK35GPW"
-__exchange__ =    "APREAB1cyRLGRrTBs97BEXNv1AwAPpSQkJ"
+__exchange__ = "APREAB1cyRLGRrTBs97BEXNv1AwAPpSQkJ"
 __tx_fee__ = cfg.__FEES__["send"]/100000000.
 
 # screen command line
@@ -24,7 +24,10 @@ parser.add_option("-s", "--secret", dest="secret", help="wallet secret you want 
 parser.add_option("-k", "--keyring", dest="keyring", help="wallet file you want to use")
 (options, args) = parser.parse_args()
 
+
 def ARK2USD(value): return value * getArkPrice("usd")
+
+
 def USD2ARK(value): return value / getArkPrice("usd")
 
 if len(args) == 1 and os.path.exists(args[0]):
@@ -92,7 +95,7 @@ log.write("For voters      : A%.8f\n" % voters)
 log.write("\nArky contributors : [checksum:%f]\n" % sum(contributors.values()))
 header.append("")
 content.append("")
-for addr,ratio in sorted(contributors.items(), key=lambda i:i[1]):
+for addr,ratio in sorted(contributors.items(), key=lambda i: i[1]):
 	amount = voters*ratio - __tx_fee__
 	if amount > 0.:
 		wlt.sendArk(amount, addr, vendorField="Arky weekly interests. Thanks for your contribution !")
@@ -105,8 +108,8 @@ for addr,ratio in sorted(contributors.items(), key=lambda i:i[1]):
 		content.append("-")
 
 out = open("accounting.csv", "a")
-out.write(";".join(["%s"%e for e in header])  + "\n")
-out.write(";".join(["%s"%e for e in content]) + "\n")
+out.write(";".join(["%s" % e for e in header]) + "\n")
+out.write(";".join(["%s" % e for e in content]) + "\n")
 out.close()
 
 wallet.mgmt.join()

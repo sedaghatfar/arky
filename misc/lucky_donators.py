@@ -89,8 +89,8 @@ if len(tx):
 		log.write("No donator this week\n")
 
 out = open("lucky.csv", "a")
-out.write(";".join(["%s"%e for e in header])  + "\n")
-out.write(";".join(["%s"%e for e in content]) + "\n")
+out.write(";".join(["%s" % e for e in header]) + "\n")
+out.write(";".join(["%s" % e for e in content]) + "\n")
 out.close()
 
 wallet.mgmt.join()
