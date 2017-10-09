@@ -26,7 +26,7 @@ def init():
 	cfg.fees = rest.GET.api.blocks.getFees(returnKey="fees")
 	# manage peers for tx broadcasting
 	selectPeers()
-	@setInterval(5)
+	@setInterval(8*51)
 	def rotatePeers():
 		selectPeers()
 	_daemon = rotatePeers()
