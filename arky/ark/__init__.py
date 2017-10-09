@@ -18,7 +18,7 @@ def selectPeers():
 		cfg.peers = selection
 
 def init():
-	global _deamon
+	global _daemon
 	network = rest.GET.api.loader.autoconfigure(returnKey="network")
 	cfg.headers["version"] = network.pop("version")
 	cfg.headers["nethash"] = network.pop("nethash")
@@ -26,7 +26,7 @@ def init():
 	cfg.fees = rest.GET.api.blocks.getFees(returnKey="fees")
 	# manage peers for tx broadcasting
 	selectPeers()
-	@setInterval(8*51)
+	@setInterval(5)
 	def rotatePeers():
 		selectPeers()
 	_daemon = rotatePeers()
@@ -79,9 +79,9 @@ def registerDelegate(username, secret, secondSecret=None):
 		asset={"delegate":{"username":username, "publicKey":keys["publicKey"]}}
 	)
 
-def upVoteDelegate(username, secret, secondSecret=None):
+def upVoteDelegate(usernames, secret, secondSecret=None):
 	keys = crypto.getKeys(secret)
-	req = rest.GET.api.delegates.get(username=username)
+	req = rest.GET.api.delegates.get(username=usernames[-1])
 	if req["success"]:
 		return sendTransaction(
 			type=3,
@@ -92,9 +92,9 @@ def upVoteDelegate(username, secret, secondSecret=None):
 			asset={"votes":["+%s"%req["delegate"]["publicKey"]]}
 		)
 
-def downVoteDelegate(username, secret, secondSecret=None):
+def downVoteDelegate(usernames, secret, secondSecret=None):
 	keys = crypto.getKeys(secret)
-	req = rest.GET.api.delegates.get(username=username)
+	req = rest.GET.api.delegates.get(username=usernames[-1])
 	if req["success"]:
 		return sendTransaction(
 			type=3,
