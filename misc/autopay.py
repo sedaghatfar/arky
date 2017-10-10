@@ -1,7 +1,7 @@
 # -*- encoding: utf8 -*-
 # © Toons
 
-from arky.util import stats, getArkPrice
+from arky.util import stats, getArkFiatPrice
 from arky import cfg, api, slots, wallet, HOME
 import os, json, math, datetime
 
@@ -25,10 +25,10 @@ parser.add_option("-k", "--keyring", dest="keyring", help="wallet file you want 
 (options, args) = parser.parse_args()
 
 
-def ARK2USD(value): return value * float(getArkPrice("usd"))
+def ARK2USD(value): return value * float(getArkFiatPrice("usd"))
 
 
-def USD2ARK(value): return value / float(getArkPrice("usd"))
+def USD2ARK(value): return value / float(getArkFiatPrice("usd"))
 
 
 if len(args) == 1 and os.path.exists(args[0]):
@@ -84,13 +84,13 @@ wlt.sendArk(node_invest, __exchange__)
 share = amount - node_invest
 log.write("Share           : A%.8f\n" % share)
 
-investments = 0.20*share - __tx_fee__
+investments = 0.20 * share - __tx_fee__
 log.write("For investments : A%.8f\n" % investments)
 header.append("Investments")
 content.append(investments)
 wlt.sendArk(investments, __investments__)
 
-voters = 0.80*share
+voters = 0.80 * share
 log.write("For voters      : A%.8f\n" % voters)
 
 log.write("\nArky contributors : [checksum:%f]\n" % sum(contributors.values()))
