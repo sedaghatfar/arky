@@ -13,7 +13,7 @@ def getTokenPrice(token, fiat="usd"):
         return 1
 
 
-def getArkPrice(fiat):
+def getArkFiatPrice(fiat):
     """
     Allow to get the current price of Ark in one of the major currency
     :param fiat: The currency we wants to convert
@@ -24,6 +24,32 @@ def getArkPrice(fiat):
         r = json.loads(requests.get("https://api.coinmarketcap.com/v1/ticker/ark/?convert=%s" % fiat).text)
         return r[0]["price_%s" % fiat][0:7]
     return 1
+
+
+def getArkPriceFromCryptoCompare(currency):
+    """
+    Allow to get the current price of Ark converted in any fiat or cryptocurrency existing on Cryptocompare.
+    Use like : getArkPriceFromCryptoCompare("usd") or getArkPriceFromCryptoCompare("dash")
+    """
+    base_url = "https://min-api.cryptocompare.com/data/price?fsym=ARK&tsyms=%s" % currency.upper()
+    fiats = ["usd", "eur", "chf", "aud", "gbp", "jpy"]
+    coins = getAllCoinsFromCryptoCompare()
+    if currency in fiats or currency.upper() in coins:
+        currency = currency.upper()
+        r = json.loads(requests.get(base_url).text)
+        return r[currency]
+    return 1
+
+
+def getAllCoinsFromCryptoCompare():
+    """
+    Retrieve of all of the coins acronyms on CryptoCompare
+    """
+    r = json.loads(requests.get("https://www.cryptocompare.com/api/data/coinlist/").text)
+    coins = []
+    for coin in r["Data"]:
+        coins.append(coin)
+    return coins
 
 
 # def getTokenPrice(token, fiat="usd"):
