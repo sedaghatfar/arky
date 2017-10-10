@@ -101,6 +101,7 @@ class Wallet(object):
 			object.__setattr__(self, "publicKey", public_key.decode() if isinstance(public_key, bytes) else public_key)
 			object.__setattr__(self, "K1", keys)
 			self.update()
+
 			@setInterval(20)
 			def _check(obj): obj.update()
 			self._stop_check_daemon = _check(self)

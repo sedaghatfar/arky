@@ -64,7 +64,7 @@ elif wlt.balance < 200:
 sys.stdout.write("Checking %s-day-true-vote-weight on transaction history...\n" % 7)
 contributors = dict([address, stats.getVoteForce(address, 7)] for address in [v["address"] for v in wlt.voters if v["address"] not in [__investments__, "ARfDVWZ7Zwkox3ZXtMQQY1HYSANMB88vWE"]])
 k = 1.0/max(1, sum(contributors.values()))
-contributors = dict((a, s*k) for a,s in contributors.items())
+contributors = dict((a, s*k) for a, s in contributors.items())
 
 # # contributors = _getTrueVoteWeight([v["address"] for v in wlt.voters], delay=7)
 amount = wlt.balance
@@ -95,7 +95,7 @@ log.write("For voters      : A%.8f\n" % voters)
 log.write("\nArky contributors : [checksum:%f]\n" % sum(contributors.values()))
 header.append("")
 content.append("")
-for addr,ratio in sorted(contributors.items(), key=lambda i: i[1]):
+for addr, ratio in sorted(contributors.items(), key=lambda i: i[1]):
 	amount = voters*ratio - __tx_fee__
 	if amount > 0.:
 		wlt.sendArk(amount, addr, vendorField="Arky weekly interests. Thanks for your contribution !")
