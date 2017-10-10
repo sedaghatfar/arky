@@ -52,6 +52,14 @@ def getAllCoinsFromCryptoCompare():
     return coins
 
 
+def getArkPriceFromBittrex():
+    """
+    Get the last price of Ark on Bittrex. The showed price is in Bitcoin.
+    """
+    r = json.loads(requests.get("https://bittrex.com/api/v1.1/public/getmarketsummary?market=btc-ark").text)
+    return r["result"][0]["Last"]
+
+
 # def getTokenPrice(token, fiat="usd"):
 # 	cmc_ark = json.loads(requests.get("http://coinmarketcap.northpole.ro/api/v5/%s.json" % token).text)
 # 	return float(cmc_ark["price"][fiat])
