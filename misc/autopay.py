@@ -25,10 +25,11 @@ parser.add_option("-k", "--keyring", dest="keyring", help="wallet file you want 
 (options, args) = parser.parse_args()
 
 
-def ARK2USD(value): return value * getArkPrice("usd")
+def ARK2USD(value): return value * float(getArkPrice("usd"))
 
 
-def USD2ARK(value): return value / getArkPrice("usd")
+def USD2ARK(value): return value / float(getArkPrice("usd"))
+
 
 if len(args) == 1 and os.path.exists(args[0]):
 	in_ = open(args[0])
