@@ -36,6 +36,65 @@ For development version
 
 ``pip install git+https://github.com/ArkEcosystem/arky.git``
 
+REST API
+========
+
+``rest`` module allows developpers to send requests to the blockchain.
+
+>>> from arky import rest
+>>> rest.use("ark")
+
+It loads the ``ark.net`` file and create associated REST API endpoinds.
+All endpoinds can be reached using this syntax :
+
+``rest.[METHOD].[endpoinds with "/" replaced by "."](param=value, ...[returnKey=name])``
+
+>>> # http equivalent [PEER ADDRESS]/api/delegates/get?username=arky
+>>> rest.GET.api.delegates.get(username="arky")
+{'delegate': {'productivity': 99.22, 'producedblocks': 42283, 'approval': 1.06, 
+'rate': 19, 'publicKey': '030da05984d579395ce276c0dd6ca0a60140a3c3d964423a04e7ab
+e110d60a15e9', 'username': 'arky', 'vote': '137484978342696', 'address': 'ARfDVW
+Z7Zwkox3ZXtMQQY1HYSANMB88vWE', 'missedblocks': 334}, 'success': True}
+
+It returns a python dictionary transposed from server json response. You can
+provide a ``returnKey`` option value to get the field you want from server response :
+
+>>> api.GET.delegates.get(username="toons", returnKey="delegate")
+{'productivity': 99.22, 'producedblocks': 42283, 'approval': 1.06, 
+'rate': 19, 'publicKey': '030da05984d579395ce276c0dd6ca0a60140a3c3d964423a04e7ab
+e110d60a15e9', 'username': 'arky', 'vote': '137484978342696', 'address': 'ARfDVW
+Z7Zwkox3ZXtMQQY1HYSANMB88vWE', 'missedblocks': 334}
+
+Blockchain ``core``
+===================
+
+``rest.use`` loads a blockchain package find in  ``*.net`` file as ``arky.core``.
+Blockchain package define the current interface :
+
+``arky.core.crypto.getKeys(secret, seed=None)``
+
+``arky.core.crypto.getAddress(publicKey)``
+
+``arky.core.crypto.getSignature(tx, privateKey)``
+
+``arky.core.crypto.getId(tx)``
+
+``arky.core.crypto.getBytes(tx)``
+
+``arky.core.crypto.bakeTransaction(**kw)``
+
+``arky.core.sendToken(amount, recipientId, vendorField, secret, secondSecret=None)``
+
+``arky.core.registerSecondPublicKey(secondPublicKey, secret, secondSecret=None)``
+
+``arky.core.registerSecondPassphrase(secondPassphrase, secret, secondSecret=None)``
+
+``arky.core.registerDelegate(username, secret, secondSecret=None)``
+
+``arky.core.upVoteDelegate(usernames, secret, secondSecret=None)``
+
+``arky.core.downVoteDelegate(usernames, secret, secondSecret=None)``
+
 Authors
 =======
 
@@ -64,7 +123,7 @@ Toons Bitcoin address: ``3Jgib9SQiDLYML7QKBYtJUkHq2nyG6Z63D``
 Version
 =======
 
-**1.0 ``AIP11``**
+**1.0 - AIP11**
 
 **0.3**
 
