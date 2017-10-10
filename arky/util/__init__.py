@@ -13,6 +13,19 @@ def getTokenPrice(token, fiat="usd"):
         return 1
 
 
+def getArkPrice(fiat):
+    """
+    Allow to get the current price of Ark in one of the major currency
+    :param fiat: The currency we wants to convert
+    :return: The price in the specified currency
+    """
+    fiats = ["usd", "eur", "chf", "aud", "gbp", "jpy"]
+    if fiat in fiats:
+        r = json.loads(requests.get("https://api.coinmarketcap.com/v1/ticker/ark/?convert=%s" % fiat).text)
+        return r[0]["price_%s" % fiat][0:7]
+    return 1
+
+
 # def getTokenPrice(token, fiat="usd"):
 # 	cmc_ark = json.loads(requests.get("http://coinmarketcap.northpole.ro/api/v5/%s.json" % token).text)
 # 	return float(cmc_ark["price"][fiat])
