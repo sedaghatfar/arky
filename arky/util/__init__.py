@@ -60,6 +60,22 @@ def getArkPriceFromBittrex():
     return r["result"][0]["Last"]
 
 
+def getArkPriceFromCryptopia():
+    """
+    Get the last price of Ark on Cryptopia. The showed price is in Bitcoin.
+    """
+    r = json.loads(requests.get("https://www.cryptopia.co.nz/api/GetMarket/ARK_BTC").text)
+    return r["Data"]["LastPrice"]
+
+
+def getArkPriceFromLitebit():
+    """
+    Get the last (selling) price of Ark on Litebit. The showed price is in USD.
+    """
+    r = json.loads(requests.get("https://api.litebit.eu/market/ark").text)
+    return r["result"]["buy"]
+
+
 # def getTokenPrice(token, fiat="usd"):
 # 	cmc_ark = json.loads(requests.get("http://coinmarketcap.northpole.ro/api/v5/%s.json" % token).text)
 # 	return float(cmc_ark["price"][fiat])
