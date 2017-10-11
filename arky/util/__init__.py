@@ -41,6 +41,30 @@ def getArkPriceFromCryptoCompare(currency):
     return 1
 
 
+def getArkPriceFromCryptoCompareBis(*args):
+    """
+    Allow to get the current price of Ark converted in any fiat or cryptocurrency existing on Cryptocompare with the
+    possibility of fetching the price for multiples currencies at the same time.
+
+    At the moment it works but it's probably not the most optimal way to do it.
+    Should have a better name to represent what it does.
+
+    Use like : placeHolder("usd", "chf", "eur", "btc"))
+
+    :param *args: The currency/(ies) we wants to convert
+    :return: The price(s) we wants as a python dict
+    """
+    url = "https://min-api.cryptocompare.com/data/price?fsym=ARK&tsyms="
+    try:
+        for a in args:
+            url += a.upper() + ','
+        corrected_url = url[:-1]
+        r = json.loads(requests.get(corrected_url).text)
+        return r
+    except requests.ConnectionError:
+        return 1
+
+
 def getAllCoinsFromCryptoCompare():
     """
     Retrieve of all of the coins acronyms on CryptoCompare
@@ -98,6 +122,9 @@ def getArkPriceFromCryptomate():
     except requests.ConnectionError:
         return 1
 
+
+if __name__ == '__main__':
+    placeHolder("eur", "eth", "usd")
 
 # def getTokenPrice(token, fiat="usd"):
 # 	cmc_ark = json.loads(requests.get("http://coinmarketcap.northpole.ro/api/v5/%s.json" % token).text)
