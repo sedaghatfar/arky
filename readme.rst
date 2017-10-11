@@ -9,14 +9,6 @@ Install
 Ubuntu / OSX
 ^^^^^^^^^^^^
 
-Open a terminal and type :
-
-``sudo pip install arky``
-
-If you work with ``python3``
-
-``sudo pip3 install arky``
-
 From development version
 
 ``sudo -H pip install git+https://github.com/ArkEcosystem/arky.git``
@@ -28,11 +20,7 @@ If you work with ``python3``
 Windows 
 ^^^^^^^
 
-Run a command as Administrator and type :
-
-``pip install arky``
-
-For development version
+From development version
 
 ``pip install git+https://github.com/ArkEcosystem/arky.git``
 
@@ -59,7 +47,7 @@ Z7Zwkox3ZXtMQQY1HYSANMB88vWE', 'missedblocks': 334}, 'success': True}
 It returns a python dictionary transposed from server json response. You can
 provide a ``returnKey`` option value to get the field you want from server response :
 
->>> api.GET.delegates.get(username="toons", returnKey="delegate")
+>>> rest.GET.api.delegates.get(username="toons", returnKey="delegate")
 {'productivity': 99.22, 'producedblocks': 42283, 'approval': 1.06, 
 'rate': 19, 'publicKey': '030da05984d579395ce276c0dd6ca0a60140a3c3d964423a04e7ab
 e110d60a15e9', 'username': 'arky', 'vote': '137484978342696', 'address': 'ARfDVW
