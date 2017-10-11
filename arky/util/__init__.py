@@ -88,6 +88,17 @@ def getArkPriceFromLitebit():
         return 1
 
 
+def getArkPriceFromCryptomate():
+    """
+    Get the current price on Cryptomate. The showed price is in USD.
+    """
+    try:
+        r = json.loads(requests.get("https://cryptomate.co.uk/api/ark/").text)
+        print(r["ARK"]["price"])
+    except requests.ConnectionError:
+        return 1
+
+
 # def getTokenPrice(token, fiat="usd"):
 # 	cmc_ark = json.loads(requests.get("http://coinmarketcap.northpole.ro/api/v5/%s.json" % token).text)
 # 	return float(cmc_ark["price"][fiat])
