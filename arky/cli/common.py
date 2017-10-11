@@ -90,7 +90,7 @@ def prettify(dic, tab="    "):
 	result = ""
 	if len(dic):
 		maxlen = max([len(e) for e in dic.keys()])
-		for k,v in dic.items():
+		for k, v in dic.items():
 			if isinstance(v, dict):
 				result += tab + "%s:" % k.ljust(maxlen)
 				result += prettify(v, tab*2)
@@ -117,7 +117,7 @@ def floatAmount(amount, address):
 		else:
 			return False
 	elif amount[0] in ["$", "€", "£", "¥"]:
-		price = util.getTokenPrice(cfg.__TOKEN__, {"$":"usd", "EUR":"eur", "€":"eur", "£":"gbp", "¥":"cny"}[amount[0]])
+		price = util.getTokenPrice(cfg.__TOKEN__, {"$": "usd", "EUR": "eur", "€": "eur", "£": "gbp", "¥": "cny"}[amount[0]])
 		result = float(amount[1:])/price
 		if askYesOrNo(u"%s=%s%f (%s/%s=%f) - Validate ?" % (amount, cfg.__TOKEN__, result, cfg.__TOKEN__, amount[0], price)):
 			return result

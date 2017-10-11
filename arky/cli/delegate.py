@@ -109,16 +109,15 @@ def voters(param):
 			sys.stdout.write(line)
 			sum_ += vote
 		sys.stdout.write("    " + "-"*(len(line)-5) + "\n")
-		sys.stdout.write("    %s: %.3f\n" % (("%d voters"%len(accounts)).rjust(len(addr)), sum_))
+		sys.stdout.write("    %s: %.3f\n" % (("%d voters" % len(accounts)).rjust(len(addr)), sum_))
 
 
 def share(param):
 	global KEY1, KEY2, ADDRESS
 
 	KEY2 = common.checkKeys(KEY1, KEY2, ADDRESS)
-	if KEY2 != False:
+	if KEY2:
 		if SHARE:
-			
 			if param["--blacklist"]:
 				if os.path.exists(param["--blacklist"]):
 					with io.open(param["--blacklist"], "r") as in_:
@@ -132,7 +131,7 @@ def share(param):
 			if param["--complement"]:
 				amount = float(api.Account.getBalance(ADDRESS, returnKey="balance"))/100000000. - amount
 
-			if param["--lowest"] : minimum = float(param["--lowest"]) + cfg.__FEES__["send"]/100000000.
+			if param["--lowest"]: minimum = float(param["--lowest"]) + cfg.__FEES__["send"]/100000000.
 			else: minimum = cfg.__FEES__["send"]/100000000.
 
 			if param["--highest"] : maximum = float(param["--highest"]) + cfg.__FEES__["send"]/100000000.
@@ -152,11 +151,11 @@ def share(param):
 				max_C = C*maximum/amount
 				cumul = 0
 				# first filter
-				for address,force in [(a,f) for a,f in contribution.items() if f >= max_C]:
+				for address,force in [(a, f) for a, f in contribution.items() if f >= max_C]:
 					contribution[address] = max_C
 					cumul += force - max_C
 				# report cutted share
-				untouched_pairs = sorted([(a,f) for a,f in contribution.items() if 0. < f < max_C], key=lambda e:e[-1], reverse=True)
+				untouched_pairs = sorted([(a,f) for a, f in contribution.items() if 0. < f < max_C], key=lambda e: e[-1], reverse=True)
 				n, i = len(untouched_pairs), 0
 				bounty = cumul / n
 				for address,force in untouched_pairs:
@@ -174,7 +173,7 @@ def share(param):
 				# apply contribution
 				k = 1.0/max(1, sum(contribution.values()))
 				contribution = dict((a, s*k) for a,s in contribution.items())
-				txgen = lambda addr,amnt,msg: common.generateColdTx(KEY1, PUBLICKEY, KEY2, type=0, amount=amnt, recipientId=addr, vendorField=msg)
+				txgen = lambda addr, amnt, msg: common.generateColdTx(KEY1, PUBLICKEY, KEY2, type=0, amount=amnt, recipientId=addr, vendorField=msg)
 				pshare.applyContribution(USERNAME, amount, minimum, param["<message>"], txgen, **contribution)
 
 		else:
