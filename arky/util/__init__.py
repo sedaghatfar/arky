@@ -9,7 +9,7 @@ def getTokenPrice(token, fiat="usd"):
     cmc_ark = json.loads(requests.get("https://api.coinmarketcap.com/v1/ticker/"+token+"/?convert="+fiat).text)
     try:
         return float(cmc_ark[0]["price_%s" % fiat])
-    except:
+    except requests.ConnectionError:
         return 1
 
 
@@ -45,35 +45,47 @@ def getAllCoinsFromCryptoCompare():
     """
     Retrieve of all of the coins acronyms on CryptoCompare
     """
-    r = json.loads(requests.get("https://www.cryptocompare.com/api/data/coinlist/").text)
-    coins = []
-    for coin in r["Data"]:
-        coins.append(coin)
-    return coins
+    try:
+        r = json.loads(requests.get("https://www.cryptocompare.com/api/data/coinlist/").text)
+        coins = []
+        for coin in r["Data"]:
+            coins.append(coin)
+        return coins
+    except requests.ConnectionError:
+        return 1
 
 
 def getArkPriceFromBittrex():
     """
     Get the last price of Ark on Bittrex. The showed price is in Bitcoin.
     """
-    r = json.loads(requests.get("https://bittrex.com/api/v1.1/public/getmarketsummary?market=btc-ark").text)
-    return r["result"][0]["Last"]
+    try:
+        r = json.loads(requests.get("https://bittrex.com/api/v1.1/public/getmarketsummary?market=btc-ark").text)
+        return r["result"][0]["Last"]
+    except requests.ConnectionError:
+        return 1
 
 
 def getArkPriceFromCryptopia():
     """
     Get the last price of Ark on Cryptopia. The showed price is in Bitcoin.
     """
-    r = json.loads(requests.get("https://www.cryptopia.co.nz/api/GetMarket/ARK_BTC").text)
-    return r["Data"]["LastPrice"]
+    try:
+        r = json.loads(requests.get("https://www.cryptopia.co.nz/api/GetMarket/ARK_BTC").text)
+        return r["Data"]["LastPrice"]
+    except requests.ConnectionError:
+        return 1
 
 
 def getArkPriceFromLitebit():
     """
     Get the last (selling) price of Ark on Litebit. The showed price is in USD.
     """
-    r = json.loads(requests.get("https://api.litebit.eu/market/ark").text)
-    return r["result"]["buy"]
+    try:
+        r = json.loads(requests.get("https://api.litebit.eu/market/ark").text)
+        return r["result"]["buy"]
+    except requests.ConnectionError:
+        return 1
 
 
 # def getTokenPrice(token, fiat="usd"):
