@@ -1,7 +1,8 @@
 # -*- encoding: utf8 -*-
 # © Toons
 
-import sys, imp, json, requests, traceback
+import json, requests
+# import sys, imp, traceback
 # from .. import setInterval
 
 
@@ -9,7 +10,7 @@ def getTokenPrice(token, fiat="usd"):
     cmc_ark = json.loads(requests.get("https://api.coinmarketcap.com/v1/ticker/"+token+"/?convert="+fiat).text)
     try:
         return float(cmc_ark[0]["price_%s" % fiat])
-    except:
+    except requests.ConnectionError:
         return 1
 
 
@@ -41,23 +42,85 @@ def getArkPriceFromCryptoCompare(currency):
     return 1
 
 
+def getArkPriceFromCryptoCompareBis(*args):
+    """
+    Allow to get the current price of Ark converted in any fiat or cryptocurrency existing on Cryptocompare with the
+    possibility of fetching the price for multiples currencies at the same time.
+
+    At the moment it works but it's probably not the most optimal way to do it.
+    Should have a better name to represent what it does.
+
+    Use like : getArkPriceFromCryptoCompareBis("usd", "chf", "eur", "btc"))
+
+    :param args: The currency/(ies) we wants to convert
+    :return: The price(s) we wants as a python dict
+    """
+    url = "https://min-api.cryptocompare.com/data/price?fsym=ARK&tsyms="
+    try:
+        for currency in args:
+            url += currency.upper() + ','
+        r = json.loads(requests.get(url[:-1]).text)
+        return r
+    except requests.ConnectionError:
+        return 1
+
+
 def getAllCoinsFromCryptoCompare():
     """
     Retrieve of all of the coins acronyms on CryptoCompare
     """
-    r = json.loads(requests.get("https://www.cryptocompare.com/api/data/coinlist/").text)
-    coins = []
-    for coin in r["Data"]:
-        coins.append(coin)
-    return coins
+    try:
+        r = json.loads(requests.get("https://www.cryptocompare.com/api/data/coinlist/").text)
+        coins = []
+        for coin in r["Data"]:
+            coins.append(coin)
+        return coins
+    except requests.ConnectionError:
+        return 1
 
 
 def getArkPriceFromBittrex():
     """
     Get the last price of Ark on Bittrex. The showed price is in Bitcoin.
     """
-    r = json.loads(requests.get("https://bittrex.com/api/v1.1/public/getmarketsummary?market=btc-ark").text)
-    return r["result"][0]["Last"]
+    try:
+        r = json.loads(requests.get("https://bittrex.com/api/v1.1/public/getmarketsummary?market=btc-ark").text)
+        return r["result"][0]["Last"]
+    except requests.ConnectionError:
+        return 1
+
+
+def getArkPriceFromCryptopia():
+    """
+    Get the last price of Ark on Cryptopia. The showed price is in Bitcoin.
+    """
+    try:
+        r = json.loads(requests.get("https://www.cryptopia.co.nz/api/GetMarket/ARK_BTC").text)
+        return r["Data"]["LastPrice"]
+    except requests.ConnectionError:
+        return 1
+
+
+def getArkPriceFromLitebit():
+    """
+    Get the last (selling) price of Ark on Litebit. The showed price is in USD.
+    """
+    try:
+        r = json.loads(requests.get("https://api.litebit.eu/market/ark").text)
+        return r["result"]["buy"]
+    except requests.ConnectionError:
+        return 1
+
+
+def getArkPriceFromCryptomate():
+    """
+    Get the current price on Cryptomate. The showed price is in USD.
+    """
+    try:
+        r = json.loads(requests.get("https://cryptomate.co.uk/api/ark/").text)
+        return r["ARK"]["price"]
+    except requests.ConnectionError:
+        return 1
 
 
 # def getTokenPrice(token, fiat="usd"):
