@@ -1,7 +1,8 @@
 # -*- encoding: utf8 -*-
 # © Toons
 
-import sys, imp, json, requests, traceback
+import json, requests
+# import sys, imp, traceback
 # from .. import setInterval
 
 
@@ -121,7 +122,6 @@ def getArkPriceFromCryptomate():
         print(r["ARK"]["price"])
     except requests.ConnectionError:
         return 1
-
 
 
 # def getTokenPrice(token, fiat="usd"):
