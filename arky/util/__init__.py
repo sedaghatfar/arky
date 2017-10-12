@@ -50,17 +50,16 @@ def getArkPriceFromCryptoCompareBis(*args):
     At the moment it works but it's probably not the most optimal way to do it.
     Should have a better name to represent what it does.
 
-    Use like : placeHolder("usd", "chf", "eur", "btc"))
+    Use like : getArkPriceFromCryptoCompareBis("usd", "chf", "eur", "btc"))
 
-    :param *args: The currency/(ies) we wants to convert
+    :param args: The currency/(ies) we wants to convert
     :return: The price(s) we wants as a python dict
     """
     url = "https://min-api.cryptocompare.com/data/price?fsym=ARK&tsyms="
     try:
-        for a in args:
-            url += a.upper() + ','
-        corrected_url = url[:-1]
-        r = json.loads(requests.get(corrected_url).text)
+        for currency in args:
+            url += currency.upper() + ','
+        r = json.loads(requests.get(url[:-1]).text)
         return r
     except requests.ConnectionError:
         return 1
@@ -119,7 +118,7 @@ def getArkPriceFromCryptomate():
     """
     try:
         r = json.loads(requests.get("https://cryptomate.co.uk/api/ark/").text)
-        print(r["ARK"]["price"])
+        return r["ARK"]["price"]
     except requests.ConnectionError:
         return 1
 
