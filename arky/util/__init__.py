@@ -24,7 +24,8 @@ def getArkFiatPrice(fiat):
     if fiat in fiats:
         r = json.loads(requests.get("https://api.coinmarketcap.com/v1/ticker/ark/?convert=%s" % fiat).text)
         return r[0]["price_%s" % fiat][0:7]
-    return 1
+    raise AttributeError("Currency not found")
+    # return 1
 
 
 def getArkPriceFromCryptoCompare(currency):
@@ -39,7 +40,8 @@ def getArkPriceFromCryptoCompare(currency):
         currency = currency.upper()
         r = json.loads(requests.get(base_url).text)
         return r[currency]
-    return 1
+    raise AttributeError("Currency not found")
+    # return 1
 
 
 def getArkPriceFromCryptoCompareBis(*args):
