@@ -123,8 +123,6 @@ def getArkPriceFromCryptomate():
         return 1
 
 
-if __name__ == '__main__':
-    placeHolder("eur", "eth", "usd")
 
 # def getTokenPrice(token, fiat="usd"):
 # 	cmc_ark = json.loads(requests.get("http://coinmarketcap.northpole.ro/api/v5/%s.json" % token).text)
