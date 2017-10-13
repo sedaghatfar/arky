@@ -40,7 +40,7 @@ def getTransactions(timestamp=0, **param):
 		raise Exception("Address has null transactions.")
 	else:
 		raise Exception(txs.get("error", "Api error"))
-	return sorted([t for t in txs if t["timestamp"] >= timestamp], key=lambda e:e["timestamp"], reverse=True)
+	return sorted([t for t in txs if t["timestamp"] >= timestamp], key=lambda e: e["timestamp"], reverse=True)
 
 
 def getHistory(address, timestamp=0):
