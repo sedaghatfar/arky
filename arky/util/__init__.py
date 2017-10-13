@@ -1,7 +1,8 @@
 # -*- encoding: utf8 -*-
 # © Toons
 
-import json, requests
+import json
+import requests
 # import sys, imp, traceback
 # from .. import setInterval
 
