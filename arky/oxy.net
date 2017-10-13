@@ -1,6 +1,6 @@
 {
   "timeout": 5,
-	"begintime": [2016, 5, 24, 17],
+  "begintime": [2016, 5, 24, 17],
   "endpoints": "lsk",
   "familly": "lisk",
   
@@ -8,14 +8,14 @@
 
   "headers" : {
     "Content-Type" : "application/json; charset=utf-8",
-    "port" : 9998
+    "port" : 10000
   },
 
   "seeds": [
-    "https://twallet.oxycoin.io"
+    "https://wallet.oxycoin.io"
   ],
 
-  "explorer" : "https://texplorer.oxycoin.io",
+  "explorer" : "https://explorer.oxycoin.io",
   "token" : "OXY",
   "symbol" : "OXY",
   "delegate": 201,

@@ -1,20 +1,15 @@
 # -*- encoding: utf8 -*-
 # © Toons
 
+from .. import __PY3__
 from .. import setInterval
+from .. import slots
 from .. import rest
 from .. import cfg
 
 from . import crypto
 
 import random
-
-def init():
-	network = rest.GET.api.loader.autoconfigure(returnKey="network")
-	cfg.headers["version"] = network.pop("version")
-	cfg.headers["nethash"] = network.pop("nethash")
-	cfg.__dict__.update(network)
-	cfg.fees = rest.GET.api.blocks.getFees(returnKey="fees")
 
 def selectPeers():
 	peers = [p for p in rest.GET.api.peers().get("peers", []) if p.get("status", "") == "OK" and p.get("delay", 0) <= cfg.timeout*1000]
@@ -24,12 +19,19 @@ def selectPeers():
 	if len(selection):
 		cfg.peers = selection
 
-# manage peers for tx broadcasting
-selectPeers()
-@setInterval(8*51)
-def rotatePeers():
+def init():
+	global DAEMON_PEERS
+	network = rest.GET.api.loader.autoconfigure(returnKey="network")
+	cfg.headers["version"] = network.pop("version")
+	cfg.headers["nethash"] = network.pop("nethash")
+	cfg.__dict__.update(network)
+	cfg.fees = rest.GET.api.blocks.getFees(returnKey="fees")
+	# manage peers for tx broadcasting
 	selectPeers()
-_daemon = rotatePeers()
+	@setInterval(8*51)
+	def rotatePeers():
+		selectPeers()
+	DAEMON_PEERS = rotatePeers()
 
 # This function is a high-level broadcasting for a single tx
 def sendTransaction(**kw):
@@ -79,9 +81,9 @@ def registerDelegate(username, secret, secondSecret=None):
 		asset={"delegate":{"username":username, "publicKey":keys["publicKey"]}}
 	)
 
-def upVoteDelegate(username, secret, secondSecret=None):
+def upVoteDelegate(usernames, secret, secondSecret=None):
 	keys = crypto.getKeys(secret)
-	req = rest.GET.api.delegates.get(username=username)
+	req = rest.GET.api.delegates.get(username=usernames[-1])
 	if req["success"]:
 		return sendTransaction(
 			type=3,
@@ -92,9 +94,9 @@ def upVoteDelegate(username, secret, secondSecret=None):
 			asset={"votes":["+%s"%req["delegate"]["publicKey"]]}
 		)
 
-def downVoteDelegate(username, secret, secondSecret=None):
+def downVoteDelegate(usernames, secret, secondSecret=None):
 	keys = crypto.getKeys(secret)
-	req = rest.GET.api.delegates.get(username=username)
+	req = rest.GET.api.delegates.get(username=usernames[-1])
 	if req["success"]:
 		return sendTransaction(
 			type=3,

@@ -44,7 +44,9 @@ def setInterval(interval):
 			stopped = threading.Event()
 			def loop(): # executed in another thread
 				while not stopped.wait(interval): # until stopped
+					# print("%r executed !"%function)
 					function(*args, **kwargs)
+				# print("loop on %r stopped..." % function)
 			t = threading.Thread(target=loop)
 			t.daemon = True # stop if the program exits
 			t.start()

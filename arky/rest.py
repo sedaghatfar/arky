@@ -166,17 +166,27 @@ def loadEndPoints(network):
 #######################
 
 def load(name):
+	# try to stop _daemon from a previous use of ark blockchain familly
+	try:
+		sys.modules[__package__].core._daemon.set()
+		# print("%r set"%sys.modules[__package__].core._daemon)
+	except:
+		pass
+		# print("error :(")
+	# loads blockchain familly package into as arky core
 	sys.modules[__package__].core = __import__("%s.%s"%(__package__, name), globals(), locals(), ["*"], 0)
+	# initialize blockchain familly package
 	try:
 		sys.modules[__package__].core.init()
 	except AttributeError:
 		raise Exception("%s package is not a valid blockchain familly" % name)
+	# delete real package name loaded (to keep namespace clear)
 	try:
 		sys.modules[__package__].__delattr__(name)
 	except AttributeError:
 		pass
 
-def use(network): #, npeers=10, latency=1.0):
+def use(network):
 	networks = [os.path.splitext(name)[0] for name in os.listdir(ROOT) if name.endswith(".net")]
 
 	if len(networks) and network in networks:
