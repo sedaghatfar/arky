@@ -1,7 +1,9 @@
 # -*- encoding: utf8 -*-
 # © Toons
 
+from .. import __PY3__
 from .. import setInterval
+from .. import slots
 from .. import rest
 from .. import cfg
 
@@ -18,7 +20,7 @@ def selectPeers():
 		cfg.peers = selection
 
 def init():
-	global _daemon
+	global DAEMON_PEERS
 	network = rest.GET.api.loader.autoconfigure(returnKey="network")
 	cfg.headers["version"] = network.pop("version")
 	cfg.headers["nethash"] = network.pop("nethash")
@@ -29,7 +31,7 @@ def init():
 	@setInterval(8*51)
 	def rotatePeers():
 		selectPeers()
-	_daemon = rotatePeers()
+	DAEMON_PEERS = rotatePeers()
 
 # This function is a high-level broadcasting for a single tx
 def sendTransaction(**kw):
