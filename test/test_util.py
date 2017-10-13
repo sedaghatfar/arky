@@ -14,10 +14,12 @@ class TestUtil(unittest.TestCase):
     def test_getArkFiatPrice(self):
         ark_price = float(getArkFiatPrice("usd"))
         self.assertTrue(0.00001 <= ark_price <= 1000.00000)
+        self.assertRaises(AttributeError, getArkFiatPrice, "czk")
 
     def test_getArkPriceFromCryptoCompare(self):
         ark_price = getArkPriceFromCryptoCompare("usd")
         self.assertTrue(0.00 <= ark_price <= 1000.00)
+        self.assertRaises(AttributeError, getArkFiatPrice, "czk")
 
     def test_getAllCoinsFromCryptoCompare(self):
         coins = getAllCoinsFromCryptoCompare()
