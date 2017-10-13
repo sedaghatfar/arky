@@ -1,6 +1,7 @@
 import unittest
 from arky.util import getTokenPrice, getArkFiatPrice, getArkPriceFromCryptoCompare, getAllCoinsFromCryptoCompare, \
-    getArkPriceFromBittrex, getArkPriceFromCryptopia, getArkPriceFromLitebit, getArkPriceFromCryptomate
+    getArkPriceFromBittrex, getArkPriceFromCryptopia, getArkPriceFromLitebit, getArkPriceFromCryptomate, \
+    getArkPriceFromCryptoCompareBis
 
 
 class TestUtil(unittest.TestCase):
@@ -22,6 +23,10 @@ class TestUtil(unittest.TestCase):
     def test_getAllCoinsFromCryptoCompare(self):
         coins = getAllCoinsFromCryptoCompare()
         self.assertTrue(len(coins) > 0)
+
+    def test_getArkPriceFromCryptoCompareBis(self):
+        ark_price = getArkPriceFromCryptoCompareBis("usd", "btc", "eur")
+        self.assertEqual(len(ark_price), 3)
 
     def test_getArkPriceFromBittrex(self):
         ark_price = getArkPriceFromBittrex()
