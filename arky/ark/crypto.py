@@ -97,6 +97,13 @@ def getSignature(tx, privateKey):
 def getId(tx):
 	return hexlify(hashlib.sha256(getBytes(tx)).digest())
 
+def getSignatureFromBytes(data, privateKey):
+	signingKey = SigningKey.from_string(unhexlify(privateKey), SECP256k1, hashlib.sha256)
+	return hexlify(signingKey.sign_deterministic(data, hashlib.sha256, sigencode=sigencode_der_canonize))
+
+def getIdFromBytes(data):
+	return hexlify(hashlib.sha256(data).digest())
+
 def getBytes(tx):
 	"""
 	Hash transaction object into bytes data.

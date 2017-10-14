@@ -69,8 +69,6 @@ Blockchain package define the current interface :
 
 ``arky.core.crypto.getBytes(tx)``
 
-``arky.core.crypto.bakeTransaction(**kw)``
-
 ``arky.core.sendToken(amount, recipientId, vendorField, secret, secondSecret=None)``
 
 ``arky.core.registerSecondPublicKey(secondPublicKey, secret, secondSecret=None)``
