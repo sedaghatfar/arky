@@ -104,11 +104,11 @@ def voters(param):
 	if PUBLICKEY:
 		accounts = api.Delegate.getVoters(common.hexlify(PUBLICKEY), returnKey="accounts")
 		sum_ = 0.
-		for addr, vote in ([c["address"],float(c["balance"])/100000000] for c in accounts):
+		for addr, vote in ([c["address"],float(c["balance"]) / 100000000] for c in accounts):
 			line = "    %s: %.3f\n" % (addr, vote)
 			sys.stdout.write(line)
 			sum_ += vote
-		sys.stdout.write("    " + "-"*(len(line)-5) + "\n")
+		sys.stdout.write("    " + "-"*(len(line) - 5) + "\n")
 		sys.stdout.write("    %s: %.3f\n" % (("%d voters" % len(accounts)).rjust(len(addr)), sum_))
 
 
@@ -129,13 +129,17 @@ def share(param):
 
 			amount = common.floatAmount(param["<amount>"], ADDRESS)
 			if param["--complement"]:
-				amount = float(api.Account.getBalance(ADDRESS, returnKey="balance"))/100000000. - amount
+				amount = float(api.Account.getBalance(ADDRESS, returnKey="balance")) / 100000000. - amount
 
-			if param["--lowest"]: minimum = float(param["--lowest"]) + cfg.__FEES__["send"]/100000000.
-			else: minimum = cfg.__FEES__["send"]/100000000.
+			if param["--lowest"]:
+				minimum = float(param["--lowest"]) + cfg.__FEES__["send"] / 100000000.
+			else:
+				minimum = cfg.__FEES__["send"] / 100000000.
 
-			if param["--highest"]: maximum = float(param["--highest"]) + cfg.__FEES__["send"]/100000000.
-			else: maximum = amount
+			if param["--highest"]:
+				maximum = float(param["--highest"]) + cfg.__FEES__["send"] / 100000000.
+			else:
+				maximum = amount
 
 			if amount > 1:
 				# get contributions of ech voters
@@ -171,8 +175,8 @@ def share(param):
 					contribution[address] += bounty
 
 				# apply contribution
-				k = 1.0/max(1, sum(contribution.values()))
-				contribution = dict((a, s*k) for a,s in contribution.items())
+				k = 1.0 / max(1, sum(contribution.values()))
+				contribution = dict((a, s * k) for a, s in contribution.items())
 				txgen = lambda addr, amnt, msg: common.generateColdTx(KEY1, PUBLICKEY, KEY2, type=0, amount=amnt, recipientId=addr, vendorField=msg)
 				pshare.applyContribution(USERNAME, amount, minimum, param["<message>"], txgen, **contribution)
 
