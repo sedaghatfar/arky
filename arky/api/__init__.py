@@ -354,8 +354,8 @@ class Block:
 		return get('/api/blocks', **param)
 
 	@staticmethod
-	def getBlock(blockId, **param):
-		return get('/api/blocks/get', id=blockId, **param)
+	def getBlock(id, **param):
+		return get('/api/blocks/get', id=id, **param)
 
 	@staticmethod
 	def getNethash(**param):
@@ -416,8 +416,8 @@ class Account:
 		return get('/api/accounts/delegates', address=address, **param)
 
 	@staticmethod
-	def getDelegateFee(address, **param):
-		return get('/api/accounts/delegates/fee', address=address, **param)
+	def getDelegateFee(**param):
+		return get('/api/accounts/delegates/fee', **param)
 
 	@staticmethod
 	def getTopAccounts(**param):
@@ -507,7 +507,7 @@ class Multisignature:
 
 	@staticmethod
 	def getAccountsOfMultisignature(publicKey, **param):
-		return post('/api/multisignatures/accounts', publicKey=publicKey, **param)
+		return get('/api/multisignatures/accounts', publicKey=publicKey, **param)
 
 
 class Signature:
@@ -519,34 +519,34 @@ class Signature:
 class Transport:
 	@staticmethod
 	def getPeersList(**param):
-		return get('/api/peer/list', **param)
+		return get('/peer/list', **param)
 
 	@staticmethod
 	def getBlocksByIds(ids, **param):
-		return get('/api/peer/blocks/common', id=id, **param)
+		return get('/peer/blocks/common', id=id, **param)
 
 	@staticmethod
 	def getBlock(address, **param):
-		return get('/api/peer/block', address=address, **param)
+		return get('/peer/block', address=address, **param)
 
 	@staticmethod
 	def getBlocks(address, **param):
-		return get('/api/peer/blocks', **param)
+		return get('/peer/blocks', **param)
 
 	@staticmethod
 	def getTransactions(**param):
-		return get('/api/peer/transactions', **param)
+		return get('/peer/transactions', **param)
 
 	@staticmethod
 	def getTransactionsFromIds(ids, **param):
-		return get('/api/peer/transactions', ids=ids, **param)
+		return get('/peer/transactions', ids=ids, **param)
 
 	@staticmethod
 	def getHeight(**param):
-		return get('/api/peer/height', **param)
+		return get('/peer/height', **param)
 
 	@staticmethod
 	def getStatus(**param):
-		return get('/api/peer/status', **param)
+		return get('/peer/status', **param)
 
 use()
