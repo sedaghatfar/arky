@@ -3,7 +3,12 @@
 __version__ = "0.3"
 
 import os, imp, sys, threading, logging, requests, random
-from raven import Client
+
+try:
+	from raven import Client
+	client = Client('https://8ba879a5cbed46cea1a4450b07c773ad:8b85ed9b7a3640aa91938082c2aba07c@sentry.io/229186')
+except ImportError:
+	pass
 
 logging.getLogger('requests').setLevel(logging.CRITICAL)
 __PY3__ = True if sys.version_info[0] >= 3 else False
@@ -25,9 +30,6 @@ logging.basicConfig(
 	format='[...][%(asctime)s] %(message)s',
 	level=logging.INFO,
 )
-
-client = Client('https://8ba879a5cbed46cea1a4450b07c773ad:8b85ed9b7a3640aa91938082c2aba07c@sentry.io/229186')
-
 
 def setInterval(interval):
 	""" threaded decorator

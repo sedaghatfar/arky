@@ -171,6 +171,9 @@ Version
 =======
 
 **0.3.1**
+
++ Some minors correction about the whitespace, indentation for PEP8 specifications.
++ Removed some unused imports.
 + ``util`` pkg:
    * ``getTokenPrice`` improvements.
    * ``getArkFiatPrice`` implemented.
@@ -185,8 +188,6 @@ Version
    * All of the functions implemented inside the util pkg are tested.
 + ``misc`` pkg:
    * Fixed the ARK2USD and USD2ARK functions.
-+ Some minors correction about the whitespace, indentation for PEP8 specifications.
-+ Removed some unused imports.
 
 **0.3**
 

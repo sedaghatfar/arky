@@ -3,7 +3,7 @@
 
 __all__ = ["escrow", "network", "delegate", "account"]
 
-from .. import cfg, __PY3__, __version__, main_is_frozen
+from .. import cfg, __PY3__, HOME, __version__, main_is_frozen
 import io, os, sys, shlex, docopt, logging, traceback, collections
 
 rootfolder = os.path.normpath(os.path.abspath(os.path.dirname(sys.executable) if main_is_frozen() else __path__[0]))
