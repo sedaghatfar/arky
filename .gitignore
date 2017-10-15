@@ -205,7 +205,6 @@ $RECYCLE.BIN/
 *.wlt
 *.akr
 *.csv
-*.bat
 *.awt
 *.ast
 test/config.testnet.json
