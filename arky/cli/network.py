@@ -90,7 +90,7 @@ def delegates(param):
 	delegates = api.Delegate.getDelegates(limit=51, returnKey='delegates')
 	maxlen = max([len(d["username"]) for d in delegates])
 	i = 1
-	for name, vote in sorted([(d["username"],float(d["vote"])/100000000) for d in delegates], key=lambda e:e[-1], reverse=True):
+	for name, vote in sorted([(d["username"], float(d["vote"]) / 100000000) for d in delegates], key=lambda e: e[-1], reverse=True):
 		sys.stdout.write("    #%02d - %s: %.3f\n" % (i, name.ljust(maxlen), vote))
 		i += 1
 

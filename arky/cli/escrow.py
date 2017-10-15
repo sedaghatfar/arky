@@ -81,7 +81,7 @@ def link(param):
 
 def send(param):
 	if _checkKey1():
-		amount = common.floatAmount(param["<amount>"], ADDRESS)*100000000
+		amount = common.floatAmount(param["<amount>"], ADDRESS) * 100000000
 		if amount:
 			tx = common.generateColdTx(KEY1, PUBLICKEY, type=0, amount=amount, recipientId=param["<address>"], vendorField=param["<message>"])
 		else:
@@ -107,7 +107,7 @@ def validate(param):
 				tx = False
 		if tx:
 			tmp = core.signSerial(tx, KEY2)
-			tx.update({"id":tmp["id"], "signSignature":tmp["signature"]})
+			tx.update({"id": tmp["id"], "signSignature": tmp["signature"]})
 			if common.askYesOrNo("Broadcast %s?" % common.reprColdTx(tx)):
 				broadcast = api.broadcastSerial(tx)
 				common.prettyPrint(broadcast, log=True)
@@ -120,8 +120,10 @@ def validate(param):
 
 
 def save(param):
-	if KEY1 and PUBLICKEY and ADDRESS: common.dropToken(common.tokenPath(param["<name>"], "tok1"), ADDRESS, PUBLICKEY, KEY1)
-	elif KEY2: _drop2ndToken(common.tokenPath(param["<name>"], "tok2"), KEY2)
+	if KEY1 and PUBLICKEY and ADDRESS:
+		common.dropToken(common.tokenPath(param["<name>"], "tok1"), ADDRESS, PUBLICKEY, KEY1)
+	elif KEY2:
+		_drop2ndToken(common.tokenPath(param["<name>"], "tok2"), KEY2)
 
 
 def unlink(param):
@@ -137,7 +139,8 @@ def _whereami():
 		k2 = binascii.hexlify(KEY2.to_string())
 		k2 = k2.decode() if isinstance(k2, bytes) else k2
 		return "escrow[%s]" % (common.shortAddress(k2))
-	else: return "escrow"
+	else:
+		return "escrow"
 
 
 def _checkKey1():
