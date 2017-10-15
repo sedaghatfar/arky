@@ -106,7 +106,8 @@ def sendTx(tx, secret=None, secondSecret=None, url_base=None):
 	Returns ArkyDict
 	"""
 	# use registered peer if no url_base is given
-	if url_base == None: url_base = random.choice(SEEDS)
+	if url_base == None:
+		url_base = random.choice(SEEDS)
 
 	if isinstance(tx, (list, tuple)):
 		tx = [_signTx(t, secret, secondSecret) for t in tx]
@@ -151,7 +152,8 @@ def broadcast(tx, secret=None, secondSecret=None):
 	ratio = 0.
 	if result.success:
 		for peer in PEERS:
-			if sendTx(tx, secret, secondSecret, peer).success: ratio += 1
+			if sendTx(tx, secret, secondSecret, peer).success:
+				ratio += 1
 	result.broadcast = "%.1f%%" % (ratio / len(PEERS) * 100)
 	return result
 
@@ -341,6 +343,10 @@ class Loader:
 	def getSynchronisationStatus(**param):
 		return get('/api/loader/status/sync', **param)
 
+	@staticmethod
+	def getAutoConfigure(**param):
+		return get('/api/loader/autoconfigure', **param)
+
 
 class Block:
 	@staticmethod
@@ -348,8 +354,8 @@ class Block:
 		return get('/api/blocks', **param)
 
 	@staticmethod
-	def getBlock(blockId, **param):
-		return get('/api/blocks/get', id=blockId, **param)
+	def getBlock(id, **param):
+		return get('/api/blocks/get', id=id, **param)
 
 	@staticmethod
 	def getNethash(**param):
@@ -406,8 +412,16 @@ class Account:
 		return get('/api/accounts', address=address, **param)
 
 	@staticmethod
-	def getVotes(address, **param):
+	def getDelegates(address, **param):
 		return get('/api/accounts/delegates', address=address, **param)
+
+	@staticmethod
+	def getDelegateFee(**param):
+		return get('/api/accounts/delegates/fee', **param)
+
+	@staticmethod
+	def getTopAccounts(**param):
+		return get('/api/accounts/top', **param)
 
 
 class Delegate:
@@ -432,6 +446,26 @@ class Delegate:
 			if len(found) < 51:
 				break
 		return delegates
+
+	@staticmethod
+	def getDelegatesCount(address, **param):
+		return get('/api/delegates/count', address=address, **param)
+
+	@staticmethod
+	def getDelegatesVoters(publicKey, **param):
+		return get('/api/delegates/voters', publicKey=publicKey, **param)
+
+	@staticmethod
+	def getDelegateFee(address, **param):
+		return get('/api/delegates/fee', address=address, **param)
+
+	@staticmethod
+	def getForgedByAccount(generatorPublicKey, **param):
+		return get('/api/delegates/forging/getForgedByAccount', generatorPublicKey=generatorPublicKey, **param)
+
+	@staticmethod
+	def getNextForgers(address, **param):
+		return get('/api/delegates/getNextForgers', address=address, **param)
 
 
 class Transaction(object):
@@ -473,7 +507,46 @@ class Multisignature:
 
 	@staticmethod
 	def getAccountsOfMultisignature(publicKey, **param):
-		return post('/api/multisignatures/accounts', publicKey=publicKey, **param)
+		return get('/api/multisignatures/accounts', publicKey=publicKey, **param)
 
+
+class Signature:
+	@staticmethod
+	def getSignatureFee(address, **param):
+		return get('/api/signatures/fee', address=address, **param)
+
+
+class Transport:
+	@staticmethod
+	def getPeersList(**param):
+		return get('/peer/list', **param)
+
+	@staticmethod
+	def getBlocksByIds(ids, **param):
+		return get('/peer/blocks/common', id=id, **param)
+
+	@staticmethod
+	def getBlock(address, **param):
+		return get('/peer/block', address=address, **param)
+
+	@staticmethod
+	def getBlocks(address, **param):
+		return get('/peer/blocks', **param)
+
+	@staticmethod
+	def getTransactions(**param):
+		return get('/peer/transactions', **param)
+
+	@staticmethod
+	def getTransactionsFromIds(ids, **param):
+		return get('/peer/transactions', ids=ids, **param)
+
+	@staticmethod
+	def getHeight(**param):
+		return get('/peer/height', **param)
+
+	@staticmethod
+	def getStatus(**param):
+		return get('/peer/status', **param)
 
 use()

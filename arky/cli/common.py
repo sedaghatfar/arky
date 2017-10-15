@@ -30,7 +30,8 @@ class BalanceMGMT(dict):
 	def register(self, address):
 		if address not in self:
 			value = api.Account.getBalance(address)
-			if value.success: self[address] = int(value["balance"])
+			if value.success:
+				self[address] = int(value["balance"])
 BALANCES = BalanceMGMT()
 
 
@@ -104,21 +105,23 @@ def prettyPrint(dic, tab="    ", log=False):
 	pretty = prettify(dic, tab)
 	if len(dic):
 		sys.stdout.write(pretty)
-		if log: logging.info("\n"+pretty.rstrip())
+		if log:
+			logging.info("\n"+pretty.rstrip())
 	else:
 		sys.stdout.write("Nothing to print here\n")
-		if log: logging.info("Nothing to log here")
+		if log:
+			logging.info("Nothing to log here")
 
 
 def floatAmount(amount, address):
 	if amount.endswith("%"):
 		if address in BALANCES:
-			return (float(amount[:-1])/100 * BALANCES[address] - cfg.__FEES__["send"])/100000000.
+			return (float(amount[:-1]) / 100 * BALANCES[address] - cfg.__FEES__["send"]) / 100000000.
 		else:
 			return False
 	elif amount[0] in ["$", "€", "£", "¥"]:
 		price = util.getTokenPrice(cfg.__TOKEN__, {"$": "usd", "EUR": "eur", "€": "eur", "£": "gbp", "¥": "cny"}[amount[0]])
-		result = float(amount[1:])/price
+		result = float(amount[1:]) / price
 		if askYesOrNo(u"%s=%s%f (%s/%s=%f) - Validate ?" % (amount, cfg.__TOKEN__, result, cfg.__TOKEN__, amount[0], price)):
 			return result
 		else:
@@ -157,8 +160,10 @@ def chooseItem(msg, *elem):
 		i = 0
 		while i < 1 or i > n:
 			i = input("Choose an item: [1-%d]> " % n)
-			try: i = int(i)
-			except: i = 0
+			try:
+				i = int(i)
+			except:
+				i = 0
 		return elem[i-1]
 	elif n == 1:
 		return elem[0]
@@ -179,7 +184,8 @@ def askYesOrNo(msg):
 
 def coldTxPath(name):
 	name = name.decode() if isinstance(name, bytes) else name
-	if not name.endswith(".ctx"): name += ".ctx"
+	if not name.endswith(".ctx"):
+		name += ".ctx"
 	return os.path.join(COLDTXS, cfg.__NET__, name)
 
 
@@ -213,7 +219,7 @@ def loadColdTx(name):
 def reprColdTx(ctx):
 	return "<type-%(type)d transaction(A%(amount).8f) from %(from)s to %(to)s>" % {
 		"type": ctx["type"],
-		"amount": ctx["amount"]/100000000.,
+		"amount": ctx["amount"] / 100000000.,
 		"from": shortAddress(ctx.get("address", "No one")),
 		"to": shortAddress(ctx.get("recipientId", "No one"))
 	}
@@ -222,7 +228,8 @@ def reprColdTx(ctx):
 def tokenPath(name, token="tok"):
 	ext = "."+token
 	name = name.decode() if isinstance(name, bytes) else name
-	if not name.endswith(ext): name += ext
+	if not name.endswith(ext):
+		name += ext
 	return os.path.join(TOKENS, cfg.__NET__, name)
 
 
