@@ -11,18 +11,18 @@ Ubuntu / OSX
 
 From development version
 
-``sudo -H pip install git+https://github.com/ArkEcosystem/arky.git``
+``sudo -H pip install https://github.com/ArkEcosystem/arky/archive/aip11.zip``
 
 If you work with ``python3``
 
-``sudo -H pip3 install git+https://github.com/ArkEcosystem/arky.git``
+``sudo -H pip3 install https://github.com/ArkEcosystem/arky/archive/aip11.zip``
 
 Windows 
 ^^^^^^^
 
 From development version
 
-``pip install git+https://github.com/ArkEcosystem/arky.git``
+``pip install https://github.com/ArkEcosystem/arky/archive/aip11.zip``
 
 REST API
 ========

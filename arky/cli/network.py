@@ -3,18 +3,19 @@
 
 """
 Usage: network use [<name> -b <number> -l <ms>]
-	   network browse [<element>]
+	   network browse [-t|-a <id>]
 	   network publickey <secret>
 	   network address <secret>
 	   network wif <secret>
 	   network delegates
 	   network staking
 	   network update
-	   network ping
 
 Options:
 -b <number> --broadcast <number> peer number to use for broadcast       [default: 10]
 -l <ms> --latency <ms>           maximum latency allowed in miliseconds [default: 1000]
+-t <id> --transaction <id>       transaction id to browse
+-a <id> --address <id>           address id to browse
 
 Subcommands:
 	use       : select network.
@@ -24,15 +25,16 @@ Subcommands:
 	delegates : show delegate list.
 	staking   : show coin-supply ratio used on delegate voting.
 	update    : update balance of all linked account.
-	ping      : print selected peer latency.
 """
 
 from .. import rest
+from .. import cfg
 from .. import util
 
 import arky
 import sys
 import imp
+import webbrowser
 
 def _whereami():
 	return "network"
@@ -48,29 +50,18 @@ def use(param):
 			return False
 	rest.use(
 		param.get("<name>"),
-		broadcast=int(param.get("--broadcast")),
-		timeout=float(param.get("--latency"))/1000
+		broadcast=int(param.get("--broadcast"), 10),
+		timeout=float(param.get("--latency", 5000))/1000
 	)
 
 
-# def ping(param):
-# 	common.prettyPrint(dict(
-# 		[[peer,api.checkPeerLatency(peer)] for peer in api.PEERS] +\
-# 		[["api>"+seed,api.checkPeerLatency(seed)] for seed in api.SEEDS]
-# 	))
-
-
-# def browse(param):
-# 	element = param["<element>"]
-# 	if element:
-# 		if len(element) == 34:
-# 			webbrowser.open(cfg.explorer + "/address/" + element)
-# 		elif len(element) == 64:
-# 			webbrowser.open(cfg.explorer + "/tx/" + element)
-# 		elif element == "delegate":
-# 			webbrowser.open(cfg.explorer + "/delegateMonitor")
-# 	else:
-# 		webbrowser.open(cfg.explorer)
+def browse(param):
+	if param["--transaction"]:
+		webbrowser.open(cfg.explorer + "/tx/" + param["--transaction"])
+	elif param["--address"]:
+		webbrowser.open(cfg.explorer + "/address/" + param["--address"])
+	else:
+		webbrowser.open(cfg.explorer)
 
 
 def address(param):
