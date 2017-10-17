@@ -34,7 +34,7 @@
   "broadcast": 10,
   
   "explorer" : "https://explorer.ark.io",
-  "token" : "ARK",
+  "token" : "ark",
 	"symbol" : "Ѧ",
 	"delegate": 51,
   "blocktime": 8

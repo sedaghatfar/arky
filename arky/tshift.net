@@ -16,7 +16,7 @@
   ],
 
   "explorer" : "https://explorer.testnet.shiftnrg.org",
-  "token" : "SHIFT",
+  "token" : "shift",
   "symbol" : "SHIFT",
   "delegate": 101,
   "blocktime": 8

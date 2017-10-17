@@ -16,7 +16,7 @@
   ],
 
   "explorer" : "https://explorer.lisk.io",
-  "token" : "LISK",
+  "token" : "lisk",
   "symbol" : "Ⱡ",
   "delegate": 101,
   "blocktime": 10

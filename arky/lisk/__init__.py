@@ -3,6 +3,7 @@
 
 from .. import rest
 from .. import cfg
+from .. import util
 
 from . import crypto
 
@@ -31,55 +32,47 @@ def sendToken(amount, recipientId, secret, secondSecret=None):
 	)
 
 def registerSecondPublicKey(secondPublicKey, secret, secondSecret=None):
-	publicKey, privateKey = crypto.getKeys(secret)
+	keys = crypto.getKeys(secret)
 	return sendTransaction(
 		type=1,
-		publicKey=publicKey,
-		privateKey=privateKey,
+		publicKey=keys["publicKey"],
+		privateKey=keys["privateKey"],
 		secondSecret=secondSecret,
 		asset={"signature":{"publicKey":secondPublicKey}}
 	)
 
 def registerSecondPassphrase(secondPassphrase, secret, secondSecret=None):
-	secondPublicKey, secondPrivateKey = crypto.getKeys(secondPassphrase)
-	return registerSecondPublicKey(secondPublicKey, secret, secondSecret)
+	secondKeys = crypto.getKeys(secondPassphrase)
+	return registerSecondPublicKey(secondKeys["publicKey"], secret, secondSecret)
 
 def registerDelegate(username, secret, secondSecret=None):
-	publicKey, privateKey = crypto.getKeys(secret)
+	keys = crypto.getKeys(secret)
 	return sendTransaction(
 		type=2,
-		publicKey=publicKey,
-		privateKey=privateKey,
+		publicKey=keys["publicKey"],
+		privateKey=keys["privateKey"],
 		secondSecret=secondSecret,
 		asset={"delegate":{"username":username, "publicKey":publicKey}}
 	)
 
-def getDelegatesPublicKeys(*usernames):
-	candidates = {}
-	req = rest.GET.api.delegates(offset=len(candidates), limit=cfg.delegate).get("delegates", [])
-	while not len(req) < cfg.delegate:
-		candidates.update(dict([c["username"],c["publicKey"]] for c in req))
-		req = rest.GET.api.delegates(offset=len(candidates), limit=cfg.delegate).get("delegates", [])
-	return [p for u,p in candidates.items() if u in usernames]
-
 def upVoteDelegate(usernames, secret, secondSecret=None):
-	publicKey, privateKey = crypto.getKeys(secret)
+	keys = crypto.getKeys(secret)
 	return sendTransaction(
 		type=3,
-		publicKey=publicKey,
-		recipientId=crypto.getAddress(publicKey),
-		privateKey=privateKey,
+		publicKey=keys["publicKey"],
+		privateKey=keys["privateKey"],
+		recipientId=crypto.getAddress(keys["publicKey"]),
 		secondSecret=secondSecret,
-		asset={"votes":["+%s"%pk for pk in getDelegatesPublicKeys(*usernames)]}
+		asset={"votes":["+%s"%pk for pk in rest.getDelegatesPublicKeys(*usernames)]}
 	)
 
 def downVoteDelegate(usernames, secret, secondSecret=None):
-	publicKey, privateKey = crypto.getKeys(secret)
+	keys = crypto.getKeys(secret)
 	return sendTransaction(
 		type=3,
-		publicKey=publicKey,
-		recipientId=crypto.getAddress(publicKey),
-		privateKey=privateKey,
+		publicKey=keys["publicKey"],
+		privateKey=keys["privateKey"],
+		recipientId=crypto.getAddress(keys["publicKey"]),
 		secondSecret=secondSecret,
-		asset={"votes":["-%s"%pk for pk in getDelegatesPublicKeys(*usernames)]}
+		asset={"votes":["-%s"%pk for pk in rest.getDelegatesPublicKeys(*usernames)]}
 	)

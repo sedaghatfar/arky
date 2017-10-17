@@ -7,7 +7,6 @@ import imp
 import sys
 import logging
 import requests
-import threading
 
 __PY3__ = True if sys.version_info[0] >= 3 else False
 __FROZEN__ = hasattr(sys, "frozen") or hasattr(sys, "importers") or imp.is_frozen("__main__")
@@ -29,27 +28,3 @@ logging.basicConfig(
 	format = '[...][%(asctime)s] %(message)s',
 	level = logging.INFO,
 )
-
-def setInterval(interval):
-	""" threaded decorator
-	>>> @setInterval(10)
-	... def tick(): print("Tick")
-	>>> stop = tick() # print 'Tick' every 10 sec
-	>>> type(stop)
-	<class 'threading.Event'>
-	>>> stop.set() # stop printing 'Tick' every 10 sec
-	"""
-	def decorator(function):
-		def wrapper(*args, **kwargs):
-			stopped = threading.Event()
-			def loop(): # executed in another thread
-				while not stopped.wait(interval): # until stopped
-					# print("%r executed !"%function)
-					function(*args, **kwargs)
-				# print("loop on %r stopped..." % function)
-			t = threading.Thread(target=loop)
-			t.daemon = True # stop if the program exits
-			t.start()
-			return stopped
-		return wrapper
-	return decorator

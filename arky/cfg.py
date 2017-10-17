@@ -3,4 +3,3 @@
 
 network = "..."
 hotmode = False
-compressed = True
