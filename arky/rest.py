@@ -186,13 +186,18 @@ def load(name):
 		pass
 
 def use(network, **kw):
-	networks = [os.path.splitext(name)[0] for name in os.listdir(ROOT) if name.endswith(".net")]
 
-	if len(networks) and network in networks:
-		# load json file
-		with open(os.path.join(ROOT, network+".net"), "r" if __PY3__ else "rb") as _in:
-			data = json.load(_in)
-			data.update(**kw)
+	cfg.network = "..."
+	cfg.hotmode = False
+
+	try:
+		sys.modules[__package__].__delattr__(network)
+	except AttributeError:
+		pass
+
+	with open(os.path.join(ROOT, "net", network+".net"), "r" if __PY3__ else "rb") as _in:
+		data = json.load(_in)
+		data.update(**kw)
 		# save json data as variables in cfg.py module
 		cfg.__dict__.update(data)
 		# for https uses
@@ -216,14 +221,6 @@ def use(network, **kw):
 			load(cfg.familly)
 			cfg.network = network
 			cfg.hotmode = True
-	else:
-		cfg.network = "..."
-		cfg.hotmode = False
-		try:
-			sys.modules[__package__].__delattr__(name)
-		except AttributeError:
-			pass
-		raise NetworkError("Unknown %s network properties" % network)
 
 	# update logger data so network appear on log
 	logger = logging.getLogger()

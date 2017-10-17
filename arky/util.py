@@ -106,7 +106,7 @@ def loadJson(name):
 
 def findNetworks():
 	try:
-		return [os.path.splitext(name)[0] for name in os.listdir(ROOT) if name.endswith(".net")]
+		return [os.path.splitext(name)[0] for name in os.listdir(os.path.join(ROOT, "net")) if name.endswith(".net")]
 	except:
 		return []
 
