@@ -1,7 +1,9 @@
 # -*- encoding: utf8 -*-
 # © Toons
 
-__all__ = ["network"] #"escrow", "network", "delegate", "account"]
+import arky
+
+__all__ = ["network", "account"] #"escrow", "network", "delegate"]
 
 from .. import __version__
 from .. import __FROZEN__
@@ -9,23 +11,15 @@ from .. import __PY3__
 from .. import rest
 from .. import cfg
 
+rest.use("dark")
+
 import sys
 import shlex
 import docopt
 import logging
 import traceback
 
-rest.use("dark")
-
-__doc__ = """Welcome to arky-cli 2.8 [Python %(python)s / arky %(arky)s]
-Available commands: %(sets)s""" % {"python": sys.version.split()[0], "arky":__version__, "sets": ", ".join(__all__)}
-
 input = raw_input if not __PY3__ else input
-
-
-def _whereami():
-	return ""
-
 
 class _Prompt(object):
 
@@ -57,10 +51,20 @@ class BalanceMGMT(dict):
 			if value["success"]:
 				self[address] = int(value["balance"])
 
-BALANCES = BalanceMGMT()
+
+class Data(object):
+
+	def __init__(self):
+		self.account = {}
+		self.firstkeys = {}
+		self.secondkeys = {}
+		self.balances = BalanceMGMT()
+
+DATA = Data()
 
 
-from . import network #, escrow, delegate, account
+def _whereami():
+	return ""
 
 
 def parse(argv):
@@ -150,3 +154,39 @@ def start():
 # 		execute(*[l.strip() for l in in_.readlines()])
 # 		in_.close()
 
+
+def checkSecondKeys():
+	# global ACCOUNT, SECONDKEYS
+
+	secondPublicKey = DATA.account.get("secondPublicKey", False)
+	if secondPublicKey and not DATA.secondkeys:
+		secondKeys = arky.core.crypto.getKeys(input("Enter second passphrase> "))
+		if secondKeys["publicKey"] == secondPublicKey:
+			DATA.secondkeys = secondKeys
+			return True
+		else:
+			sys.stdout.write("    Second public key missmatch...\n    Broadcast canceled\n")
+			return False
+	else:
+		return True
+
+
+def floatAmount(amount, address):
+	if amount.endswith("%"):
+		return (float(amount[:-1])/100 * float(rest.GET.api.accounts.getBalance(address=address).get("balance", 0)) - cfg.fees["send"])/100000000.
+	elif amount[0] in ["$", "€", "£", "¥"]:
+		price = getTokenPrice(cfg.token, {"$":"usd", "EUR":"eur", "€":"eur", "£":"gbp", "¥":"cny"}[amount[0]])
+		result = float(amount[1:])/price
+		if askYesOrNo("%s=%s%f (%s/%s=%f) - Validate ?" % (amount, cfg.token, result, cfg.token, amount[0], price)):
+			return result
+		else:
+			return False
+	else:
+		return float(amount)
+
+
+from . import network
+from . import account #, escrow, delegate
+
+__doc__ = """Welcome to arky-cli [Python %(python)s / arky %(arky)s]
+Available commands: %(sets)s""" % {"python": sys.version.split()[0], "arky":__version__, "sets": ", ".join(__all__)}
