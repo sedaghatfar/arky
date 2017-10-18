@@ -12,7 +12,10 @@ from . import crypto
 import random
 
 def selectPeers():
-	peers = [p for p in rest.GET.api.peers().get("peers", []) if p.get("status", "") == "OK" and p.get("delay", 0) <= cfg.timeout*1000]
+	version = rest.GET.api.peers.version().get("version", "0.0.0")
+	peers = [p for p in rest.GET.api.peers().get("peers", []) if p.get("status", "") == "OK" \
+	                                                             and p.get("delay", 6000) <= cfg.timeout*1000 \
+			                                                     and p.get("version", "") == version]
 	selection = []
 	for i in range(min(cfg.broadcast, len(peers))):
 		selection.append("http://%(ip)s:%(port)s" % random.choice(peers))
@@ -52,7 +55,7 @@ def sendTransaction(**kw):
 ## basic transaction ##
 #######################
 
-def sendToken(amount, recipientId, vendorField, secret, secondSecret=None):
+def sendToken(amount, recipientId, secret, secondSecret=None, vendorField=None):
 	return sendTransaction(
 		amount=amount,
 		recipientId=recipientId,

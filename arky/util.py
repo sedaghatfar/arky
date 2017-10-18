@@ -1,19 +1,46 @@
 # -*- encoding: utf8 -*-
 # © Toons
 
+import arky
+
 from . import __PY3__, ROOT
 from . import rest
 from . import cfg
-
-import arky
 
 import io
 import os
 import sys
 import json
+import struct
 import logging
+import binascii
 import requests
 import threading
+
+##############
+## bin util ##
+##############
+
+# byte as int conversion
+basint = (lambda e:e) if __PY3__ else \
+         (lambda e:ord(e))
+# read value as binary data from buffer
+unpack =  lambda fmt, fileobj: struct.unpack(fmt, fileobj.read(struct.calcsize(fmt)))
+# write value as binary data into buffer
+pack = lambda fmt, fileobj, value: fileobj.write(struct.pack(fmt, *value))
+# read bytes from buffer
+unpack_bytes = lambda f,n: unpack("<"+"%ss"%n, f)[0]
+# write bytes into buffer
+pack_bytes = (lambda f,v: pack("!"+"%ss"%len(v), f, (v,))) if __PY3__ else \
+             (lambda f,v: pack("!"+"c"*len(v), f, v))
+
+def hexlify(data):
+	result = binascii.hexlify(data)
+	return str(result.decode() if isinstance(result, bytes) else result)
+
+def unhexlify(data):
+	result = binascii.unhexlify(data)
+	return result if isinstance(result, bytes) else result.encode()
 
 ###############
 ## http util ##

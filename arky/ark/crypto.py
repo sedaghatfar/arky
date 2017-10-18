@@ -8,36 +8,15 @@ import base58
 
 from .. import __PY3__, __FROZEN__
 from .. import cfg, slots
+from ..util import basint, unpack, pack, unpack_bytes, pack_bytes, hexlify, unhexlify
 
 if not __PY3__:
 	from StringIO import StringIO
 else:
 	from io import BytesIO as StringIO
 
-import struct
 import hashlib
-import binascii
 
-# byte as int conversion
-basint = (lambda e:e) if __PY3__ else \
-         (lambda e:ord(e))
-# read value as binary data from buffer
-unpack =  lambda fmt, fileobj: struct.unpack(fmt, fileobj.read(struct.calcsize(fmt)))
-# write value as binary data into buffer
-pack = lambda fmt, fileobj, value: fileobj.write(struct.pack(fmt, *value))
-# read bytes from buffer
-unpack_bytes = lambda f,n: unpack("<"+"%ss"%n, f)[0]
-# write bytes into buffer
-pack_bytes = (lambda f,v: pack("!"+"%ss"%len(v), f, (v,))) if __PY3__ else \
-             (lambda f,v: pack("!"+"c"*len(v), f, v))
-
-def hexlify(data):
-	result = binascii.hexlify(data)
-	return str(result.decode() if isinstance(result, bytes) else result)
-
-def unhexlify(data):
-	result = binascii.unhexlify(data)
-	return result if isinstance(result, bytes) else result.encode()
 
 def compressEcdsaPublicKey(pubkey):
 	first, last = pubkey[:32], pubkey[32:]
