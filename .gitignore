@@ -28,7 +28,6 @@ lib64/
 parts/
 sdist/
 misc/
-test/
 wiki/
 arky.wiki/
 var/
@@ -158,7 +157,6 @@ $RECYCLE.BIN/
 *.bat
 *.awt
 *.ast
-test/config.testnet.json
 misc/5days.py
 misc/delegate.py
 misc/devnet-peers.py

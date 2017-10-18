@@ -19,7 +19,6 @@
 
   "port": 4002,
   "peers": [
-    "167.114.29.51",
     "167.114.29.52",
     "167.114.29.53",
     "167.114.29.54",
@@ -28,7 +27,7 @@
   "broadcast": 10,
   
   "explorer" : "https://dexplorer.ark.io",
-  "token" : "DARK",
+  "token" : "dark",
 	"symbol" : "DѦ",
 	"delegate": 51,
   "blocktime": 8

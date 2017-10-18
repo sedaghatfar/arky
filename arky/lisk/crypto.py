@@ -4,42 +4,32 @@
 from nacl.bindings.crypto_sign import crypto_sign_seed_keypair, crypto_sign
 from nacl.bindings import crypto_sign_BYTES
 
-from .. import __PY3__, __FROZEN__
-from .. import cfg, slots
+from .. import __PY3__
+from .. import __FROZEN__
+from .. import cfg
+from .. import slots
+from ..util import basint
+from ..util import unpack
+from ..util import pack
+from ..util import unpack_bytes
+from ..util import pack_bytes
+from ..util import hexlify
+from ..util import unhexlify
 
 if not __PY3__:
 	from StringIO import StringIO
 else:
 	from io import BytesIO as StringIO
 
-import struct
 import hashlib
 import binascii
+import struct
 
-# byte as int conversion
-basint = lambda e:e if __PY3__ else \
-         lambda e:ord(e)
-# read value as binary data from buffer
-unpack =  lambda fmt, fileobj: struct.unpack(fmt, fileobj.read(struct.calcsize(fmt)))
-# write value as binary data into buffer
-pack = lambda fmt, fileobj, value: fileobj.write(struct.pack(fmt, *value))
-# read bytes from buffer
-unpack_bytes = lambda f,n: unpack("<"+"%ss"%n, f)[0]
-# write bytes into buffer
-pack_bytes = lambda f,v: pack("!"+"%ss"%len(v), f, (v,)) if __PY3__ else \
-             lambda f,v: pack("!"+"c"*len(v), f, v)
-
-def hexlify(data):
-	result = binascii.hexlify(data)
-	return str(result.decode() if isinstance(result, bytes) else result)
-
-def unhexlify(data):
-	result = binascii.unhexlify(data)
-	return result if isinstance(result, bytes) else result.encode()
 
 def getKeys(secret, seed=None):
 	seed = hashlib.sha256(secret.encode("utf8") if not isinstance(secret, bytes) else secret).digest() if not seed else seed
-	return list(hexlify(e) for e in crypto_sign_seed_keypair(seed))
+	publicKey, privateKey = list(hexlify(e) for e in crypto_sign_seed_keypair(seed))
+	return {"publicKey": publicKey, "privateKey": privateKey}
 
 def getAddress(public):
 	seed = hashlib.sha256(unhexlify(public)).digest()
@@ -95,9 +85,11 @@ def getBytes(tx):
 def bakeTransaction(**kw):
 
 	if "publicKey" in kw and "privateKey" in kw:
-		public, private = kw["publicKey"], kw["privateKey"]
+		publicKey, privateKey = kw["publicKey"], kw["privateKey"]
 	elif "secret" in kw:
-		public, private = getKeys(kw["secret"])
+		keys = getKeys(kw["secret"])
+		publicKey = keys["publicKey"]
+		privateKey = keys["privateKey"]
 	else:
 		raise Exception("Can not initialize transaction (no secret or keys given)")
 		
@@ -115,17 +107,17 @@ def bakeTransaction(**kw):
 			# 5: "dapp"
 		}[kw.get("type", 0)])
 	}
-	payload["senderPublicKey"] = public
+	payload["senderPublicKey"] = publicKey
 
 	# add optional data
 	for key in (k for k in ["requesterPublicKey", "recipientId", "asset"] if k in kw):
 		payload[key] = kw[key]
 
 	# sign payload
-	payload["signature"] = getSignature(payload, private)
+	payload["signature"] = getSignature(payload, privateKey)
 	if kw.get("secondSecret", None):
-		secondPublic, secondPrivate = getKeys(kw["secondSecret"])
-		payload["signSignature"] = getSignature(payload, secondPrivate)
+		secondKeys = getKeys(kw["secondSecret"])
+		payload["signSignature"] = getSignature(payload, secondKeys["privateKey"])
 	elif kw.get("secondPrivateKey", None):
 		payload["signSignature"] = getSignature(payload, kw["secondPrivateKey"])
 

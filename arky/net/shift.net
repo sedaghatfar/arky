@@ -12,11 +12,11 @@
   },
 
   "seeds": [
-    "https://wallet.testnet.shiftnrg.org"
+    "https://wallet.shiftnrg.org"
   ],
 
-  "explorer" : "https://explorer.testnet.shiftnrg.org",
-  "token" : "SHIFT",
+  "explorer" : "https://explorer.shiftnrg.org",
+  "token" : "shift",
   "symbol" : "SHIFT",
   "delegate": 101,
   "blocktime": 8

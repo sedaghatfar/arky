@@ -4,20 +4,20 @@
   "endpoints": "lsk",
   "familly": "lisk",
   
-  "marker": "L",
+  "marker": "S",
 
   "headers" : {
     "Content-Type" : "application/json; charset=utf-8",
-    "port" : 8000
+    "port" : 9305
   },
 
   "seeds": [
-    "https://login.lisk.io"
+    "https://wallet.testnet.shiftnrg.org"
   ],
 
-  "explorer" : "https://explorer.lisk.io",
-  "token" : "LISK",
-  "symbol" : "Ⱡ",
+  "explorer" : "https://explorer.testnet.shiftnrg.org",
+  "token" : "shift",
+  "symbol" : "SHIFT",
   "delegate": 101,
-  "blocktime": 10
+  "blocktime": 8
 }

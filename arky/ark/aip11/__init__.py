@@ -77,7 +77,7 @@ def getHeaders(**kw):
 
 	header = struct.pack("<BBBBI",
 		kw.get("head", 0xff),
-		kw.get("version", 0),
+		kw.get("version", 0x02),
 		kw.get("network", int(cfg.marker, base=16)),
 		kw.get("type", 0),
 		int(slots.getTime())

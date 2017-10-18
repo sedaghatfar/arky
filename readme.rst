@@ -11,18 +11,18 @@ Ubuntu / OSX
 
 From development version
 
-``sudo -H pip install git+https://github.com/ArkEcosystem/arky.git``
+``sudo -H pip install https://github.com/ArkEcosystem/arky/archive/aip11.zip``
 
 If you work with ``python3``
 
-``sudo -H pip3 install git+https://github.com/ArkEcosystem/arky.git``
+``sudo -H pip3 install https://github.com/ArkEcosystem/arky/archive/aip11.zip``
 
 Windows 
 ^^^^^^^
 
 From development version
 
-``pip install git+https://github.com/ArkEcosystem/arky.git``
+``pip install https://github.com/ArkEcosystem/arky/archive/aip11.zip``
 
 REST API
 ========
@@ -59,27 +59,17 @@ Blockchain ``core``
 ``rest.use`` loads a blockchain package find in  ``*.net`` file as ``arky.core``.
 Blockchain package define the current interface :
 
-``arky.core.crypto.getKeys(secret, seed=None)``
-
-``arky.core.crypto.getAddress(publicKey)``
-
-``arky.core.crypto.getSignature(tx, privateKey)``
-
-``arky.core.crypto.getId(tx)``
-
-``arky.core.crypto.getBytes(tx)``
-
-``arky.core.sendToken(amount, recipientId, vendorField, secret, secondSecret=None)``
-
-``arky.core.registerSecondPublicKey(secondPublicKey, secret, secondSecret=None)``
-
-``arky.core.registerSecondPassphrase(secondPassphrase, secret, secondSecret=None)``
-
-``arky.core.registerDelegate(username, secret, secondSecret=None)``
-
-``arky.core.upVoteDelegate(usernames, secret, secondSecret=None)``
-
-``arky.core.downVoteDelegate(usernames, secret, secondSecret=None)``
+* ``arky.core.crypto.getKeys(secret)``
+* ``arky.core.crypto.getAddress(publicKey)``
+* ``arky.core.crypto.getSignature(tx, privateKey)``
+* ``arky.core.crypto.getId(tx)``
+* ``arky.core.crypto.getBytes(tx)``
+* ``arky.core.sendToken(amount, recipientId, vendorField, secret, secondSecret=None)``
+* ``arky.core.registerSecondPublicKey(secondPublicKey, secret, secondSecret=None)``
+* ``arky.core.registerSecondPassphrase(secondPassphrase, secret, secondSecret=None)``
+* ``arky.core.registerDelegate(username, secret, secondSecret=None)``
+* ``arky.core.upVoteDelegate(usernames, secret, secondSecret=None)``
+* ``arky.core.downVoteDelegate(usernames, secret, secondSecret=None)``
 
 Authors
 =======
@@ -214,9 +204,4 @@ Version
 + first mainnet release
 
 .. _MIT licence: http://htmlpreview.github.com/?https://github.com/Moustikitos/arky/blob/master/arky.html
-.. _ARK API: https://github.com/ArkEcosystem/ark-api
-.. _escrow command set: https://github.com/ArkEcosystem/arky/blob/master/wiki/escrow.md
-.. _network command set: https://github.com/ArkEcosystem/arky/blob/master/wiki/network.md
-.. _delegate command set: https://github.com/ArkEcosystem/arky/blob/master/wiki/delegate.md
-.. _account command set: https://github.com/ArkEcosystem/arky/blob/master/wiki/account.md
 .. _toonsbuf protocol: https://github.com/Moustikitos/AIPs/blob/master/AIPS/aip-8.md

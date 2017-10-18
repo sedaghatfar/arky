@@ -12,11 +12,14 @@
   },
 
   "seeds": [
-    "https://wallet.oxycoin.io"
+    "https://wallet.oxycoin.io",
+    "https://corenode1.oxycoin.io",
+    "https://corenode2.oxycoin.io",
+    "https://corenode3.oxycoin.io"
   ],
 
   "explorer" : "https://explorer.oxycoin.io",
-  "token" : "OXY",
+  "token" : "oxycoin",
   "symbol" : "OXY",
   "delegate": 201,
   "blocktime": 15

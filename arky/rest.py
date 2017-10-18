@@ -48,8 +48,9 @@ Returns dict
 	returnKey = args.pop("returnKey", False)
 	args = dict([k.replace("and_", "AND:") if k.startswith("and_") else k, v] for k,v in args.items())
 	try:
+		peer = random.choice(cfg.peers)
 		text = requests.get(
-			random.choice(cfg.peers) + entrypoint,
+			peer + entrypoint,
 			params=args,
 			headers=cfg.headers,
 			verify=cfg.verify,
@@ -57,7 +58,7 @@ Returns dict
 		).text
 		data = json.loads(text)
 	except Exception as error:
-		data = {"success":False, "error":error}
+		data = {"success":False, "error":error, "peer": peer}
 		if hasattr(error, "__traceback__"):
 			data["details"] = "\n"+("".join(traceback.format_tb(error.__traceback__)).rstrip())
 	else:
@@ -169,10 +170,8 @@ def load(name):
 	# try to stop _daemon from a previous use of ark blockchain familly
 	try:
 		sys.modules[__package__].core._daemon.set()
-		# print("%r set"%sys.modules[__package__].core._daemon)
 	except:
 		pass
-		# print("error :(")
 	# loads blockchain familly package into as arky core
 	sys.modules[__package__].core = __import__("%s.%s"%(__package__, name), globals(), locals(), ["*"], 0)
 	# initialize blockchain familly package
@@ -186,13 +185,19 @@ def load(name):
 	except AttributeError:
 		pass
 
-def use(network):
-	networks = [os.path.splitext(name)[0] for name in os.listdir(ROOT) if name.endswith(".net")]
+def use(network, **kw):
 
-	if len(networks) and network in networks:
-		# load json file
-		with open(os.path.join(ROOT, network+".net"), "r" if __PY3__ else "rb") as _in:
-			data = json.load(_in)
+	cfg.network = "..."
+	cfg.hotmode = False
+
+	try:
+		sys.modules[__package__].__delattr__(network)
+	except AttributeError:
+		pass
+
+	with open(os.path.join(ROOT, "net", network+".net"), "r" if __PY3__ else "rb") as _in:
+		data = json.load(_in)
+		data.update(**kw)
 		# save json data as variables in cfg.py module
 		cfg.__dict__.update(data)
 		# for https uses
@@ -216,14 +221,6 @@ def use(network):
 			load(cfg.familly)
 			cfg.network = network
 			cfg.hotmode = True
-	else:
-		cfg.network = "..."
-		cfg.hotmode = False
-		try:
-			sys.modules[__package__].__delattr__(name)
-		except AttributeError:
-			pass
-		raise NetworkError("Unknown %s network properties" % network)
 
 	# update logger data so network appear on log
 	logger = logging.getLogger()

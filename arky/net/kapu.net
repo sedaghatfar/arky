@@ -34,7 +34,7 @@
   "broadcast": 10,
   
   "explorer" : "https://explorer.kapu.one",
-  "token" : "KAPU",
+  "token" : "kapu",
 	"symbol" : "ʞ",
 	"delegate": 51,
   "blocktime": 8

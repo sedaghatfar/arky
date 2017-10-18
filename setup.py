@@ -23,7 +23,7 @@ kw.update(**{
 	"description": "Python API bridging DPOS blockchains",
 	"long_description": long_description.read(),
 	"packages": ["arky", "arky.ark", "arky.lisk"],
-	"install_requires": ["requests", "ecdsa", "pynacl", "pytz", "base58", "docopt", "yawTtk"],
+	"install_requires": ["requests", "ecdsa", "pynacl", "pytz", "base58", "docopt"], #, "yawTtk"],
 	"license": "Copyright 2016-2017 Toons, Copyright 2017 ARK, MIT licence",
 	"classifiers": [
 		'Development Status :: 6 - Mature',

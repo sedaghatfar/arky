@@ -2,36 +2,45 @@
 # © Toons
 
 from .. import __PY3__
-from .. import setInterval
-from .. import slots
+from .. import util
 from .. import rest
 from .. import cfg
+from .. import util
 
 from . import crypto
 
 import random
 
+
 def selectPeers():
-	peers = [p for p in rest.GET.api.peers().get("peers", []) if p.get("status", "") == "OK" and p.get("delay", 0) <= cfg.timeout*1000]
+	version = rest.GET.api.peers.version().get("version", "0.0.0")
+	peers = [p for p in rest.GET.api.peers().get("peers", []) if p.get("status", "") == "OK" \
+	                                                             and p.get("delay", 6000) <= cfg.timeout*1000 \
+			                                                     and p.get("version", "") == version]
 	selection = []
 	for i in range(min(cfg.broadcast, len(peers))):
 		selection.append("http://%(ip)s:%(port)s" % random.choice(peers))
 	if len(selection):
 		cfg.peers = selection
 
+
 def init():
 	global DAEMON_PEERS
-	network = rest.GET.api.loader.autoconfigure(returnKey="network")
-	cfg.headers["version"] = network.pop("version")
-	cfg.headers["nethash"] = network.pop("nethash")
-	cfg.__dict__.update(network)
-	cfg.fees = rest.GET.api.blocks.getFees(returnKey="fees")
-	# manage peers for tx broadcasting
-	selectPeers()
-	@setInterval(8*51)
-	def rotatePeers():
+	resp = rest.GET.api.loader.autoconfigure()
+	if resp["success"]:
+		network = resp["network"]
+		cfg.headers["version"] = network.pop("version")
+		cfg.headers["nethash"] = network.pop("nethash")
+		cfg.__dict__.update(network)
+		cfg.fees = rest.GET.api.blocks.getFees(returnKey="fees")
+		# manage peers for tx broadcasting
 		selectPeers()
-	DAEMON_PEERS = rotatePeers()
+		@util.setInterval(8*51)
+		def rotatePeers():
+			selectPeers()
+		DAEMON_PEERS = rotatePeers()
+	else:
+		raise Exception("Initialization error with peer %s" % resp.get("peer", "???"))
 
 # This function is a high-level broadcasting for a single tx
 def sendTransaction(**kw):
@@ -48,7 +57,7 @@ def sendTransaction(**kw):
 ## basic transaction ##
 #######################
 
-def sendToken(amount, recipientId, vendorField, secret, secondSecret=None):
+def sendToken(amount, recipientId, secret, secondSecret=None, vendorField=None):
 	return sendTransaction(
 		amount=amount,
 		recipientId=recipientId,
