@@ -169,7 +169,7 @@ def loadEndPoints(network):
 def load(name):
 	# try to stop _daemon from a previous use of ark blockchain familly
 	try:
-		sys.modules[__package__].core._daemon.set()
+		sys.modules[__package__].core.DAEMON_PEERS.set()
 	except:
 		pass
 	# loads blockchain familly package into as arky core

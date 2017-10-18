@@ -3,7 +3,7 @@
 		"/api/accounts",
 		"/api/accounts/getBalance",
 		"/api/accounts/getPublicKey",
-		"/api/accounts/delegates/fee",
+		"/api/accounts/delegates",
 		"/api/accounts/top",
 		
 		"/api/blocks",

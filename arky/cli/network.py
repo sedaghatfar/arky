@@ -31,7 +31,7 @@ from .. import rest
 from .. import cfg
 from .. import util
 
-from . import BALANCES
+from . import DATA
 
 import arky
 import sys
@@ -92,8 +92,8 @@ def delegates(param):
 
 
 def update(param):
-	BALANCES.reset()
-	util.prettyPrint(BALANCES)
+	DATA.balances.reset()
+	util.prettyPrint(DATA.balances)
 
 
 def staking(param):

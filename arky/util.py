@@ -1,8 +1,6 @@
 # -*- encoding: utf8 -*-
 # © Toons
 
-import arky
-
 from . import __PY3__, ROOT
 from . import rest
 from . import cfg
@@ -93,6 +91,9 @@ def setInterval(interval):
 		return wrapper
 	return decorator
 
+def shortAddress(addr, sep="...", n=5):
+	return addr[:n]+sep+addr[-n:]
+
 def prettyfy(dic, tab="    "):
 	result = ""
 	if len(dic):
@@ -164,42 +165,33 @@ def askYesOrNo(msg):
 		answer = input("%s [y-n]> " % msg)
 	return False if answer in ["n", "N"] else True
 
-def floatAmount(amount, address):
-	if amount.endswith("%"):
-		return (float(amount[:-1])/100 * float(rest.GET.api.accounts.getBalance(address=address, returnKey="balance")) - cfg.fees["send"])/100000000.
-	elif amount[0] in ["$", "€", "£", "¥"]:
-		price = getTokenPrice(cfg.token, {"$":"usd", "EUR":"eur", "€":"eur", "£":"gbp", "¥":"cny"}[amount[0]])
-		result = float(amount[1:])/price
-		if askYesOrNo("%s=%s%f (%s/%s=%f) - Validate ?" % (amount, cfg.token, result, cfg.token, amount[0], price)):
-			return result
-		else:
-			return False
-	else:
-		return float(amount)
+# def floatAmount(amount, address):
+# 	if amount.endswith("%"):
+# 		return (float(amount[:-1])/100 * float(rest.GET.api.accounts.getBalance(address=address).get("balance", 0)) - cfg.fees["send"])/100000000.
+# 	elif amount[0] in ["$", "€", "£", "¥"]:
+# 		price = getTokenPrice(cfg.token, {"$":"usd", "EUR":"eur", "€":"eur", "£":"gbp", "¥":"cny"}[amount[0]])
+# 		result = float(amount[1:])/price
+# 		if askYesOrNo("%s=%s%f (%s/%s=%f) - Validate ?" % (amount, cfg.token, result, cfg.token, amount[0], price)):
+# 			return result
+# 		else:
+# 			return False
+# 	else:
+# 		return float(amount)
 
-def unlockAccount(address, secret, secondSecret=None):
-	if arky.core.crypto.getAddress(arky.core.crypto.getKeys(secret)["publicKey"]) == address:
-		account = rest.GET.api.accounts(address=address)
-		if account["success"]:
-			account = account["account"]
-			if account["secondSignature"]:
-				if not secondSecret: secondSecret = input("Enter your second secret : ")
-				return arky.core.crypto.getKeys(secondSecret)["publicKey"] == account["secondPublicKey"]
-			else:
-				return True
-		else:
-			return True
-	else:
-		return False
-
-# def reprTransaction(tx):
-# 	return "<type-%(type)d transaction(%(token)s%(amount).8f) from %(from)s to %(to)s>" % {
-# 		"type": tx["type"],
-# 		"token": cfg.token,
-# 		"amount": tx["amount"]/100000000.,
-# 		"from": shortAddress(tx.get("address", "No one")),
-# 		"to": shortAddress(tx.get("recipientId", "No one"))
-# 	}
+# def unlockAccount(address, secret, secondSecret=None):
+# 	if arky.core.crypto.getAddress(arky.core.crypto.getKeys(secret)["publicKey"]) == address:
+# 		account = rest.GET.api.accounts(address=address)
+# 		if account["success"]:
+# 			account = account["account"]
+# 			if account["secondSignature"]:
+# 				if not secondSecret: secondSecret = input("Enter your second secret : ")
+# 				return arky.core.crypto.getKeys(secondSecret)["publicKey"] == account["secondPublicKey"]
+# 			else:
+# 				return True
+# 		else:
+# 			return True
+# 	else:
+# 		return False
 
 # def getTransactions(timestamp=0, **param):
 # 	param.update(returnKey="transactions", limit=1000, orderBy="timestamp:desc")
