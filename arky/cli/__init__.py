@@ -17,11 +17,6 @@ import traceback
 
 rest.use("dark")
 
-# rootfolder = os.path.normpath(os.path.abspath(os.path.dirname(sys.executable) if main_is_frozen() else __path__[0]))
-# __path__.append(os.path.normpath(os.path.normpath(os.path.join(rootfolder, "private"))))
-
-from . import network #, escrow, delegate, account
-
 __doc__ = """Welcome to arky-cli 2.8 [Python %(python)s / arky %(arky)s]
 Available commands: %(sets)s""" % {"python": sys.version.split()[0], "arky":__version__, "sets": ", ".join(__all__)}
 
@@ -46,6 +41,26 @@ class _Prompt(object):
 
 PROMPT = _Prompt()
 PROMPT.module = sys.modules[__name__]
+
+
+class BalanceMGMT(dict):
+
+	def reset(self):
+		for address in self:
+			value = rest.GET.api.accounts.getBalance(address=address)
+			if value["success"]:
+				self[address] = int(value["balance"])
+
+	def register(self, address):
+		if address not in self:
+			value = rest.GET.api.accounts.getBalance(address=address)
+			if value["success"]:
+				self[address] = int(value["balance"])
+
+BALANCES = BalanceMGMT()
+
+
+from . import network #, escrow, delegate, account
 
 
 def parse(argv):

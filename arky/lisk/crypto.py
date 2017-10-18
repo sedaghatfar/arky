@@ -4,9 +4,17 @@
 from nacl.bindings.crypto_sign import crypto_sign_seed_keypair, crypto_sign
 from nacl.bindings import crypto_sign_BYTES
 
-from .. import __PY3__, __FROZEN__
-from .. import cfg, slots
-from ..util import basint, unpack, pack, unpack_bytes, pack_bytes, hexlify, unhexlify
+from .. import __PY3__
+from .. import __FROZEN__
+from .. import cfg
+from .. import slots
+from ..util import basint
+from ..util import unpack
+from ..util import pack
+from ..util import unpack_bytes
+from ..util import pack_bytes
+from ..util import hexlify
+from ..util import unhexlify
 
 if not __PY3__:
 	from StringIO import StringIO
@@ -14,6 +22,8 @@ else:
 	from io import BytesIO as StringIO
 
 import hashlib
+import binascii
+import struct
 
 
 def getKeys(secret, seed=None):

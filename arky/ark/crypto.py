@@ -6,9 +6,17 @@ from ecdsa.util import sigencode_der_canonize
 from ecdsa.curves import SECP256k1
 import base58
 
-from .. import __PY3__, __FROZEN__
-from .. import cfg, slots
-from ..util import basint, unpack, pack, unpack_bytes, pack_bytes, hexlify, unhexlify
+from .. import __PY3__
+from .. import __FROZEN__
+from .. import cfg
+from .. import slots
+from ..util import basint
+from ..util import unpack
+from ..util import pack
+from ..util import unpack_bytes
+from ..util import pack_bytes
+from ..util import hexlify
+from ..util import unhexlify
 
 if not __PY3__:
 	from StringIO import StringIO
@@ -16,6 +24,7 @@ else:
 	from io import BytesIO as StringIO
 
 import hashlib
+import binascii
 
 
 def compressEcdsaPublicKey(pubkey):

@@ -11,6 +11,7 @@ from . import crypto
 
 import random
 
+
 def selectPeers():
 	version = rest.GET.api.peers.version().get("version", "0.0.0")
 	peers = [p for p in rest.GET.api.peers().get("peers", []) if p.get("status", "") == "OK" \
@@ -21,6 +22,7 @@ def selectPeers():
 		selection.append("http://%(ip)s:%(port)s" % random.choice(peers))
 	if len(selection):
 		cfg.peers = selection
+
 
 def init():
 	global DAEMON_PEERS

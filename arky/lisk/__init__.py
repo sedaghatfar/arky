@@ -7,10 +7,16 @@ from .. import util
 
 from . import crypto
 
+
 def init():
-	cfg.headers["version"] = rest.GET.api.peers.version(returnKey="version")
-	cfg.headers["nethash"] = rest.GET.api.blocks.getNethash(returnKey="nethash")
-	cfg.fees = rest.GET.api.blocks.getFees(returnKey="fees")
+	resp = rest.GET.api.blocks.getNethash()
+	if resp["success"]:
+		cfg.headers["nethash"] = resp["nethash"]
+		cfg.headers["version"] = rest.GET.api.peers.version(returnKey="version")
+		cfg.fees = rest.GET.api.blocks.getFees(returnKey="fees")
+	else:
+		raise Exception("Initialization error with peer %s" % resp.get("peer", "???"))
+
 
 def sendTransaction(**kw):
 	tx = crypto.bakeTransaction(**dict([k,v] for k,v in kw.items() if v))

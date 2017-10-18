@@ -31,6 +31,8 @@ from .. import rest
 from .. import cfg
 from .. import util
 
+from . import BALANCES
+
 import arky
 import sys
 import imp
@@ -86,13 +88,13 @@ def delegates(param):
 			sys.stdout.write("    #%02d - %s: %.3f\n" % (i, name.ljust(maxlen), vote))
 			i += 1
 	else:
-		sys.stdout.write("%s\n    Error occur using peer %s... retry !" % (resp["error"], resp.get("peer", "???")))
+		sys.stdout.write("%s\n    Error occur using peer %s... retry !\n" % (resp["error"], resp.get("peer", "???")))
 
 
-# def update(param):
-# 	common.BALANCES.reset()
-# 	common.prettyPrint(common.BALANCES)
-	
+def update(param):
+	BALANCES.reset()
+	util.prettyPrint(BALANCES)
+
 
 def staking(param):
 	sys.stdout.write("    %.2f%% of coin supply used to vote for delegates\n" % sum(d["approval"] for d in util.getCandidates()))
