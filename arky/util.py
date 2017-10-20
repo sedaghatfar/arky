@@ -116,15 +116,15 @@ def prettyPrint(dic, tab="    ", log=True):
 		sys.stdout.write("Nothing to print here\n")
 		if log: logging.info("Nothing to log here")
 
-def dumpJson(cnf, name):
-	filename = os.path.join(ROOT, name)
+def dumpJson(cnf, name, folder=None):
+	filename = os.path.join(ROOT if not folder else folder, name)
 	out = io.open(filename, "w" if __PY3__ else "wb")
 	json.dump(cnf, out, indent=2)
 	out.close()
 	return os.path.basename(filename)
 
-def loadJson(name):
-	filename = os.path.join(ROOT, name)
+def loadJson(name, folder=None):
+	filename = os.path.join(ROOT if not folder else folder, name)
 	if os.path.exists(filename):
 		in_ = io.open(filename, "r" if __PY3__ else "rb")
 		data = json.load(in_)

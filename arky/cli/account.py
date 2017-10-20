@@ -24,7 +24,8 @@ Subcommands:
 	register : register linked account as delegate;
 			   or
 			   register second signature to linked account.
-	vote     : up or down vote delegate.
+	vote     : up or down vote delegate(s). <delegate> can be a coma-separated list
+	           or a valid new-line-separated file list conaining delegate names.
 	send     : send ARK amount to address. You can set a 64-char message.
 """
 
@@ -56,19 +57,17 @@ def link(param):
 	if param["<secret>"]:
 		DATA.firstkeys = arky.core.crypto.getKeys(param["<secret>"])
 		DATA.account = rest.GET.api.accounts(address=arky.core.crypto.getAddress(DATA.firstkeys["publicKey"])).get("account", {})
-
 	if param["<2ndSecret>"]:
 		DATA.secondkeys = arky.core.crypto.getKeys(param["<2ndSecret>"])
 
-	if DATA.account:
-		DATA.balances.register(DATA.account["address"])
-	else:
+	if not DATA.account:
 		sys.stdout.write("    Accound does not exixts in %s blockchain...\n" % cfg.network)
 
 
 def unlink(param):
-	DATA.balances.pop(DATA.account["address"], None)
-	DATA.account, DATA.firstkeys, DATA.secondkeys = {}, {}, {}
+	DATA.account.clear()
+	DATA.firstkeys.clear()
+	DATA.secondkeys.clear()
 
 
 def status(param):
@@ -106,21 +105,28 @@ def register(param):
 
 
 def vote(param):
-
+	# if a valid account is linked
 	if DATA.account:
+		# get account votes
 		voted = rest.GET.api.accounts.delegates(address=DATA.account["address"]).get("delegates", [])
+		# if usernames is/are given
 		if param["<delegate>"]:
-			usernames = param["<delegate>"].split(",")
-			voted = [d["username"] for d in voted]
-
-			if param["--up"]:
-				verb = "Upvote"
-				fmt = "+%s"
-				to_vote = [username for username in usernames if username not in voted]
+			# try to load it from file if a valid path is given
+			if os.path.exists(param["<delegate>"]):
+				with io.open(param["<delegate>"], "r") as in_:
+					usernames = [str(e) for e in in_.read().split() if e != ""]
 			else:
+				usernames = param["<delegate>"].split(",")
+
+			voted = [d["username"] for d in voted]
+			if param["--down"]:
 				verb = "Downvote"
 				fmt = "-%s"
 				to_vote = [username for username in usernames if username in voted]
+			else:
+				verb = "Upvote"
+				fmt = "+%s"
+				to_vote = [username for username in usernames if username not in voted]
 
 			if len(to_vote) and util.askYesOrNo("%s %s ?" % (verb, ", ".join(to_vote))) \
 			                and checkSecondKeys():
@@ -140,7 +146,7 @@ def vote(param):
 def send(param):
 
 	if DATA.account:
-		amount = floatAmount(param["<amount>"], DATA.account["address"])
+		amount = floatAmount(param["<amount>"])
 		if amount and util.askYesOrNo("Send %(amount).8f %(token)s to %(recipientId)s ?" % \
 		          {"token": cfg.token, "amount": amount, "recipientId": param["<address>"]}) \
 		          and checkSecondKeys():

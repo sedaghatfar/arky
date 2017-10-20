@@ -3,12 +3,13 @@
 
 import arky
 
-__all__ = ["network", "account"] #"escrow", "network", "delegate"]
+__all__ = ["network", "account", "delegate"] # , "escrow"]
 
 from .. import __version__
 from .. import __FROZEN__
 from .. import __PY3__
 from .. import rest
+from .. import util
 from .. import cfg
 
 rest.use("dark")
@@ -20,6 +21,7 @@ import logging
 import traceback
 
 input = raw_input if not __PY3__ else input
+
 
 class _Prompt(object):
 
@@ -37,28 +39,13 @@ PROMPT = _Prompt()
 PROMPT.module = sys.modules[__name__]
 
 
-class BalanceMGMT(dict):
-
-	def reset(self):
-		for address in self:
-			value = rest.GET.api.accounts.getBalance(address=address)
-			if value["success"]:
-				self[address] = int(value["balance"])
-
-	def register(self, address):
-		if address not in self:
-			value = rest.GET.api.accounts.getBalance(address=address)
-			if value["success"]:
-				self[address] = int(value["balance"])
-
-
 class Data(object):
 
 	def __init__(self):
+		self.delegate = {}
 		self.account = {}
 		self.firstkeys = {}
 		self.secondkeys = {}
-		self.balances = BalanceMGMT()
 
 DATA = Data()
 
@@ -156,8 +143,6 @@ def start():
 
 
 def checkSecondKeys():
-	# global ACCOUNT, SECONDKEYS
-
 	secondPublicKey = DATA.account.get("secondPublicKey", False)
 	if secondPublicKey and not DATA.secondkeys:
 		secondKeys = arky.core.crypto.getKeys(input("Enter second passphrase> "))
@@ -171,9 +156,9 @@ def checkSecondKeys():
 		return True
 
 
-def floatAmount(amount, address):
+def floatAmount(amount):
 	if amount.endswith("%"):
-		return (float(amount[:-1])/100 * float(rest.GET.api.accounts.getBalance(address=address).get("balance", 0)) - cfg.fees["send"])/100000000.
+		return (float(amount[:-1])/100 * float(DATA.account.get("balance", 0.)) - cfg.fees["send"])/100000000.
 	elif amount[0] in ["$", "€", "£", "¥"]:
 		price = getTokenPrice(cfg.token, {"$":"usd", "EUR":"eur", "€":"eur", "£":"gbp", "¥":"cny"}[amount[0]])
 		result = float(amount[1:])/price
@@ -186,7 +171,8 @@ def floatAmount(amount, address):
 
 
 from . import network
-from . import account #, escrow, delegate
+from . import account
+from . import delegate #, escrow
 
 __doc__ = """Welcome to arky-cli [Python %(python)s / arky %(arky)s]
 Available commands: %(sets)s""" % {"python": sys.version.split()[0], "arky":__version__, "sets": ", ".join(__all__)}

@@ -151,6 +151,8 @@ $RECYCLE.BIN/
 *.lnk
 
 # misceleanous
+*.payroll
+*.forged
 *.wlt
 *.akr
 *.csv
@@ -180,3 +182,5 @@ arky/tkapu.net
 *.rnd
 .vscode/
 arky/ark-aip11.net
+arky/d_arky-dark.forged
+arky/d_arky-dark.payroll
