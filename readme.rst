@@ -157,15 +157,15 @@ Link account
 ::
 
   hot@toxy/account[18160...4874X]> status
-          secondSignature: 1
-          multisignatures: []
-          secondPublicKey: 8b509500d5950122b3e446189b4312805515c8e7814a409e09ac5c21935564af
-      u_multisignatures: []
-      unconfirmedBalance: 2637000000
-              publicKey: 5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09
+           secondSignature: 1
+           multisignatures: []
+           secondPublicKey: 8b509500d5950122b3e446189b4312805515c8e7814a409e09ac5c21935564af
+         u_multisignatures: []
+        unconfirmedBalance: 2637000000
+                 publicKey: 5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09
       unconfirmedSignature: 1
-                  address: 18160565574430594874X
-                  balance: 2637000000
+                   address: 18160565574430594874X
+                   balance: 2637000000
   hot@toxy/account[18160...4874X]>
 
 Authors
