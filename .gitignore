@@ -153,6 +153,7 @@ $RECYCLE.BIN/
 # misceleanous
 *.payroll
 *.forged
+*.waiting
 *.wlt
 *.akr
 *.csv
