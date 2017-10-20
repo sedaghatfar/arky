@@ -12,7 +12,7 @@ Options:
 -b <blacklist> --blacklist <blacklist> ark addresses to exclude (comma-separated list or pathfile)
 -h <highest> --highest <hihgest>       maximum payout in ARK
 -l <lowest> --lowest <lowest>          minimum payout in ARK
--d <delay> --delay <delay>             number of fidelity-day [default: 30]
+-d <delay> --delay <delay>             number of fidelity-day
 
 Subcommands:
 	link   : link to delegate using secret passphrases. If secret passphrases
@@ -151,14 +151,14 @@ def share(param):
 		else:
 			maximum = amount
 
-		if amount > 1:
+		if amount > 100000000:
 			# get voter contributions
 			voters = rest.GET.api.delegates.voters(publicKey=DATA.delegate["publicKey"]).get("accounts", []) 
 			contributions = dict([v["address"], int(v["balance"])] for v in voters if v["address"] not in blacklist)
 			k = 1.0 / max(1, sum(contributions.values()))
 			contributions = dict((a, b*k) for a,b in contributions.items())
 
-			payroll_json = "%s-%s.payroll" % (DATA.delegate["username"], cfg.network)
+			payroll_json = "%s-%s.waiting" % (DATA.delegate["username"], cfg.network)
 			saved_payroll = util.loadJson(payroll_json)
 			tosave_payroll = {}
 			complement = {}
@@ -187,6 +187,7 @@ def share(param):
 			util.prettyPrint(tosave_payroll)
 
 			util.dumpJson(tosave_payroll, payroll_json)
+			util.dumpJson(payroll.update(mandatory), "%s-%s.payroll" % (DATA.delegate["username"], cfg.network))
 		util.dumpJson(forged_details, forged_json)
 
 	else:
