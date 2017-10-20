@@ -9,7 +9,6 @@ Usage: network use [<name> -b <number> -l <ms>]
 	   network wif <secret>
 	   network delegates
 	   network staking
-	   network update
 
 Options:
 -b <number> --broadcast <number> peer number to use for broadcast       [default: 10]
@@ -24,7 +23,6 @@ Subcommands:
 	address   : returns address from secret.
 	delegates : show delegate list.
 	staking   : show coin-supply ratio used on delegate voting.
-	update    : update balance of all linked account.
 """
 
 from .. import rest
@@ -50,11 +48,16 @@ def use(param):
 		else:
 			sys.stdout.write("No Network found\n")
 			return False
+
+	# DATA.balances.clear()
+	DATA.account, DATA.firstkeys, DATA.secondkeys, DATA.delegate = {}, {}, {}, {}
+
 	rest.use(
 		param.get("<name>"),
-		broadcast=int(param.get("--broadcast"), 10),
+		broadcast=int(param.get("--broadcast", 10)),
 		timeout=float(param.get("--latency", 5000))/1000
 	)
+
 
 
 def browse(param):
@@ -89,11 +92,6 @@ def delegates(param):
 			i += 1
 	else:
 		sys.stdout.write("%s\n    Error occur using peer %s... retry !\n" % (resp["error"], resp.get("peer", "???")))
-
-
-def update(param):
-	DATA.balances.reset()
-	util.prettyPrint(DATA.balances)
 
 
 def staking(param):

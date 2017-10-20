@@ -61,7 +61,7 @@ def sendToken(amount, recipientId, secret, secondSecret=None, vendorField=None):
 	return sendTransaction(
 		amount=amount,
 		recipientId=recipientId,
-		vendorField=VendorField,
+		vendorField=vendorField,
 		secret=secret,
 		secondSecret=secondSecret
 	)

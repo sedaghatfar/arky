@@ -116,15 +116,15 @@ def prettyPrint(dic, tab="    ", log=True):
 		sys.stdout.write("Nothing to print here\n")
 		if log: logging.info("Nothing to log here")
 
-def dumpJson(cnf, name):
-	filename = os.path.join(ROOT, name)
+def dumpJson(cnf, name, folder=None):
+	filename = os.path.join(ROOT if not folder else folder, name)
 	out = io.open(filename, "w" if __PY3__ else "wb")
 	json.dump(cnf, out, indent=2)
 	out.close()
 	return os.path.basename(filename)
 
-def loadJson(name):
-	filename = os.path.join(ROOT, name)
+def loadJson(name, folder=None):
+	filename = os.path.join(ROOT if not folder else folder, name)
 	if os.path.exists(filename):
 		in_ = io.open(filename, "r" if __PY3__ else "rb")
 		data = json.load(in_)
@@ -165,33 +165,6 @@ def askYesOrNo(msg):
 		answer = input("%s [y-n]> " % msg)
 	return False if answer in ["n", "N"] else True
 
-# def floatAmount(amount, address):
-# 	if amount.endswith("%"):
-# 		return (float(amount[:-1])/100 * float(rest.GET.api.accounts.getBalance(address=address).get("balance", 0)) - cfg.fees["send"])/100000000.
-# 	elif amount[0] in ["$", "€", "£", "¥"]:
-# 		price = getTokenPrice(cfg.token, {"$":"usd", "EUR":"eur", "€":"eur", "£":"gbp", "¥":"cny"}[amount[0]])
-# 		result = float(amount[1:])/price
-# 		if askYesOrNo("%s=%s%f (%s/%s=%f) - Validate ?" % (amount, cfg.token, result, cfg.token, amount[0], price)):
-# 			return result
-# 		else:
-# 			return False
-# 	else:
-# 		return float(amount)
-
-# def unlockAccount(address, secret, secondSecret=None):
-# 	if arky.core.crypto.getAddress(arky.core.crypto.getKeys(secret)["publicKey"]) == address:
-# 		account = rest.GET.api.accounts(address=address)
-# 		if account["success"]:
-# 			account = account["account"]
-# 			if account["secondSignature"]:
-# 				if not secondSecret: secondSecret = input("Enter your second secret : ")
-# 				return arky.core.crypto.getKeys(secondSecret)["publicKey"] == account["secondPublicKey"]
-# 			else:
-# 				return True
-# 		else:
-# 			return True
-# 	else:
-# 		return False
 
 # def getTransactions(timestamp=0, **param):
 # 	param.update(returnKey="transactions", limit=1000, orderBy="timestamp:desc")

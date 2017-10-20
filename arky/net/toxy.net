@@ -19,5 +19,6 @@
   "token" : "oxycoin",
   "symbol" : "OXY",
   "delegate": 201,
-  "blocktime": 15
+  "blocktime": 15,
+  "blockreward": 5
 }

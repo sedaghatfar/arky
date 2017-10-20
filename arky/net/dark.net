@@ -30,5 +30,6 @@
   "token" : "dark",
 	"symbol" : "DѦ",
 	"delegate": 51,
-  "blocktime": 8
+  "blocktime": 8,
+  "blockreward": 2 
 }

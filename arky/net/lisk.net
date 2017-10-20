@@ -19,5 +19,6 @@
   "token" : "lisk",
   "symbol" : "Ⱡ",
   "delegate": 101,
-  "blocktime": 10
+  "blocktime": 10,
+  "blockreward": 4
 }
