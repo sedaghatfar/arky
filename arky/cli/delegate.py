@@ -165,7 +165,7 @@ def share(param):
 			payroll = collections.OrderedDict()
 
 			for address, ratio in contributions.items():
-				share = amount*ratio
+				share = amount*ratio + saved_payroll.pop(address, 0)
 				if share >= maximum:
 					payroll[address] = maximum
 				elif share < minimum:
@@ -176,7 +176,6 @@ def share(param):
 			pairs = list(pshare.applyContribution(**complement).items())
 			mandatory = dict([pairs.pop(0)])
 			for address, share in pairs:
-				share += saved_payroll.pop(address, 0.)
 				if share < minimum:
 					tosave_payroll[address] = share
 				else:
@@ -186,9 +185,9 @@ def share(param):
 			util.prettyPrint(payroll)
 			util.prettyPrint(tosave_payroll)
 
-			util.dumpJson(tosave_payroll, payroll_json)
+			util.dumpJson(tosave_payroll.update(saved_payroll), payroll_json)
 			util.dumpJson(payroll.update(mandatory), "%s-%s.payroll" % (DATA.delegate["username"], cfg.network))
-		util.dumpJson(forged_details, forged_json)
+			util.dumpJson(forged_details, forged_json)
 
 	else:
 		sys.stdout.write("    Share feature not available\n")
