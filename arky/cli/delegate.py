@@ -9,9 +9,9 @@ Usage: delegate link [<secret> <2ndSecret>]
 	   delegate share <amount> [-b <blacklist> -d <delay> -l <lowest> -h <highest> <message>]
 
 Options:
--b <blacklist> --blacklist <blacklist> ark addresses to exclude (comma-separated list or pathfile)
--h <highest> --highest <hihgest>       maximum payout in ARK
--l <lowest> --lowest <lowest>          minimum payout in ARK
+-b <blacklist> --blacklist <blacklist> addresses to exclude (comma-separated list or pathfile)
+-h <highest> --highest <hihgest>       maximum payout in token
+-l <lowest> --lowest <lowest>          minimum payout in token
 -d <delay> --delay <delay>             number of fidelity-day
 
 Subcommands:
@@ -22,7 +22,7 @@ Subcommands:
 	unlink : unlink delegate.
 	status : show information about linked delegate.
 	voters : show voters contributions ([address - vote] pairs).
-	share  : share ARK amount with voters (if any) according to their
+	share  : write share payroll for voters (if any) according to their
 			 weight (there are mandatory fees). You can set a 64-char message.
 """
 
@@ -152,14 +152,16 @@ def share(param):
 			maximum = amount
 
 		if amount > 100000000:
+			sys.stdout.write("Writing share for %.8f %s\n" % (amount/100000000, cfg.token))
 			# get voter contributions
 			voters = rest.GET.api.delegates.voters(publicKey=DATA.delegate["publicKey"]).get("accounts", []) 
 			contributions = dict([v["address"], int(v["balance"])] for v in voters if v["address"] not in blacklist)
 			k = 1.0 / max(1, sum(contributions.values()))
 			contributions = dict((a, b*k) for a,b in contributions.items())
 
-			payroll_json = "%s-%s.waiting" % (DATA.delegate["username"], cfg.network)
-			saved_payroll = util.loadJson(payroll_json)
+			waiting_json = "%s-%s.waiting" % (DATA.delegate["username"], cfg.network)
+			payroll_json = "%s-%s.payroll" % (DATA.delegate["username"], cfg.network)
+			saved_payroll = util.loadJson(waiting_json)
 			tosave_payroll = {}
 			complement = {}
 			payroll = collections.OrderedDict()
@@ -167,9 +169,9 @@ def share(param):
 			for address, ratio in contributions.items():
 				share = amount*ratio + saved_payroll.pop(address, 0)
 				if share >= maximum:
-					payroll[address] = maximum
+					payroll[address] = int(maximum)
 				elif share < minimum:
-					tosave_payroll[address] = share
+					tosave_payroll[address] = int(share)
 				else:
 					complement[address] = share
 			
@@ -181,13 +183,21 @@ def share(param):
 				else:
 					payroll[address] = share
 			
+			sys.stdout.write("Mandatory fees :\n")
 			util.prettyPrint(mandatory)
+			sys.stdout.write("Payroll (see %s file):\n" % payroll_json)
 			util.prettyPrint(payroll)
+			sys.stdout.write("Saved payroll (see %s file):\n" % waiting_json)
 			util.prettyPrint(tosave_payroll)
 
-			util.dumpJson(tosave_payroll.update(saved_payroll), payroll_json)
-			util.dumpJson(payroll.update(mandatory), "%s-%s.payroll" % (DATA.delegate["username"], cfg.network))
+			tosave_payroll.update(saved_payroll)
+			util.dumpJson(tosave_payroll, waiting_json)
+
+			payroll.update(mandatory)
+			util.dumpJson(payroll, payroll_json)
 			util.dumpJson(forged_details, forged_json)
 
+		else:
+			sys.stdout.write("    No reward to send since last share\n")
 	else:
 		sys.stdout.write("    Share feature not available\n")
