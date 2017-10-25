@@ -25,6 +25,11 @@ def sendTransaction(**kw):
 		result["id"] = tx["id"]
 	return result
 
+
+def sendPayload(*payloads):
+	return rest.POST.peer.transactions(transactions=payloads)
+
+
 #######################
 ## basic transaction ##
 #######################

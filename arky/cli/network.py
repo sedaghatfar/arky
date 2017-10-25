@@ -12,7 +12,7 @@ Usage: network use [<name> -b <number> -l <ms>]
 
 Options:
 -b <number> --broadcast <number> peer number to use for broadcast       [default: 10]
--l <ms> --latency <ms>           maximum latency allowed in miliseconds [default: 1000]
+-l <ms> --latency <ms>           maximum latency allowed in miliseconds [default: 5000]
 -t <id> --transaction <id>       transaction id to browse
 -a <id> --address <id>           address id to browse
 
@@ -57,7 +57,6 @@ def use(param):
 		broadcast=int(param.get("--broadcast", 10)),
 		timeout=float(param.get("--latency", 5000))/1000
 	)
-
 
 
 def browse(param):

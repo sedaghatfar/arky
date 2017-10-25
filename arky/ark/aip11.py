@@ -1,12 +1,13 @@
 # -*- encoding: utf8 -*-
 # © Toons
 
-from .. import __PY3__
-from .. import crypto
 from .. import slots
-from .. import init
 from .. import rest
 from .. import cfg
+
+from . import __PY3__
+from . import crypto
+from . import init
 
 import struct
 

@@ -42,16 +42,29 @@ def init():
 	else:
 		raise Exception("Initialization error with peer %s" % resp.get("peer", "???"))
 
-# This function is a high-level broadcasting for a single tx
-def sendTransaction(**kw):
-	tx = crypto.bakeTransaction(**dict([k,v] for k,v in kw.items() if v))
-	result = rest.POST.peer.transactions(peer=cfg.peers[0], transactions=[tx])
+
+def sendPayload(*payloads):
+	result = rest.POST.peer.transactions(peer=cfg.peers[0], transactions=payloads)
 	success = 1 if result["success"] else 0
 	for peer in cfg.peers[1:]:
-		if rest.POST.peer.transactions(peer=peer, transactions=[tx])["success"]:
+		if rest.POST.peer.transactions(peer=peer, transactions=payloads)["success"]:
 			success += 1
 	result["broadcast"] = "%.1f%%" % (100.*success/len(cfg.peers))
 	return result
+
+# This function is a high-level broadcasting for a single tx
+def sendTransaction(**kw):
+	tx = crypto.bakeTransaction(**dict([k,v] for k,v in kw.items() if v))
+	return sendPayload(tx)
+
+	# result = rest.POST.peer.transactions(peer=cfg.peers[0], transactions=[tx])
+	# success = 1 if result["success"] else 0
+	# for peer in cfg.peers[1:]:
+	# 	if rest.POST.peer.transactions(peer=peer, transactions=[tx])["success"]:
+	# 		success += 1
+	# result["broadcast"] = "%.1f%%" % (100.*success/len(cfg.peers))
+	# return result
+
 
 #######################
 ## basic transaction ##

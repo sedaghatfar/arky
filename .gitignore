@@ -182,6 +182,6 @@ arky/ui/history2.json
 arky/tkapu.net
 *.rnd
 .vscode/
-arky/ark-aip11.net
-arky/d_arky-dark.forged
-arky/d_arky-dark.payroll
+*.forged
+*.payroll
+arky/net/ark-aip11.net

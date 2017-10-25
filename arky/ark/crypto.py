@@ -180,7 +180,8 @@ def bakeTransaction(**kw):
 	payload["senderPublicKey"] = keys["publicKey"]
 	# add optional data
 	for key in (k for k in ["requesterPublicKey", "recipientId", "vendorField", "asset"] if k in kw):
-		payload[key] = kw[key]
+		if kw[key]:
+			payload[key] = kw[key]
 	# sign payload
 	payload["signature"] = getSignature(payload, keys["privateKey"])
 	if kw.get("secondSecret", False):

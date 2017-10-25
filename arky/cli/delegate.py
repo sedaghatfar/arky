@@ -23,7 +23,7 @@ Subcommands:
 	status : show information about linked delegate.
 	voters : show voters contributions ([address - vote] pairs).
 	share  : write share payroll for voters (if any) according to their
-			 weight (there are mandatory fees). You can set a 64-char message.
+			 weight (there are mandatory fees)
 """
 
 import arky
@@ -35,6 +35,7 @@ from .. import util
 from . import DATA
 from . import input
 from . import checkSecondKeys
+from . import checkRegisteredTx
 
 from .account import link as _link
 from .account import unlink as _unlink
@@ -73,10 +74,39 @@ def _loadDelegate():
 			return False
 
 
+def _payroll(param):
+
+	if DATA.delegate:
+		payroll_json = "%s-%s.payroll" % (DATA.delegate["username"], cfg.network)
+		payroll = util.loadJson(payroll_json)
+
+		ongoing = {}
+		if payroll:
+			ongoing_json = "%s-%s.ongoing" % (DATA.delegate["username"], cfg.network)
+
+			for recipientId, amount in payroll.items():
+				tx = arky.core.crypto.bakeTransaction(
+					amount=amount,
+					recipientId=recipientId,
+					vendorField=param.get("<message>", None),
+					publicKey=DATA.firstkeys["publicKey"],
+					privateKey=DATA.firstkeys["privateKey"],
+					secondPrivateKey=DATA.secondkeys.get("privateKey", None)
+				)
+				ongoing[tx["id"]] = tx
+				arky.core.sendPayload(tx)
+
+			util.dumpJson(ongoing, ongoing_json)
+			if checkRegisteredTx(ongoing_json).wait():
+				util.popJson(payroll_json)
+				util.popJson(ongoing_json)
+
+
 def link(param):
 	_link(param)
 	if not _loadDelegate():
 		sys.stdout.write("Not a delegate\n")
+	# if any registry.... launch a check in bg ?
 
 
 def unlink(param):
@@ -185,17 +215,22 @@ def share(param):
 			
 			sys.stdout.write("Mandatory fees :\n")
 			util.prettyPrint(mandatory)
-			sys.stdout.write("Payroll (see %s file):\n" % payroll_json)
+			sys.stdout.write("Payroll [%s file]:\n" % payroll_json)
 			util.prettyPrint(payroll)
-			sys.stdout.write("Saved payroll (see %s file):\n" % waiting_json)
+			sys.stdout.write("Saved payroll [%s file]):\n" % waiting_json)
 			util.prettyPrint(tosave_payroll)
 
-			tosave_payroll.update(saved_payroll)
-			util.dumpJson(tosave_payroll, waiting_json)
+			if util.askYesOrNo("Validate share payroll ?"):
+				tosave_payroll.update(saved_payroll)
+				util.dumpJson(tosave_payroll, waiting_json)
 
-			payroll.update(mandatory)
-			util.dumpJson(payroll, payroll_json)
-			util.dumpJson(forged_details, forged_json)
+				payroll.update(mandatory)
+				util.dumpJson(payroll, payroll_json)
+				util.dumpJson(forged_details, forged_json)
+
+				_payroll(param)
+			else:
+				sys.stdout.write("    Share canceled\n")
 
 		else:
 			sys.stdout.write("    No reward to send since last share\n")

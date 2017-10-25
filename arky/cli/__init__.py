@@ -24,6 +24,7 @@ input = raw_input if not __PY3__ else input
 
 
 class _Prompt(object):
+	enable = True
 
 	def __setattr__(self, attr, value):
 		object.__setattr__(self, attr, value)
@@ -35,8 +36,15 @@ class _Prompt(object):
 			"wai": self.module._whereami()
 		}
 
+	def state(self, state=True):
+		_Prompt.enable = state
+
 PROMPT = _Prompt()
 PROMPT.module = sys.modules[__name__]
+
+
+def _whereami():
+	return ""
 
 
 class Data(object):
@@ -48,10 +56,6 @@ class Data(object):
 		self.secondkeys = {}
 
 DATA = Data()
-
-
-def _whereami():
-	return ""
 
 
 def parse(argv):
@@ -95,7 +99,7 @@ def start():
 		command = input(PROMPT)
 		argv = shlex.split(command)
 
-		if len(argv):
+		if len(argv) and _Prompt.enable:
 			cmd, arg = parse(argv)
 			if not cmd:
 				_xit = True
@@ -168,6 +172,44 @@ def floatAmount(amount):
 			return False
 	else:
 		return float(amount)
+
+
+def checkRegisteredTx(registry, quiet=False):
+	LOCK = None
+
+	@util.setInterval(2*cfg.blocktime)
+	def _checkRegisteredTx(registry):
+		registered = util.loadJson(registry)
+
+		if not quiet:
+			sys.stdout.write("\n---\nTransaction registry check, please wait...\n")
+		for tx_id, payload in list(registered.items()):
+			if rest.GET.api.transactions.get(id=tx_id).get("success", False):
+				registered.pop(tx_id)
+			else:
+				if not quiet:
+					sys.stdout.write("Resending transaction #%s:\n    %.8f %s to %s\n" % (
+						tx_id,
+						payload["amount"]/100000000,
+						cfg.token, payload["recipientId"]
+					))
+				result = arky.core.sendPayload(payload)
+				if not quiet:
+					util.prettyPrint(result, log=False)
+		
+		util.dumpJson(registered, registry)
+		remaining = len(registered)
+		if not remaining:
+			if not quiet:
+				sys.stdout.write("\nCheck finished, all transactiosn broadcasted\n")
+			LOCK.set()
+		elif not quiet:
+			sys.stdout.write("\n%d transaction%s went missing in blockchain\nWaiting two blocks (%ds) for another check...\n" % (remaining, "s" if remaining>1 else "", 2*cfg.blocktime))
+
+	if not quiet:
+		sys.stdout.write("Transaction check will be run soon, please wait...\n")
+	LOCK = _checkRegisteredTx(registry)
+	return LOCK
 
 
 from . import network
