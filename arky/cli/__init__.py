@@ -3,7 +3,7 @@
 
 import arky
 
-__all__ = ["network", "account", "delegate"] # , "escrow"]
+__all__ = ["network", "account", "delegate"]
 
 from .. import __version__
 from .. import __FROZEN__
@@ -19,11 +19,13 @@ import shlex
 import docopt
 import logging
 import traceback
+import threading
 
 input = raw_input if not __PY3__ else input
 
 
 class _Prompt(object):
+	enable = True
 
 	def __setattr__(self, attr, value):
 		object.__setattr__(self, attr, value)
@@ -35,8 +37,15 @@ class _Prompt(object):
 			"wai": self.module._whereami()
 		}
 
+	def state(self, state=True):
+		_Prompt.enable = state
+
 PROMPT = _Prompt()
 PROMPT.module = sys.modules[__name__]
+
+
+def _whereami():
+	return ""
 
 
 class Data(object):
@@ -46,12 +55,18 @@ class Data(object):
 		self.account = {}
 		self.firstkeys = {}
 		self.secondkeys = {}
+		object.__setattr__(self, "daemon", None)
+
+	def __setattr__(self, attr, value):
+		if attr == "daemon":
+			if not isinstance(value, threading.Event):
+				raise AttributeError("%s value must be a valid %s class" % (value, threading.Event))
+			daemon = getattr(self, attr)
+			if daemon:
+				daemon.set()
+		object.__setattr__(self, attr, value)
 
 DATA = Data()
-
-
-def _whereami():
-	return ""
 
 
 def parse(argv):
@@ -92,10 +107,14 @@ def start():
 	sys.stdout.write(__doc__+"\n")
 	_xit = False
 	while not _xit:
-		command = input(PROMPT)
-		argv = shlex.split(command)
+		try:
+			command = input(PROMPT)
+		except EOFError:
+			argv = ["exit"]
+		else:
+			argv = shlex.split(command)
 
-		if len(argv):
+		if len(argv) and _Prompt.enable:
 			cmd, arg = parse(argv)
 			if not cmd:
 				_xit = True
@@ -110,6 +129,10 @@ def start():
 					if hasattr(error, "__traceback__"):
 						sys.stdout.write("".join(traceback.format_tb(error.__traceback__)).rstrip() + "\n")
 					sys.stdout.write("%s\n" % error)
+	
+	if DATA.daemon:
+		sys.stdout.write("Closing registry daemon...\n")
+		DATA.daemon.wait()
 
 
 # def execute(*lines):
@@ -170,9 +193,43 @@ def floatAmount(amount):
 		return float(amount)
 
 
+def checkRegisteredTx(registry, quiet=False):
+	LOCK = None
+
+	@util.setInterval(2*cfg.blocktime)
+	def _checkRegisteredTx(registry):
+		registered = util.loadJson(registry)
+
+		if not quiet:
+			sys.stdout.write("\n---\nTransaction registry check, please wait...\n")
+		for tx_id, payload in list(registered.items()):
+			if rest.GET.api.transactions.get(id=tx_id).get("success", False):
+				registered.pop(tx_id)
+			else:
+				if not quiet:
+					sys.stdout.write("Broadcasting transaction #%s\n" % tx_id)
+				result = arky.core.sendPayload(payload)
+				if not quiet:
+					util.prettyPrint(result, log=False)
+		
+		util.dumpJson(registered, registry)
+		remaining = len(registered)
+		if not remaining:
+			if not quiet:
+				sys.stdout.write("\nCheck finished, all transactions applied\n")
+			LOCK.set()
+		elif not quiet:
+			sys.stdout.write("\n%d transaction%s not applied in blockchain\nWaiting two blocks (%ds) before another broadcast...\n" % (remaining, "s" if remaining>1 else "", 2*cfg.blocktime))
+
+	if not quiet:
+		sys.stdout.write("Transaction check in two blocks (%ds), please wait...\n" % (2*cfg.blocktime))
+	LOCK = _checkRegisteredTx(registry)
+	return LOCK
+
+
 from . import network
 from . import account
-from . import delegate #, escrow
+from . import delegate
 
 __doc__ = """Welcome to arky-cli [Python %(python)s / arky %(arky)s]
 Available commands: %(sets)s""" % {"python": sys.version.split()[0], "arky":__version__, "sets": ", ".join(__all__)}

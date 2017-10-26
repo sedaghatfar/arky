@@ -133,6 +133,12 @@ def loadJson(name, folder=None):
 	else:
 		return {}
 
+def popJson(name, folder=None):
+	filename = os.path.join(ROOT if not folder else folder, name)
+	if os.path.exists(filename):
+		os.remove(filename)
+
+
 def findNetworks():
 	try:
 		return [os.path.splitext(name)[0] for name in os.listdir(os.path.join(ROOT, "net")) if name.endswith(".net")]

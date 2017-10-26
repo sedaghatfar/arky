@@ -3,26 +3,26 @@
 
 """
 Usage: network use [<name> -b <number> -l <ms>]
-	   network browse [-t|-a <id>]
-	   network publickey <secret>
-	   network address <secret>
-	   network wif <secret>
-	   network delegates
-	   network staking
+       network browse [-t|-a <id>]
+       network publickey <secret>
+       network address <secret>
+       network wif <secret>
+       network delegates
+       network staking
 
 Options:
 -b <number> --broadcast <number> peer number to use for broadcast       [default: 10]
--l <ms> --latency <ms>           maximum latency allowed in miliseconds [default: 1000]
+-l <ms> --latency <ms>           maximum latency allowed in miliseconds [default: 5000]
 -t <id> --transaction <id>       transaction id to browse
 -a <id> --address <id>           address id to browse
 
 Subcommands:
-	use       : select network.
-	browse    : browse network.
-	publickey : returns public key from secret.
-	address   : returns address from secret.
-	delegates : show delegate list.
-	staking   : show coin-supply ratio used on delegate voting.
+    use       : select network.
+    browse    : browse network.
+    publickey : returns public key from secret.
+    address   : returns address from secret.
+    delegates : show delegate list.
+    staking   : show coin-supply ratio used on delegate voting.
 """
 
 from .. import rest
@@ -57,7 +57,6 @@ def use(param):
 		broadcast=int(param.get("--broadcast", 10)),
 		timeout=float(param.get("--latency", 5000))/1000
 	)
-
 
 
 def browse(param):
