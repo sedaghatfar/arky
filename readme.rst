@@ -109,8 +109,6 @@ Here is an example of arky script
   network use dark
   account link XxxxxxxXxxxXXxxxxXxxxxxxxXXxxxxx
   send 40% DTywx2qNfefZZ2Z2bjbugQgUML7yhYEatX
-  delegate link XxxxxxxXxxxXXxxxxXxxxxxxxXXxxxxx
-  voters
 
 To launch it :
 
