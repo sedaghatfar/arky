@@ -2,19 +2,18 @@
 # © Toons
 
 """
-Usage: delegate link [<secret> <2ndSecret>]
-	   delegate unlink
-	   delegate status
-	   delegate voters
+Usage: delegate link <secret> [<2ndSecret>]
+       delegate unlink
+       delegate status
+       delegate voters
 
 Subcommands:
-	link   : link to delegate using secret passphrases. If secret passphrases
-			 contains spaces, it must be enclosed within double quotes
-			 ("secret with spaces"). If no secret given, it tries to link
-			 with saved account(s).
-	unlink : unlink delegate.
-	status : show information about linked delegate.
-	voters : show voters contributions ([address - vote] pairs).
+    link   : link to delegate using secret passphrases. If secret passphrases
+             contains spaces, it must be enclosed within double quotes
+             (ie "secret with spaces").
+    unlink : unlink delegate.
+    status : show information about linked delegate.
+    voters : show voters contributions ([address - vote] pairs).
 """
 
 import arky
@@ -56,10 +55,10 @@ def _loadDelegate():
 
 
 def link(param):
-	_link(param)
+	_link(dict(param, **{"--escrow":False}))
 	if not _loadDelegate():
 		sys.stdout.write("Not a delegate\n")
-	# if any registry.... launch a check in bg ?
+		unlink(param)
 
 
 def unlink(param):
