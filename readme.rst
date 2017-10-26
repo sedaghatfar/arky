@@ -170,8 +170,9 @@ Toons Bitcoin address: ``3Jgib9SQiDLYML7QKBYtJUkHq2nyG6Z63D``
 Version
 =======
 
-**0.3.1**
+**0.4.0**
 
++ cli commmand cleanup
 + Some minors correction about the whitespace, indentation for PEP8 specifications.
 + Removed some unused imports.
 + ``util`` pkg:
@@ -189,7 +190,7 @@ Version
 + ``misc`` pkg:
    * Fixed the ARK2USD and USD2ARK functions.
 
-**0.3**
+**0.3.1**
 
 + ``stick-arky`` released : bring all arky every where on your usb stick
 + ``kapu`` mainnet added

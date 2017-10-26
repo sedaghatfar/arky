@@ -7,11 +7,11 @@ from .. import cfg, __PY3__, HOME, __version__, main_is_frozen
 import io, os, sys, shlex, docopt, logging, traceback, collections
 
 rootfolder = os.path.normpath(os.path.abspath(os.path.dirname(sys.executable) if main_is_frozen() else __path__[0]))
-__path__.append(os.path.normpath(os.path.normpath(os.path.join(rootfolder, "private"))))
-
+# 
 from . import escrow, network, delegate, account
 
-__doc__ = """Welcome to arky-cli 2.8 [Python %(python)s / arky %(arky)s] Available commands: %(sets)s""" % {"python": sys.version.split()[0], "arky":__version__, "sets": ", ".join(__all__)}
+__doc__ = """Welcome to arky-cli 2.8 [Python %(python)s / arky %(arky)s]
+Available commands: %(sets)s""" % {"python": sys.version.split()[0], "arky":__version__, "sets": ", ".join(__all__)}
 
 input = raw_input if not __PY3__ else input
 
