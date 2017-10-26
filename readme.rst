@@ -110,7 +110,7 @@ Here is an example of arky script
   account link XxxxxxxXxxxXXxxxxXxxxxxxxXXxxxxx
   send 40% DTywx2qNfefZZ2Z2bjbugQgUML7yhYEatX
   delegate link XxxxxxxXxxxXXxxxxXxxxxxxxXXxxxxx
-  share 60%  -d 7 "weekly reward from delegate d_arky"
+  voters
 
 To launch it :
 
