@@ -49,6 +49,9 @@ def _whereami():
 
 class Data(object):
 
+	daemon_registry = None
+	daemon_share = None
+
 	def __init__(self):
 		self.delegate = {}
 		self.account = {}

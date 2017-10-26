@@ -6,12 +6,6 @@ try:
 except ImportError:
 	from distutils.core import setup
 
-import os, sys
-if sys.platform.startswith("win"):
-	for version in ["2.7", "3.5", "3.6"]:
-		os.system('''py -%s -c "import py_compile;py_compile.compile('arky/cli/private/pshare.py', cfile='arky/cli/pshare%s.pyc')"''' % (version, version.replace(".", "")))
-
-
 kw = {}
 f = open("VERSION", "r")
 long_description = open("readme.rst", "r")
@@ -28,7 +22,7 @@ kw.update(**{
 	"include_package_data": True,
 	"description": "Python API bridging DPOS blockchains",
 	"long_description": long_description.read(),
-	"packages": ["arky", "arky.ark", "arky.ark.aip11", "arky.lisk"],
+	"packages": ["arky", "arky.ark", "arky.ark", "arky.lisk"],
 	"install_requires": ["requests", "ecdsa", "pynacl", "pytz", "base58", "docopt"], #, "yawTtk"],
 	"license": "Copyright 2016-2017 Toons, Copyright 2017 ARK, MIT licence",
 	"classifiers": [
