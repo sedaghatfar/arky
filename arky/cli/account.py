@@ -49,7 +49,7 @@ import sys
 
 def _send(payload):
     if DATA.account:
-        registry_file = "%s.registry" % data.account["address"]
+        registry_file = "%s.registry" % DATA.account["address"]
         registry = util.loadJson(registry_file)
         registry[payload["id"]] = payload
         util.dumpJson(registry, registry_file)
@@ -76,7 +76,7 @@ def link(param):
     if not DATA.account:
         sys.stdout.write("    Accound does not exixts in %s blockchain...\n" % cfg.network)
     else:
-        DATA.daemon_registry = checkRegisteredTx() # set a payload checker ?
+        DATA.daemon_registry = checkRegisteredTx("%s.registry" % DATA.account["address"], quiet=True) # set a payload checker ?
 
 def unlink(param):
     DATA.account.clear()
