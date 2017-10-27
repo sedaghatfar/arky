@@ -56,6 +56,7 @@ class Data(object):
 		self.firstkeys = {}
 		self.secondkeys = {}
 		object.__setattr__(self, "daemon", None)
+		object.__setattr__(self, "escrowed", False)
 
 	def __setattr__(self, attr, value):
 		if attr == "daemon":
@@ -85,6 +86,9 @@ def parse(argv):
 		else:
 			PROMPT.module = sys.modules[__name__]
 
+	elif argv[0] == "EXIT":
+		return False, False
+
 	elif argv[0] in ["help", "?"]:
 		sys.stdout.write("%s\n" % PROMPT.module.__doc__.strip())
 
@@ -110,7 +114,7 @@ def start():
 		try:
 			command = input(PROMPT)
 		except EOFError:
-			argv = ["exit"]
+			argv = ["EXIT"]
 		else:
 			argv = shlex.split(command)
 
@@ -167,7 +171,7 @@ def start():
 
 def checkSecondKeys():
 	secondPublicKey = DATA.account.get("secondPublicKey", False)
-	if secondPublicKey and not DATA.secondkeys:
+	if secondPublicKey and not DATA.secondkeys and not DATA.escrowed:
 		secondKeys = arky.core.crypto.getKeys(input("Enter second passphrase> "))
 		if secondKeys["publicKey"] == secondPublicKey:
 			DATA.secondkeys = secondKeys

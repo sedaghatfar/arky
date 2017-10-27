@@ -2,13 +2,14 @@
 # © Toons
 
 """
-Usage: network use [<name> -b <number> -l <ms>]
-       network browse [-t|-a <id>]
-       network publickey <secret>
-       network address <secret>
-       network wif <secret>
-       network delegates
-       network staking
+Usage: 
+    network use [<name> -b <number> -l <ms>]
+    network browse [-t|-a <id>]
+    network publickey <secret>
+    network address <secret>
+    network wif <secret>
+    network delegates
+    network staking
 
 Options:
 -b <number> --broadcast <number> peer number to use for broadcast       [default: 10]

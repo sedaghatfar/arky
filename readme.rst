@@ -65,6 +65,8 @@ Blockchain package define the current interface :
 * ``arky.core.crypto.getSignature(tx, privateKey)``
 * ``arky.core.crypto.getId(tx)``
 * ``arky.core.crypto.getBytes(tx)``
+* ``arky.core.sendTransaction(**kw)``
+* ``arky.core.sendPayload(*payloads)``
 * ``arky.core.sendToken(amount, recipientId, secret, secondSecret=None, vendorField=None)``
 * ``arky.core.registerSecondPublicKey(secondPublicKey, secret, secondSecret=None)``
 * ``arky.core.registerSecondPassphrase(secondPassphrase, secret, secondSecret=None)``
@@ -168,8 +170,8 @@ Link account
                    balance: 2637000000
   hot@toxy/account[18160...4874X]>
 
-Authors
-=======
+Author
+======
 
 Toons <moustikitos@gmail.com>
 

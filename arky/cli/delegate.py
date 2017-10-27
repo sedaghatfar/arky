@@ -2,10 +2,11 @@
 # © Toons
 
 """
-Usage: delegate link <secret> [<2ndSecret>]
-       delegate unlink
-       delegate status
-       delegate voters
+Usage: 
+    delegate link <secret> [<2ndSecret>]
+    delegate unlink
+    delegate status
+    delegate voters
 
 Subcommands:
     link   : link to delegate using secret passphrases. If secret passphrases
@@ -34,6 +35,7 @@ import io
 import os
 import sys
 import collections
+
 
 def _whereami():
 	if DATA.account and not DATA.delegate:
