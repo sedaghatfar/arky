@@ -92,7 +92,7 @@ def link(param):
 	
 	if not DATA.account:
 		sys.stdout.write("    Accound does not exixts in %s blockchain...\n" % cfg.network)
-		unlink()
+		unlink(param)
 	else:
 		if param["<2ndSecret>"]:
 			DATA.secondkeys = arky.core.crypto.getKeys(param["<2ndSecret>"])

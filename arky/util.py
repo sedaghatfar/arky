@@ -115,8 +115,8 @@ def prettyPrint(dic, tab="    ", log=True):
 		sys.stdout.write(pretty)
 		if log: logging.info("\n"+pretty.rstrip())
 	else:
-		sys.stdout.write("Nothing to print here\n")
-		if log: logging.info("Nothing to log here")
+		sys.stdout.write("%sNothing to print here\n" % tab)
+		if log: logging.info("%sNothing to log here" % tab)
 
 def dumpJson(cnf, name, folder=None):
 	filename = os.path.join(HOME if not folder else folder, name)
