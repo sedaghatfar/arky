@@ -1,7 +1,9 @@
 # -*- encoding: utf8 -*-
 # © Toons
 
-from . import __PY3__, ROOT
+from . import __PY3__
+from . import HOME
+from . import ROOT
 from . import rest
 from . import cfg
 
@@ -113,18 +115,18 @@ def prettyPrint(dic, tab="    ", log=True):
 		sys.stdout.write(pretty)
 		if log: logging.info("\n"+pretty.rstrip())
 	else:
-		sys.stdout.write("Nothing to print here\n")
-		if log: logging.info("Nothing to log here")
+		sys.stdout.write("%sNothing to print here\n" % tab)
+		if log: logging.info("%sNothing to log here" % tab)
 
 def dumpJson(cnf, name, folder=None):
-	filename = os.path.join(ROOT if not folder else folder, name)
+	filename = os.path.join(HOME if not folder else folder, name)
 	out = io.open(filename, "w" if __PY3__ else "wb")
 	json.dump(cnf, out, indent=2)
 	out.close()
 	return os.path.basename(filename)
 
 def loadJson(name, folder=None):
-	filename = os.path.join(ROOT if not folder else folder, name)
+	filename = os.path.join(HOME if not folder else folder, name)
 	if os.path.exists(filename):
 		in_ = io.open(filename, "r" if __PY3__ else "rb")
 		data = json.load(in_)
@@ -134,7 +136,7 @@ def loadJson(name, folder=None):
 		return {}
 
 def popJson(name, folder=None):
-	filename = os.path.join(ROOT if not folder else folder, name)
+	filename = os.path.join(HOME if not folder else folder, name)
 	if os.path.exists(filename):
 		os.remove(filename)
 
@@ -144,6 +146,29 @@ def findNetworks():
 		return [os.path.splitext(name)[0] for name in os.listdir(os.path.join(ROOT, "net")) if name.endswith(".net")]
 	except:
 		return []
+
+def chooseMultipleItem(msg, *elem):
+	n = len(elem)
+	if n > 0:
+		sys.stdout.write(msg + "\n")
+		for i in range(n):
+			sys.stdout.write("    %d - %s\n" % (i+1, elem[i]))
+		indexes = []
+		while len(indexes) == 0:
+			try:
+				indexes = input("Choose items: [1-%d or all]> " % n)
+				if indexes == "all":
+					indexes = [i+1 for i in range(n)]
+				else:
+					indexes = [int(s) for s in indexes.strip().replace(" ", ",").split(",") if s != ""]
+					indexes = [r for r in indexes if 0<r<=n]
+			except:
+				indexes = []
+		return indexes
+	else:
+		sys.stdout.write("Nothing to choose...\n")
+		return False
+
 
 def chooseItem(msg, *elem):
 	n = len(elem)
