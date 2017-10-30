@@ -23,6 +23,7 @@ import threading
 
 input = raw_input if not __PY3__ else input
 
+EXECUTEMODE = False
 
 class _Prompt(object):
 	enable = True
@@ -139,34 +140,41 @@ def start():
 		DATA.daemon.wait()
 
 
-# def execute(*lines):
-# 	common.EXECUTEMODE = True
-
-# 	for line in lines:
-# 		sys.stdout.write("%s%s\n" % (PROMPT, line))
-# 		argv = shlex.split(line)
-# 		if len(argv):
-# 			cmd, arg = parse(argv)
-# 			if cmd and arg:
-# 				if "link" not in argv:
-# 					logging.info(line)
-# 				else:
-# 					logging.info(" ".join(argv[:2]+["x" * len(e) for e in ([] if len(argv) <= 2 else argv[2:])]))
-# 				try:
-# 					cmd(arg)
-# 				except Exception as error:
-# 					if hasattr(error, "__traceback__"):
-# 						sys.stdout.write("".join(traceback.format_tb(error.__traceback__)).rstrip() + "\n")
-# 					sys.stdout.write("%s\n" % error)
-
-# 	common.EXECUTEMODE = False
+def execute(*lines):
+	EXECUTEMODE = True
+	for line in lines:
+		sys.stdout.write("%s%s\n" % (PROMPT, line))
+		argv = shlex.split(line)
+		if len(argv):
+			cmd, arg = parse(argv)
+			if cmd and arg:
+				if "link" not in argv:
+					logging.info(line)
+				else:
+					logging.info(" ".join(argv[:2]+["x" * len(e) for e in ([] if len(argv) <= 2 else argv[2:])]))
+				try:
+					cmd(arg)
+				except Exception as error:
+					if hasattr(error, "__traceback__"):
+						sys.stdout.write("".join(traceback.format_tb(error.__traceback__)).rstrip() + "\n")
+					sys.stdout.write("%s\n" % error)
+	EXECUTEMODE = False
 
 
-# def launch(script):
-# 	if os.path.exists(script):
-# 		in_ = io.open(script, "r")
-# 		execute(*[l.strip() for l in in_.readlines()])
-# 		in_.close()
+def launch(script):
+	if os.path.exists(script):
+		in_ = io.open(script, "r")
+		execute(*[l.strip() for l in in_.readlines()])
+		in_.close()
+
+
+def askYesOrNo(msg):
+	if EXECUTEMODE:
+		return True
+	answer = ""
+	while answer not in ["y", "Y", "n", "N"]:
+		answer = input("%s [y-n]> " % msg)
+	return False if answer in ["n", "N"] else True
 
 
 def checkSecondKeys():
@@ -185,7 +193,15 @@ def checkSecondKeys():
 
 def floatAmount(amount):
 	if amount.endswith("%"):
-		return (float(amount[:-1])/100 * float(DATA.account.get("balance", 0.)) - cfg.fees["send"])/100000000.
+		if EXECUTEMODE:
+			balance = float(DATA.account.get("balance", 0.))
+		else:
+			resp = rest.GET.api.accounts.getBalance(address=DATA.account["address"])
+			if resp["success"]:
+				balance = float(resp["balance"])
+			else:
+				return False
+		return (float(amount[:-1])/100 * balance - cfg.fees["send"])/100000000.
 	elif amount[0] in ["$", "€", "£", "¥"]:
 		price = getTokenPrice(cfg.token, {"$":"usd", "EUR":"eur", "€":"eur", "£":"gbp", "¥":"cny"}[amount[0]])
 		result = float(amount[1:])/price

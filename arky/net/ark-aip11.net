@@ -3,6 +3,7 @@
   "begintime": [2017, 3, 21, 13],
   "endpoints": "ark",
   "familly": "ark.aip11",
+  "maxlimit": 50,
 
   "compressed": true,
   "wif": "aa",

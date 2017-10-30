@@ -46,6 +46,7 @@ from . import input
 from . import checkSecondKeys
 from . import checkRegisteredTx
 from . import floatAmount
+from . import askYesOrNo
 
 import io
 import os
@@ -66,13 +67,15 @@ def _send(payload):
 	else:
 		registry_file = "%s.registry" % DATA.account.get("address", "thirdparty")
 		registry = util.loadJson(registry_file)
-		registry[payload["id"]] = payload
-		util.dumpJson(registry, registry_file)
 		typ_ = payload["type"]
 		sys.stdout.write("    Broadcasting transaction...\n" if typ_ == 0 else \
 		                 "    Broadcasting vote...\n" if typ_ == 3 else \
 						 "")
-		util.prettyPrint(arky.core.sendPayload(payload))
+		resp = arky.core.sendPayload(payload)
+		util.prettyPrint(resp)
+		if resp["success"]:
+			registry[payload["id"]] = payload
+			util.dumpJson(registry, registry_file)
 		DATA.daemon = checkRegisteredTx(registry_file, quiet=True)
 
 
@@ -124,7 +127,7 @@ def register(param):
 	if DATA.account:
 		if param["2ndSecret"]:
 			secondPublicKey = arky.core.crypto.getKeys(param["<secret>"])["publicKey"]
-			if util.askYesOrNo("Register second public key %s ?" % secondPublicKey) \
+			if askYesOrNo("Register second public key %s ?" % secondPublicKey) \
 			   and checkSecondKeys():
 				sys.stdout.write("    Broadcasting second secret registration...\n")
 				_send(arky.core.crypto.bakeTransaction(
@@ -143,7 +146,7 @@ def register(param):
 				secondPublicKey = resp["account"]["publicKey"]
 			else:
 				secondPublicKey = arky.core.crypto.getKeys(param["<thirdparty>"])["publicKey"]
-			if util.askYesOrNo("Register thirdparty public key %s ?" % secondPublicKey) \
+			if askYesOrNo("Register thirdparty public key %s ?" % secondPublicKey) \
 			   and checkSecondKeys():
 				sys.stdout.write("    Broadcasting thirdparty registration...\n")
 				_send(arky.core.crypto.bakeTransaction(
@@ -155,7 +158,7 @@ def register(param):
 				))
 		else:
 			username = param["<username>"]
-			if util.askYesOrNo("Register %s account as delegate %s ?" % (DATA.account["address"], username)) \
+			if askYesOrNo("Register %s account as delegate %s ?" % (DATA.account["address"], username)) \
 			   and checkSecondKeys():
 				sys.stdout.write("    Broadcasting delegate registration...\n")
 				_send(arky.core.crypto.bakeTransaction(
@@ -182,7 +185,7 @@ def validate(param):
 				sys.stdout.write("    No transaction found in registry\n")
 				return
 			choices = util.chooseMultipleItem("Transactions(s) found:", *items)
-			if util.askYesOrNo("Validate transactions %s ?" % ",".join([str(i) for i in choices])):
+			if askYesOrNo("Validate transactions %s ?" % ",".join([str(i) for i in choices])):
 				for idx in choices:
 					tx = registry["transactions"][idx-1]
 					tx["signSignature"] = arky.core.crypto.getSignature(tx, thirdpartyKeys["privateKey"])
@@ -223,7 +226,7 @@ def vote(param):
 				fmt = "+%s"
 				to_vote = [username for username in usernames if username not in voted]
 
-			if len(to_vote) and util.askYesOrNo("%s %s ?" % (verb, ", ".join(to_vote))) \
+			if len(to_vote) and askYesOrNo("%s %s ?" % (verb, ", ".join(to_vote))) \
 							and checkSecondKeys():
 				# sys.stdout.write("    Broadcasting vote...\n")
 				_send(arky.core.crypto.bakeTransaction(
@@ -242,7 +245,7 @@ def send(param):
 
 	if DATA.account:
 		amount = floatAmount(param["<amount>"])
-		if amount and util.askYesOrNo("Send %(amount).8f %(token)s to %(recipientId)s ?" % \
+		if amount and askYesOrNo("Send %(amount).8f %(token)s to %(recipientId)s ?" % \
 		                             {"token": cfg.token, "amount": amount, "recipientId": param["<address>"]}) \
 		          and checkSecondKeys():
 			_send(arky.core.crypto.bakeTransaction(

@@ -7,6 +7,7 @@ Usage:
     delegate unlink
     delegate status
     delegate voters
+    delegate forged
 
 Subcommands:
     link   : link to delegate using secret passphrases. If secret passphrases
@@ -15,6 +16,7 @@ Subcommands:
     unlink : unlink delegate.
     status : show information about linked delegate.
     voters : show voters contributions ([address - vote] pairs).
+    forged : show forge report.
 """
 
 import arky
@@ -71,6 +73,13 @@ def unlink(param):
 def status(param):
 	if DATA.delegate:
 		util.prettyPrint(dict(DATA.account, **DATA.delegate))
+
+
+def forged(param):
+	if DATA.delegate:
+		resp = rest.GET.api.delegates.forging.getForgedByAccount(generatorPublicKey=DATA.account["publicKey"])
+		resp.pop("success")
+		util.prettyPrint(resp)
 
 
 def voters(param):
