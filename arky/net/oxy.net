@@ -8,7 +8,7 @@
 
   "headers" : {
     "Content-Type" : "application/json; charset=utf-8",
-    "port" : 10000
+    "port" : "10000"
   },
 
   "seeds": [

@@ -7,14 +7,16 @@ from .. import util
 
 from . import crypto
 
+import sys
 
 def init():
 	resp = rest.GET.api.blocks.getNethash()
 	if resp["success"]:
+		cfg.headers["version"] = "%s" % rest.GET.api.peers.version(returnKey="version")
 		cfg.headers["nethash"] = resp["nethash"]
-		cfg.headers["version"] = rest.GET.api.peers.version(returnKey="version")
 		cfg.fees = rest.GET.api.blocks.getFees(returnKey="fees")
 	else:
+		sys.stdout.write(("%s\n" % resp.get("error", "...")).encode("ascii", errors="replace").decode())
 		raise Exception("Initialization error with peer %s" % resp.get("peer", "???"))
 
 
