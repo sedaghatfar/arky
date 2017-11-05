@@ -29,7 +29,10 @@ def sendTransaction(**kw):
 
 
 def sendPayload(*payloads):
-	return rest.POST.peer.transactions(transactions=payloads)
+	result = rest.POST.peer.transactions(transactions=payloads)
+	if result["success"]:
+		result["id"] = [tx["id"] for tx in payloads]
+	return result
 
 
 #######################
