@@ -214,12 +214,12 @@ def floatAmount(amount):
 		return float(amount)
 
 
-def checkRegisteredTx(registry, quiet=False):
+def checkRegisteredTx(registry, folder=None, quiet=False):
 	LOCK = None
 
 	@util.setInterval(2*cfg.blocktime)
 	def _checkRegisteredTx(registry):
-		registered = util.loadJson(registry)
+		registered = util.loadJson(registry, folder)
 
 		if not quiet:
 			sys.stdout.write("\n---\nTransaction registry check, please wait...\n")
@@ -233,7 +233,7 @@ def checkRegisteredTx(registry, quiet=False):
 				if not quiet:
 					util.prettyPrint(result, log=False)
 		
-		util.dumpJson(registered, registry)
+		util.dumpJson(registered, registry, folder)
 		remaining = len(registered)
 		if not remaining:
 			if not quiet:
