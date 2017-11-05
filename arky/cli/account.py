@@ -246,7 +246,7 @@ def send(param):
 	if DATA.account:
 		amount = floatAmount(param["<amount>"])
 		if amount and askYesOrNo("Send %(amount).8f %(token)s to %(recipientId)s ?" % \
-		                             {"token": cfg.token, "amount": amount, "recipientId": param["<address>"]}) \
+		                        {"token": cfg.token, "amount": amount, "recipientId": param["<address>"]}) \
 		          and checkSecondKeys():
 			_send(arky.core.crypto.bakeTransaction(
 				amount=amount*100000000,
