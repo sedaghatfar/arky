@@ -218,17 +218,16 @@ def vote(param):
 
 			voted = [d["username"] for d in voted]
 			if param["--down"]:
-				verb = "Downvote"
+				verb = "Down-vote"
 				fmt = "-%s"
 				to_vote = [username for username in usernames if username in voted]
 			else:
-				verb = "Upvote"
+				verb = "Up-vote"
 				fmt = "+%s"
 				to_vote = [username for username in usernames if username not in voted]
 
 			if len(to_vote) and askYesOrNo("%s %s ?" % (verb, ", ".join(to_vote))) \
 							and checkSecondKeys():
-				# sys.stdout.write("    Broadcasting vote...\n")
 				_send(arky.core.crypto.bakeTransaction(
 					type=3,
 					recipientId=DATA.account["address"],
@@ -237,6 +236,7 @@ def vote(param):
 					secondPrivateKey=DATA.secondkeys.get("privateKey", None),
 					asset={"votes": [fmt%pk for pk in util.getDelegatesPublicKeys(*to_vote)]}
 				))
+
 		elif len(voted):
 			util.prettyPrint(dict([d["username"], "%s%%"%d["approval"]] for d in voted))
 

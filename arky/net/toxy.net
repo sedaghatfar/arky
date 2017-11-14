@@ -4,6 +4,7 @@
   "endpoints": "lsk",
   "familly": "lisk",
   "maxlimit": 1000,
+  "maxvotepertx": 25,
   "marker": "X",
 
   "headers" : {

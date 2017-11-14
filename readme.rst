@@ -65,6 +65,7 @@ Blockchain package define the current interface :
 * ``arky.core.crypto.getSignature(tx, privateKey)``
 * ``arky.core.crypto.getId(tx)``
 * ``arky.core.crypto.getBytes(tx)``
+* ``arky.core.crypto.bakeTransaction(**kw)``
 * ``arky.core.sendTransaction(**kw)``
 * ``arky.core.sendPayload(*payloads)``
 * ``arky.core.sendToken(amount, recipientId, secret, secondSecret=None, vendorField=None)``
@@ -74,7 +75,7 @@ Blockchain package define the current interface :
 * ``arky.core.upVoteDelegate(usernames, secret, secondSecret=None)``
 * ``arky.core.downVoteDelegate(usernames, secret, secondSecret=None)``
 
-``arky.core`` bakes transaction localy using ``pynacl`` and ``ecdsa`` crypto libraries
+``arky.core`` create transaction localy using ``pynacl`` and ``ecdsa`` crypto libraries
 so no secret is sent trough the network.
 
 Send coins
@@ -107,7 +108,6 @@ Vote for delegate
 ...                            secret="secret", secondSecret="secondSecret")
 {'broadcast': '100.0%', 'transactionIds': ['ecd663ea46472cd7d72431eb13e9b23ef9c2
 6aae8a1004621b871677960d01f1'], 'success': True}
-
 
 CLI
 ===

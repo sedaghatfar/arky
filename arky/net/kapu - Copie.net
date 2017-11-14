@@ -4,7 +4,6 @@
   "endpoints": "ark",
   "familly": "ark",
   "maxlimit": 50,
-  "maxvotepertx": 1,
 
   "compressed": true,
   "wif": "6f",
