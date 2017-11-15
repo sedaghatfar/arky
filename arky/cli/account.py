@@ -10,7 +10,7 @@ Usage:
     account register 2ndSecret <secret>
     account register escrow <thirdparty>
     account validate <registry>
-    account vote [-ud] [<delegate>]
+    account vote [-ud] [<delegates>]
     account send <amount> <address> [<message>]
 
 Options:
@@ -30,7 +30,7 @@ Subcommands:
 			   or
                register an escrower using an account address or a publicKey.
     validate : validate transaction from registry.
-    vote     : up or down vote delegate(s). <delegate> can be a coma-separated list
+    vote     : up or down vote delegate(s). <delegates> can be a coma-separated list
                or a valid new-line-separated file list conaining delegate names.
     send     : send ARK amount to address. You can set a 64-char message.
 """
@@ -208,13 +208,13 @@ def vote(param):
 		# get account votes
 		voted = rest.GET.api.accounts.delegates(address=DATA.account["address"]).get("delegates", [])
 		# if usernames is/are given
-		if param["<delegate>"]:
+		if param["<delegates>"]:
 			# try to load it from file if a valid path is given
-			if os.path.exists(param["<delegate>"]):
-				with io.open(param["<delegate>"], "r") as in_:
+			if os.path.exists(param["<delegates>"]):
+				with io.open(param["<delegates>"], "r") as in_:
 					usernames = [str(e) for e in in_.read().split() if e != ""]
 			else:
-				usernames = param["<delegate>"].split(",")
+				usernames = param["<delegates>"].split(",")
 
 			voted = [d["username"] for d in voted]
 			if param["--down"]:
