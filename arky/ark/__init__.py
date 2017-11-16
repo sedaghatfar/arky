@@ -9,7 +9,7 @@ from .. import util
 
 from . import crypto
 
-import random
+import sys, random
 
 
 def selectPeers():
@@ -29,7 +29,7 @@ def init():
 	resp = rest.GET.api.loader.autoconfigure()
 	if resp["success"]:
 		network = resp["network"]
-		cfg.headers["version"] = network.pop("version")
+		cfg.headers["version"] = "%s" % network.pop("version")
 		cfg.headers["nethash"] = network.pop("nethash")
 		cfg.__dict__.update(network)
 		cfg.fees = rest.GET.api.blocks.getFees(returnKey="fees")
@@ -40,6 +40,7 @@ def init():
 			selectPeers()
 		DAEMON_PEERS = rotatePeers()
 	else:
+		sys.stdout.write(("%s\n" % resp.get("error", "...")).encode("ascii", errors="replace").decode())
 		raise Exception("Initialization error with peer %s" % resp.get("peer", "???"))
 
 

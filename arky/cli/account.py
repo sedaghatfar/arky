@@ -10,7 +10,7 @@ Usage:
     account register 2ndSecret <secret>
     account register escrow <thirdparty>
     account validate <registry>
-    account vote [-ud] [<delegate>]
+    account vote [-ud] [<delegates>]
     account send <amount> <address> [<message>]
 
 Options:
@@ -30,7 +30,7 @@ Subcommands:
 			   or
                register an escrower using an account address or a publicKey.
     validate : validate transaction from registry.
-    vote     : up or down vote delegate(s). <delegate> can be a coma-separated list
+    vote     : up or down vote delegate(s). <delegates> can be a coma-separated list
                or a valid new-line-separated file list conaining delegate names.
     send     : send ARK amount to address. You can set a 64-char message.
 """
@@ -208,27 +208,26 @@ def vote(param):
 		# get account votes
 		voted = rest.GET.api.accounts.delegates(address=DATA.account["address"]).get("delegates", [])
 		# if usernames is/are given
-		if param["<delegate>"]:
+		if param["<delegates>"]:
 			# try to load it from file if a valid path is given
-			if os.path.exists(param["<delegate>"]):
-				with io.open(param["<delegate>"], "r") as in_:
+			if os.path.exists(param["<delegates>"]):
+				with io.open(param["<delegates>"], "r") as in_:
 					usernames = [str(e) for e in in_.read().split() if e != ""]
 			else:
-				usernames = param["<delegate>"].split(",")
+				usernames = param["<delegates>"].split(",")
 
 			voted = [d["username"] for d in voted]
 			if param["--down"]:
-				verb = "Downvote"
+				verb = "Down-vote"
 				fmt = "-%s"
 				to_vote = [username for username in usernames if username in voted]
 			else:
-				verb = "Upvote"
+				verb = "Up-vote"
 				fmt = "+%s"
 				to_vote = [username for username in usernames if username not in voted]
 
 			if len(to_vote) and askYesOrNo("%s %s ?" % (verb, ", ".join(to_vote))) \
 							and checkSecondKeys():
-				# sys.stdout.write("    Broadcasting vote...\n")
 				_send(arky.core.crypto.bakeTransaction(
 					type=3,
 					recipientId=DATA.account["address"],
@@ -237,6 +236,7 @@ def vote(param):
 					secondPrivateKey=DATA.secondkeys.get("privateKey", None),
 					asset={"votes": [fmt%pk for pk in util.getDelegatesPublicKeys(*to_vote)]}
 				))
+
 		elif len(voted):
 			util.prettyPrint(dict([d["username"], "%s%%"%d["approval"]] for d in voted))
 
@@ -246,7 +246,7 @@ def send(param):
 	if DATA.account:
 		amount = floatAmount(param["<amount>"])
 		if amount and askYesOrNo("Send %(amount).8f %(token)s to %(recipientId)s ?" % \
-		                             {"token": cfg.token, "amount": amount, "recipientId": param["<address>"]}) \
+		                        {"token": cfg.token, "amount": amount, "recipientId": param["<address>"]}) \
 		          and checkSecondKeys():
 			_send(arky.core.crypto.bakeTransaction(
 				amount=amount*100000000,

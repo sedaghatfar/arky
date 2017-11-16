@@ -14,6 +14,8 @@ from .. import cfg
 
 rest.use("dark")
 
+import io
+import os
 import sys
 import shlex
 import docopt
@@ -22,8 +24,6 @@ import traceback
 import threading
 
 input = raw_input if not __PY3__ else input
-
-EXECUTEMODE = False
 
 class _Prompt(object):
 	enable = True
@@ -56,6 +56,7 @@ class Data(object):
 		self.account = {}
 		self.firstkeys = {}
 		self.secondkeys = {}
+		self.executemode =False
 		object.__setattr__(self, "daemon", None)
 		object.__setattr__(self, "escrowed", False)
 
@@ -141,7 +142,7 @@ def start():
 
 
 def execute(*lines):
-	EXECUTEMODE = True
+	DATA.executemode = True
 	for line in lines:
 		sys.stdout.write("%s%s\n" % (PROMPT, line))
 		argv = shlex.split(line)
@@ -158,7 +159,7 @@ def execute(*lines):
 					if hasattr(error, "__traceback__"):
 						sys.stdout.write("".join(traceback.format_tb(error.__traceback__)).rstrip() + "\n")
 					sys.stdout.write("%s\n" % error)
-	EXECUTEMODE = False
+	DATA.executemode = False
 
 
 def launch(script):
@@ -169,7 +170,7 @@ def launch(script):
 
 
 def askYesOrNo(msg):
-	if EXECUTEMODE:
+	if DATA.executemode:
 		return True
 	answer = ""
 	while answer not in ["y", "Y", "n", "N"]:
@@ -193,7 +194,7 @@ def checkSecondKeys():
 
 def floatAmount(amount):
 	if amount.endswith("%"):
-		if EXECUTEMODE:
+		if DATA.executemode:
 			balance = float(DATA.account.get("balance", 0.))
 		else:
 			resp = rest.GET.api.accounts.getBalance(address=DATA.account["address"])
@@ -213,12 +214,12 @@ def floatAmount(amount):
 		return float(amount)
 
 
-def checkRegisteredTx(registry, quiet=False):
+def checkRegisteredTx(registry, folder=None, quiet=False):
 	LOCK = None
 
 	@util.setInterval(2*cfg.blocktime)
 	def _checkRegisteredTx(registry):
-		registered = util.loadJson(registry)
+		registered = util.loadJson(registry, folder)
 
 		if not quiet:
 			sys.stdout.write("\n---\nTransaction registry check, please wait...\n")
@@ -232,7 +233,7 @@ def checkRegisteredTx(registry, quiet=False):
 				if not quiet:
 					util.prettyPrint(result, log=False)
 		
-		util.dumpJson(registered, registry)
+		util.dumpJson(registered, registry, folder)
 		remaining = len(registered)
 		if not remaining:
 			if not quiet:

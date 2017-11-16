@@ -4,11 +4,12 @@
   "endpoints": "lsk",
   "familly": "lisk",
   "maxlimit": 1000,
+  "maxvotepertx": 25,
   "marker": "X",
 
   "headers" : {
     "Content-Type" : "application/json; charset=utf-8",
-    "port" : 9998
+    "port" : "9998"
   },
 
   "seeds": [
