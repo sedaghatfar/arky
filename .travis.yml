@@ -12,7 +12,3 @@ script:
   - python -m unittest discover
 os:
   - linux
-
-branches:
-  only:
-    - aip11
