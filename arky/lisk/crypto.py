@@ -54,7 +54,7 @@ def getBytes(tx):
 		pack_bytes(buf, unhexlify(tx["requesterPublicKey"]))
 	# if there is a recipientId
 	if "recipientId" in tx:
-		pack(">Q", buf, (int(tx["recipientId"][:-1]),))
+		pack(">Q", buf, (int(tx["recipientId"][:-len(cfg.marker)]),))
 	else:
 		pack("<Q", buf, (0,))
 	# write amount
