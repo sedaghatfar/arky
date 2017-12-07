@@ -40,6 +40,7 @@ def hexlify(data):
 	return str(result.decode() if isinstance(result, bytes) else result)
 
 def unhexlify(data):
+	if len(data)%2: data = "0"+data
 	result = binascii.unhexlify(data)
 	return result if isinstance(result, bytes) else result.encode()
 
