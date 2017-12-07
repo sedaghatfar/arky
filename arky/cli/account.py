@@ -226,15 +226,16 @@ def vote(param):
 				fmt = "+%s"
 				to_vote = [username for username in usernames if username not in voted]
 
-			if len(to_vote) and askYesOrNo("%s %s ?" % (verb, ", ".join(to_vote))) \
-							and checkSecondKeys():
+			lst = [fmt%pk for pk in util.getDelegatesPublicKeys(*to_vote)]
+			if len(lst) and askYesOrNo("%s %s ?" % (verb, ", ".join(to_vote))) \
+						and checkSecondKeys():
 				_send(arky.core.crypto.bakeTransaction(
 					type=3,
 					recipientId=DATA.account["address"],
 					publicKey=DATA.firstkeys["publicKey"],
 					privateKey=DATA.firstkeys["privateKey"],
 					secondPrivateKey=DATA.secondkeys.get("privateKey", None),
-					asset={"votes": [fmt%pk for pk in util.getDelegatesPublicKeys(*to_vote)]}
+					asset={"votes": lst}
 				))
 
 		elif len(voted):

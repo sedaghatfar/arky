@@ -3,7 +3,7 @@
 
 import arky
 
-__all__ = ["network", "account", "delegate"]
+__all__ = ["network", "account", "delegate", "ledger"]
 
 from .. import __version__
 from .. import __FROZEN__
@@ -251,6 +251,7 @@ def checkRegisteredTx(registry, folder=None, quiet=False):
 from . import network
 from . import account
 from . import delegate
+from . import ledger
 
 __doc__ = """Welcome to arky-cli [Python %(python)s / arky %(arky)s]
 Available commands: %(sets)s""" % {"python": sys.version.split()[0], "arky":__version__, "sets": ", ".join(__all__)}
