@@ -170,6 +170,29 @@ Link account
                    balance: 2637000000
   hot@toxy/account[18160...4874X]>
 
+
+Ledger Nano S
+=============
+
+>>> import arky
+>>> from arky import slots
+>>> from arky import rest
+>>> rest.use("ark")
+>>> recipientId = "..." # put your recipient address here
+>>> derivationPath = "44'/111'/0'/0/0"
+>>> tx = dict(
+...    recipientId=recipientId,
+...    vendorField="Tx using ledger with arky !",
+...    timestamp=int(slots.getTime()),
+...    type=0,
+...    amount=1,
+...    fee=10000000
+...)
+>>> # launch ark app on ledger
+>>> ldgr.signTx(tx, derivationPath)
+>>> # valid the transaction on ledger
+>>> arky.core.sendPayload(tx)
+
 Author
 ======
 
