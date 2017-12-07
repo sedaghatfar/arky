@@ -10,9 +10,9 @@ import arky
 import struct
 
 pack = (lambda f,v: struct.pack(f, v)) if __PY3__ else \
-	   (lambda f,v: struct.pack(f, v).encode())
+	   (lambda f,v: bytes(struct.pack(f, v)))
 
-i2b = lambda i: util.unhexlify(hex(i)[2:])
+intasb = lambda i: util.unhexlify(hex(i)[2:])
 
 
 def parse_bip32_path(path):
@@ -42,14 +42,14 @@ def buildTxApdu(dongle_path, data):
 		p1 =  util.unhexlify("e0048040")
 
 	return [
-		p1 + i2b(path_len + 1 + len(data1)) + i2b(path_len//4) + dongle_path + data1,
-		util.unhexlify("e0048140") + i2b(len(data2)) + data2 if len(data2) else None
+		p1 + intasb(path_len + 1 + len(data1)) + intasb(path_len//4) + dongle_path + data1,
+		util.unhexlify("e0048140") + intasb(len(data2)) + data2 if len(data2) else None
 	]
 
 
 def buildPkeyApdu(dongle_path):
 	path_len = len(dongle_path)
-	return util.unhexlify("e0020040") + i2b(1 + path_len) + i2b(path_len//4) + dongle_path
+	return util.unhexlify("e0020040") + intasb(1 + path_len) + intasb(path_len//4) + dongle_path
 
 
 def signTx(tx, path, debug=False, selectCommand=None):
@@ -62,9 +62,9 @@ def signTx(tx, path, debug=False, selectCommand=None):
 	dongle.close()
 
 	# update tx
-	len_pkey = int(data[0])
+	len_pkey = util.basint(data[0])
 	tx["senderPublicKey"] = util.hexlify(data[1:len_pkey+1])
-	len_address = int(data[len_pkey+1])
+	len_address = util.basint(data[len_pkey+1])
 	tx["senderId"] = data[-len_address:].decode()
 
 	# use ledger to get signature from tx
@@ -80,18 +80,3 @@ def signTx(tx, path, debug=False, selectCommand=None):
 	tx["id"] = arky.core.crypto.getId(tx)
 
 	return tx
-
-
-if __name__ == "__main__":
-	from arky import slots
-
-	tx = dict(
-		timestamp=int(slots.getTime()),
-		amount = 90000000,
-		type=0,
-		recipientId="AUahWfkfr5J4tYakugRbfow7RWVTK35GPW",
-		fee=10000000,
-	)
-
-	arky.core.sendPayload(signTx(tx))
-

@@ -18,10 +18,10 @@ dongle = getDongle()
 data = bytes(dongle.exchange(apdu))
 dongle.close()
 
-len_pkey = int(data[0])
+len_pkey = util.basint(data[0])
 pkey = util.hexlify(data[1:len_pkey+1])
 print(pkey)
-len_address = int(data[len_pkey+1])
+len_address = util.basint(data[len_pkey+1])
 print(data[-len_address:].decode())
 
 #put your recipient address here
