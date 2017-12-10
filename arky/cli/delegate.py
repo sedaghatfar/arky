@@ -31,7 +31,7 @@ from . import checkSecondKeys
 from . import checkRegisteredTx
 
 from .account import link as _link
-from .account import unlink as _unlink
+from .account import unlink # as _unlink
 
 import io
 import os
@@ -65,9 +65,8 @@ def link(param):
 		unlink(param)
 
 
-def unlink(param):
-	_unlink(param)
-	DATA.delegate.clear()
+# def unlink(param):
+# 	_unlink(param)
 
 
 def status(param):

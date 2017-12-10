@@ -112,10 +112,11 @@ def link(param):
 
 def unlink(param):
 	DATA.account.clear()
+	DATA.delegate.clear()
 	DATA.firstkeys.clear()
 	DATA.secondkeys.clear()
 	DATA.escrowed = False
-	DATA.ledger_dpath = None
+	# DATA.ledger_dpath = None
 
 
 def status(param):

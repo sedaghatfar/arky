@@ -31,12 +31,10 @@ from . import __name__ as __root_name__
 from . import floatAmount
 
 from .account import status
-from .account import unlink
 from .account import _send
 
 import arky
 import sys
-
 
 
 def _return():
@@ -47,8 +45,8 @@ def _return():
 
 def _whereami():
 	if hasattr(cfg, "slip44"):
-		if DATA.ledger_dpath:
-			return "ledger[%s]" % util.shortAddress(DATA.account["address"])
+		if DATA.ledger:
+			return "ledger[%s]" % util.shortAddress(DATA.ledger["address"])
 		else:
 			return "ledger"
 	else:
@@ -60,17 +58,28 @@ def link(param):
 	if hasattr(cfg, "slip44"):
 		ledger_dpath = "44'/"+cfg.slip44+"'/%(--account-index)s'/0/%(--address-rank)s" % param
 		try:
-			DATA.account = ldgr.getPublicKeyAddress(ldgr.parse_bip32_path(ledger_dpath))
-			DATA.ledger_dpath = ledger_dpath
+			pkey_addr = ldgr.getPublicKeyAddress(ldgr.parse_bip32_path(ledger_dpath))
+			DATA.ledger = rest.GET.api.accounts(address=arky.core.crypto.getAddress(pkey_addr["publicKey"])).get("account", {})
 		except:
 			sys.stdout.write("Ledger key is not ready, try again...\n")
 			unlink(param)
+		else:
+			if not DATA.ledger:
+				sys.stdout.write("    Accound does not exixts in %s blockchain...\n" % cfg.network)
+				unlink(param)
+			else:
+				DATA.ledger["path"] = ledger_dpath
 	else:
 		_return()
 
+
+def unlink(param):
+	DATA.ledger.clear()
+
+
 def send(param):
 
-	if DATA.account:
+	if DATA.ledger:
 		amount = floatAmount(param["<amount>"])
 		if amount:
 			sys.stdout.write("Use ledger key to confirm or or cancel :\n")
@@ -85,8 +94,13 @@ def send(param):
 				vendorField=param["<message>"],
 			)
 			try:
-				tx = ldgr.signTx(tx, DATA.ledger_dpath)
-			except:
-				sys.stdout.write("Ledger key is not ready, try again...\n")
+				tx = ldgr.signTx(tx, DATA.ledger["path"])
+			except Exception as e:
+				if not len(e.__dict__):
+					sys.stdout.write("%r\n" % e)
+				elif e.sw == 28416:
+					sys.stdout.write("Ledger key is not ready, try again...\n")
+				elif e.sw == 27013:
+					sys.stdout.write("Transaction canceled\n")
 			else:
 				_send(tx)

@@ -170,28 +170,20 @@ Link account
                    balance: 2637000000
   hot@toxy/account[18160...4874X]>
 
+Use Ledger Nano S
+^^^^^^^^^^^^^^^^^
 
-Ledger Nano S
-=============
+::
 
->>> import arky
->>> from arky import slots
->>> from arky import rest
->>> rest.use("ark")
->>> recipientId = "..." # put your recipient address here
->>> derivationPath = "44'/111'/0'/0/0"
->>> tx = dict(
-...    recipientId=recipientId,
-...    vendorField="Tx using ledger with arky !",
-...    timestamp=int(slots.getTime()),
-...    type=0,
-...    amount=1,
-...    fee=10000000
-...)
->>> # launch ark app on ledger
->>> ldgr.signTx(tx, derivationPath)
->>> # valid the transaction on ledger
->>> arky.core.sendPayload(tx)
+  hot@ark/network> ledger link
+  hot@ark/ledger[AerGA...VbMft]> send 1 AUahWfkfr5J4tYakugRbfow7RWVTK35GPW "send 1 ARK from ledger using arky CLI"
+  Use ledger key to confirm or or cancel :
+      Send 1.00000000 ARK to AUahWfkfr5J4tYakugRbfow7RWVTK35GPW ?
+      Broadcasting transaction...
+           broadcast: 100.0%
+      transactionIds: ['34d4ce9dea2dd4f52e8d6af1977d5f00488694ecbdaf7c45f70a7c46c078c744']
+             success: True
+  hot@ark/ledger[AerGA...VbMft]>
 
 Author
 ======

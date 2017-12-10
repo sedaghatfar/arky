@@ -53,10 +53,11 @@ class Data(object):
 
 	def __init__(self):
 		self.delegate = {}
+		self.ledger = {}
 		self.account = {}
 		self.firstkeys = {}
 		self.secondkeys = {}
-		self.ledger_dpath = None
+		# self.ledger_dpath = None
 		self.executemode = False
 		object.__setattr__(self, "daemon", None)
 		object.__setattr__(self, "escrowed", False)
@@ -194,11 +195,18 @@ def checkSecondKeys():
 
 
 def floatAmount(amount):
+
+	status = DATA.account if len(DATA.account) else \
+	         DATA.ledger  if len(DATA.ledger)  else \
+			 {}
+	if not status:
+		return False
+
 	if amount.endswith("%"):
 		if DATA.executemode:
-			balance = float(DATA.account.get("balance", 0.))
+			balance = float(status.get("balance", 0.))
 		else:
-			resp = rest.GET.api.accounts.getBalance(address=DATA.account["address"])
+			resp = rest.GET.api.accounts.getBalance(address=status["address"])
 			if resp["success"]:
 				balance = float(resp["balance"])
 			else:
