@@ -196,8 +196,10 @@ def use(network, **kw):
 		pass
 
 	with open(os.path.join(ROOT, "net", network+".net"), "r" if __PY3__ else "rb") as _in:
+		cfg.__dict__.pop("slip44", None)
 		data = json.load(_in)
 		data.update(**kw)
+		# if "slip44" not in data:
 		# save json data as variables in cfg.py module
 		cfg.__dict__.update(data)
 		# for https uses

@@ -52,21 +52,27 @@ def buildPkeyApdu(dongle_path):
 	return util.unhexlify("e0020040") + intasb(1 + path_len) + intasb(path_len//4) + dongle_path
 
 
-def signTx(tx, path, debug=False, selectCommand=None):
-	dongle_path = parse_bip32_path(path)
-
-	# use ledger to find publicKey and senderId
+def getPublicKeyAddress(dongle_path, debug=False, selectCommand=None):
 	apdu = buildPkeyApdu(dongle_path)
 	dongle = getDongle(debug, selectCommand)
 	data = bytes(dongle.exchange(apdu))
 	dongle.close()
 
-	# update tx
 	len_pkey = util.basint(data[0])
-	tx["senderPublicKey"] = util.hexlify(data[1:len_pkey+1])
 	len_address = util.basint(data[len_pkey+1])
-	tx["senderId"] = data[-len_address:].decode()
+	
+	return {
+		"publicKey": util.hexlify(data[1:len_pkey+1]),
+		"address": data[-len_address:].decode()
+	}
 
+
+def signTx(tx, path, debug=False, selectCommand=None):
+	dongle_path = parse_bip32_path(path)
+	# use ledger to get publicKey and Address
+	pkey_addr = getPublicKeyAddress(dongle_path)
+	tx["senderPublicKey"] = pkey_addr["publicKey"]
+	tx["senderId"] = pkey_addr["address"]
 	# use ledger to get signature from tx
 	apdu1, apdu2 = buildTxApdu(dongle_path, arky.core.crypto.getBytes(tx))
 	dongle = getDongle(debug, selectCommand)
@@ -74,7 +80,6 @@ def signTx(tx, path, debug=False, selectCommand=None):
 	if apdu2:
 		result = dongle.exchange(bytes(apdu2))
 	dongle.close()
-
 	# update tx
 	tx["signature"] = util.hexlify(result)
 	tx["id"] = arky.core.crypto.getId(tx)
