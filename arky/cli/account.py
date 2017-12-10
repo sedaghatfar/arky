@@ -115,6 +115,7 @@ def unlink(param):
 	DATA.firstkeys.clear()
 	DATA.secondkeys.clear()
 	DATA.escrowed = False
+	DATA.ledger_dpath = None
 
 
 def status(param):

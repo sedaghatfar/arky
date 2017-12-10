@@ -56,7 +56,8 @@ class Data(object):
 		self.account = {}
 		self.firstkeys = {}
 		self.secondkeys = {}
-		self.executemode =False
+		self.ledger_dpath = None
+		self.executemode = False
 		object.__setattr__(self, "daemon", None)
 		object.__setattr__(self, "escrowed", False)
 
