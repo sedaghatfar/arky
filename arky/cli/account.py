@@ -32,7 +32,7 @@ Subcommands:
     validate : validate transaction from registry.
     vote     : up or down vote delegate(s). <delegates> can be a coma-separated list
                or a valid new-line-separated file list conaining delegate names.
-    send     : send ARK amount to address. You can set a 64-char message.
+    send     : send token amount to address. You can set a 64-char message.
 """
 
 import arky
@@ -78,6 +78,40 @@ def _send(payload):
 			util.dumpJson(registry, registry_file)
 		DATA.daemon = checkRegisteredTx(registry_file, quiet=True)
 
+def _getVoteList(param):
+	# get account votes
+	
+	if DATA.account:
+		voted = rest.GET.api.accounts.delegates(address=DATA.account["address"]).get("delegates", [])
+	elif DATA.ledger:
+		voted = rest.GET.api.accounts.delegates(address=DATA.ledger["address"]).get("delegates", [])
+	
+	# if usernames is/are given
+	if param["<delegates>"]:
+		# try to load it from file if a valid path is given
+		if os.path.exists(param["<delegates>"]):
+			with io.open(param["<delegates>"], "r") as in_:
+				usernames = [str(e) for e in in_.read().split() if e != ""]
+		else:
+			usernames = param["<delegates>"].split(",")
+
+		voted = [d["username"] for d in voted]
+		if param["--down"]:
+			verb = "Down-vote"
+			fmt = "-%s"
+			to_vote = [username for username in usernames if username in voted]
+		else:
+			verb = "Up-vote"
+			fmt = "+%s"
+			to_vote = [username for username in usernames if username not in voted]
+
+		return [fmt%pk for pk in util.getDelegatesPublicKeys(*to_vote)], verb, to_vote
+
+	elif len(voted):
+		util.prettyPrint(dict([d["username"], "%s%%"%d["approval"]] for d in voted))
+
+	return [], "", []
+
 
 def _whereami():
 	if DATA.account:
@@ -116,7 +150,6 @@ def unlink(param):
 	DATA.firstkeys.clear()
 	DATA.secondkeys.clear()
 	DATA.escrowed = False
-	# DATA.ledger_dpath = None
 
 
 def status(param):
@@ -205,43 +238,19 @@ def validate(param):
 
 
 def vote(param):
-	# if a valid account is linked
-	if DATA.account:
-		# get account votes
-		voted = rest.GET.api.accounts.delegates(address=DATA.account["address"]).get("delegates", [])
-		# if usernames is/are given
-		if param["<delegates>"]:
-			# try to load it from file if a valid path is given
-			if os.path.exists(param["<delegates>"]):
-				with io.open(param["<delegates>"], "r") as in_:
-					usernames = [str(e) for e in in_.read().split() if e != ""]
-			else:
-				usernames = param["<delegates>"].split(",")
 
-			voted = [d["username"] for d in voted]
-			if param["--down"]:
-				verb = "Down-vote"
-				fmt = "-%s"
-				to_vote = [username for username in usernames if username in voted]
-			else:
-				verb = "Up-vote"
-				fmt = "+%s"
-				to_vote = [username for username in usernames if username not in voted]
+	lst, verb, to_vote = _getVoteList(param)
 
-			lst = [fmt%pk for pk in util.getDelegatesPublicKeys(*to_vote)]
-			if len(lst) and askYesOrNo("%s %s ?" % (verb, ", ".join(to_vote))) \
-						and checkSecondKeys():
-				_send(arky.core.crypto.bakeTransaction(
-					type=3,
-					recipientId=DATA.account["address"],
-					publicKey=DATA.firstkeys["publicKey"],
-					privateKey=DATA.firstkeys["privateKey"],
-					secondPrivateKey=DATA.secondkeys.get("privateKey", None),
-					asset={"votes": lst}
-				))
-
-		elif len(voted):
-			util.prettyPrint(dict([d["username"], "%s%%"%d["approval"]] for d in voted))
+	if len(lst) and askYesOrNo("%s %s ?" % (verb, ", ".join(to_vote))) \
+				and checkSecondKeys():
+		_send(arky.core.crypto.bakeTransaction(
+			type=3,
+			recipientId=DATA.account["address"],
+			publicKey=DATA.firstkeys["publicKey"],
+			privateKey=DATA.firstkeys["privateKey"],
+			secondPrivateKey=DATA.secondkeys.get("privateKey", None),
+			asset={"votes": lst}
+		))
 
 
 def send(param):
