@@ -1,6 +1,6 @@
 # -*- encoding: utf8 -*-
 # © Toons
-__version__ = "1.0rc1"
+__version__ = "1.0"
 
 import os
 import imp
