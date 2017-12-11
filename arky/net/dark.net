@@ -9,6 +9,7 @@
   "compressed": true,
   "wif": "ef",
   "marker": "1e",
+  "slip44": "111",
   "bip32": {
     "private": 70617039,
     "public": 70615956

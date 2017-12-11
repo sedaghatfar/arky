@@ -196,17 +196,17 @@ def checkSecondKeys():
 
 def floatAmount(amount):
 
-	status = DATA.account if len(DATA.account) else \
+	account = DATA.account if len(DATA.account) else \
 	         DATA.ledger  if len(DATA.ledger)  else \
 			 {}
-	if not status:
+	if not account:
 		return False
 
 	if amount.endswith("%"):
 		if DATA.executemode:
-			balance = float(status.get("balance", 0.))
+			balance = float(account.get("balance", 0.))
 		else:
-			resp = rest.GET.api.accounts.getBalance(address=status["address"])
+			resp = rest.GET.api.accounts.getBalance(address=account["address"])
 			if resp["success"]:
 				balance = float(resp["balance"])
 			else:
@@ -221,6 +221,41 @@ def floatAmount(amount):
 			return False
 	else:
 		return float(amount)
+
+
+# def getVoteList(param):
+# 	# get account votes
+	
+# 	if DATA.account:
+# 		voted = rest.GET.api.accounts.delegates(address=DATA.account["address"]).get("delegates", [])
+# 	elif DATA.ledger:
+# 		voted = rest.GET.api.accounts.delegates(address=DATA.ledger["address"]).get("delegates", [])
+	
+# 	# if usernames is/are given
+# 	if param["<delegates>"]:
+# 		# try to load it from file if a valid path is given
+# 		if os.path.exists(param["<delegates>"]):
+# 			with io.open(param["<delegates>"], "r") as in_:
+# 				usernames = [str(e) for e in in_.read().split() if e != ""]
+# 		else:
+# 			usernames = param["<delegates>"].split(",")
+
+# 		voted = [d["username"] for d in voted]
+# 		if param["--down"]:
+# 			verb = "Down-vote"
+# 			fmt = "-%s"
+# 			to_vote = [username for username in usernames if username in voted]
+# 		else:
+# 			verb = "Up-vote"
+# 			fmt = "+%s"
+# 			to_vote = [username for username in usernames if username not in voted]
+
+# 		return [fmt%pk for pk in util.getDelegatesPublicKeys(*to_vote)], verb, to_vote
+
+# 	elif len(voted):
+# 		util.prettyPrint(dict([d["username"], "%s%%"%d["approval"]] for d in voted))
+
+# 	return [], "", []
 
 
 def checkRegisteredTx(registry, folder=None, quiet=False):
