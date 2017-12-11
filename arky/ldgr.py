@@ -67,13 +67,25 @@ def getPublicKeyAddress(dongle_path, debug=False, selectCommand=None):
 	}
 
 
+def getPublicKey(dongle_path, debug=False, selectCommand=None):
+	apdu = buildPkeyApdu(dongle_path)
+	dongle = getDongle(debug, selectCommand)
+	data = bytes(dongle.exchange(apdu))
+	dongle.close()
+	len_pkey = util.basint(data[0])
+	return util.hexlify(data[1:len_pkey+1])
+
+
 def signTx(tx, path, debug=False, selectCommand=None):
 	dongle_path = parse_bip32_path(path)
+	
 	# use ledger to get publicKey and Address
-	pkey_addr = getPublicKeyAddress(dongle_path)
-	tx["senderPublicKey"] = pkey_addr["publicKey"]
-	tx["senderId"] = pkey_addr["address"]
+	# pkey_addr = getPublicKeyAddress(dongle_path)
+	# tx["senderPublicKey"] = pkey_addr["publicKey"]
+	# tx["senderId"] = pkey_addr["address"]
 	# use ledger to get signature from tx
+
+	tx["senderPublicKey"] = getPublicKey(dongle_path)
 	apdu1, apdu2 = buildTxApdu(dongle_path, arky.core.crypto.getBytes(tx))
 	dongle = getDongle(debug, selectCommand)
 	result = dongle.exchange(bytes(apdu1))

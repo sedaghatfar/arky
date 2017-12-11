@@ -94,7 +94,7 @@ def link(param):
 		DATA.account = rest.GET.api.accounts(address=arky.core.crypto.getAddress(DATA.firstkeys["publicKey"])).get("account", {})
 	
 	if not DATA.account:
-		sys.stdout.write("    Accound does not exixts in %s blockchain...\n" % cfg.network)
+		sys.stdout.write("    Account does not exixts in %s blockchain...\n" % cfg.network)
 		unlink(param)
 	else:
 		if param["<2ndSecret>"]:

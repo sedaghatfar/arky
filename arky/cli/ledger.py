@@ -58,14 +58,17 @@ def link(param):
 	if hasattr(cfg, "slip44"):
 		ledger_dpath = "44'/"+cfg.slip44+"'/%(--account-index)s'/0/%(--address-rank)s" % param
 		try:
-			pkey_addr = ldgr.getPublicKeyAddress(ldgr.parse_bip32_path(ledger_dpath))
-			DATA.ledger = rest.GET.api.accounts(address=arky.core.crypto.getAddress(pkey_addr["publicKey"])).get("account", {})
+			# pkey_addr = ldgr.getPublicKeyAddress(ldgr.parse_bip32_path(ledger_dpath))
+			# DATA.ledger = rest.GET.api.accounts(address=arky.core.crypto.getAddress(pkey_addr["publicKey"])).get("account", {})
+			publicKey = ldgr.getPublicKey(ldgr.parse_bip32_path(ledger_dpath))
+			address = arky.core.crypto.getAddress(publicKey)
+			DATA.ledger = rest.GET.api.accounts(address=address).get("account", {})
 		except:
 			sys.stdout.write("Ledger key is not ready, try again...\n")
 			unlink(param)
 		else:
 			if not DATA.ledger:
-				sys.stdout.write("    Accound does not exixts in %s blockchain...\n" % cfg.network)
+				sys.stdout.write("    %s account does not exixts in %s blockchain...\n" % (address, cfg.network))
 				unlink(param)
 			else:
 				DATA.ledger["path"] = ledger_dpath
