@@ -3,9 +3,10 @@
 
 """
 Usage:
-    account link <secret> [<2ndSecret>|-e]
+    account link [<secret>] [<2ndSecret>|-e]
     account unlink
     account status
+	account save <name>
     account register <username>
     account register 2ndSecret <secret>
     account register escrow <thirdparty>
@@ -78,6 +79,7 @@ def _send(payload):
 			util.dumpJson(registry, registry_file)
 		DATA.daemon = checkRegisteredTx(registry_file, quiet=True)
 
+
 def _getVoteList(param):
 	# get account votes
 	
@@ -123,7 +125,21 @@ def _whereami():
 
 def link(param):
 
-	if param["<secret>"]:
+	if not param["<secret>"]:
+		choices = util.findAccounts()
+		if choices:
+			name = util.chooseItem("Network(s) found:", *choices)
+			try:
+				data = util.loadAccount(util.createBase(input("Enter pin code> ")), name)
+			except:
+				sys.stdout.write("    Bad pin code...\n")
+			else:
+				DATA.account = rest.GET.api.accounts(address=data["address"]).get("account", {})
+				DATA.firstkeys = dict(publicKey=DATA.account["publicKey"], privateKey=data["privateKey"])
+				if "secondPrivateKey" in data:
+					DATA.secondkeys = dict(publicKey=DATA.account["secondPublicKey"], privateKey=data["secondPrivateKey"])
+				
+	else:
 		DATA.firstkeys = arky.core.crypto.getKeys(param["<secret>"])
 		DATA.account = rest.GET.api.accounts(address=arky.core.crypto.getAddress(DATA.firstkeys["publicKey"])).get("account", {})
 	
@@ -155,6 +171,17 @@ def unlink(param):
 def status(param):
 	if DATA.account:
 		util.prettyPrint(rest.GET.api.accounts(address=DATA.account["address"], returnKey="account"))
+
+
+def save(param):
+	if DATA.account:
+		util.dumpAccount(
+			util.createBase(input("Enter pin code> ")),
+			DATA.account["address"],
+			DATA.firstkeys["privateKey"],
+			DATA.secondkeys.get("privateKey", None),
+			param["<name>"]
+		)
 
 
 def register(param):

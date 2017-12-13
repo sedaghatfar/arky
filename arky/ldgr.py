@@ -52,21 +52,6 @@ def buildPkeyApdu(dongle_path):
 	return util.unhexlify("e0020040") + intasb(1 + path_len) + intasb(path_len//4) + dongle_path
 
 
-# def getPublicKeyAddress(dongle_path, debug=False, selectCommand=None):
-# 	apdu = buildPkeyApdu(dongle_path)
-# 	dongle = getDongle(debug, selectCommand)
-# 	data = bytes(dongle.exchange(apdu))
-# 	dongle.close()
-
-# 	len_pkey = util.basint(data[0])
-# 	len_address = util.basint(data[len_pkey+1])
-	
-# 	return {
-# 		"publicKey": util.hexlify(data[1:len_pkey+1]),
-# 		"address": data[-len_address:].decode()
-# 	}
-
-
 def getPublicKey(dongle_path, debug=False, selectCommand=None):
 	apdu = buildPkeyApdu(dongle_path)
 	dongle = getDongle(debug, selectCommand)

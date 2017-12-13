@@ -50,8 +50,7 @@ def use(param):
 			sys.stdout.write("No Network found\n")
 			return False
 
-	# DATA.balances.clear()
-	DATA.account, DATA.firstkeys, DATA.secondkeys, DATA.delegate = {}, {}, {}, {}
+	DATA.initialize()
 
 	rest.use(
 		param.get("<name>"),
