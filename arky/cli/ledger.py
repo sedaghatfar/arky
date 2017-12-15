@@ -16,9 +16,9 @@ Options:
 -d --down                           down vote delegate name folowing
 
 Subcommands:
-    link     : link to account.
+    link     : link to ledger account.
     status   : show information about linked account.
-    send     : send token amount to address. You can set a 64-char message.
+    send     : send token amount to <address>. You can set a 64-char message.
     vote     : up or down vote delegate(s). <delegates> can be a coma-separated list
                or a valid new-line-separated file list conaining delegate names.
 """

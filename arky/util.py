@@ -13,6 +13,7 @@ import os
 import sys
 import json
 import struct
+import hashlib
 import logging
 import binascii
 import requests
@@ -38,6 +39,7 @@ pack_bytes = (lambda f,v: pack("!"+"%ss"%len(v), f, (v,))) if __PY3__ else \
 def hexlify(data):
 	result = binascii.hexlify(data)
 	return str(result.decode() if isinstance(result, bytes) else result)
+
 
 def unhexlify(data):
 	if len(data)%2: data = "0"+data
@@ -149,8 +151,10 @@ def setInterval(interval):
 		return wrapper
 	return decorator
 
+
 def shortAddress(addr, sep="...", n=5):
 	return addr[:n]+sep+addr[-n:]
+
 
 def prettyfy(dic, tab="    "):
 	result = ""
@@ -165,6 +169,7 @@ def prettyfy(dic, tab="    "):
 			result += "\n"
 		return result.encode("ascii", errors="replace").decode()
 
+
 def prettyPrint(dic, tab="    ", log=True):
 	pretty = prettyfy(dic, tab)
 	if len(dic):
@@ -174,12 +179,14 @@ def prettyPrint(dic, tab="    ", log=True):
 		sys.stdout.write("%sNothing to print here\n" % tab)
 		if log: logging.info("%sNothing to log here" % tab)
 
+
 def dumpJson(cnf, name, folder=None):
 	filename = os.path.join(HOME if not folder else folder, name)
 	out = io.open(filename, "w" if __PY3__ else "wb")
 	json.dump(cnf, out, indent=2)
 	out.close()
 	return os.path.basename(filename)
+
 
 def loadJson(name, folder=None):
 	filename = os.path.join(HOME if not folder else folder, name)
@@ -190,6 +197,7 @@ def loadJson(name, folder=None):
 		return data
 	else:
 		return {}
+
 
 def popJson(name, folder=None):
 	filename = os.path.join(HOME if not folder else folder, name)
@@ -202,6 +210,7 @@ def findNetworks():
 		return [os.path.splitext(name)[0] for name in os.listdir(os.path.join(ROOT, "net")) if name.endswith(".net")]
 	except:
 		return []
+
 
 def chooseMultipleItem(msg, *elem):
 	n = len(elem)
@@ -245,4 +254,82 @@ def chooseItem(msg, *elem):
 	else:
 		sys.stdout.write("Nothing to choose...\n")
 		return False
+
+
+def findAccounts():
+	try:
+		return [os.path.splitext(name)[0] for name in os.listdir(os.path.join(HOME, ".account", cfg.network)) if name.endswith(".account")]
+	except:
+		return []
+
+
+def createBase(secret):
+	hx = [e for e in "0123456789abcdef"]
+	base = ""
+	for c in hexlify(hashlib.md5(secret.encode()).digest()):
+		try: base += hx.pop(hx.index(c))
+		except: pass
+	return base + "".join(hx)
+
+
+def scramble(base, hexa):
+	result = bytearray()
+	for c in hexa:
+		result.append(base.index(c))
+	return bytes(result)
+
+
+def unScramble(base, data):
+	result = ""
+	for b in data:
+		result += base[basint(b)]
+	return result
+
+
+def dumpAccount(base, address, privateKey, secondPrivateKey=None, name="unamed"):
+	folder = os.path.join(HOME, ".account", cfg.network)
+	if not os.path.exists(folder):
+		os.makedirs(folder)
+	filename = os.path.join(folder, name+".account")
+	data = bytearray()
+	with io.open(filename, "wb") as out:
+		addr = scramble(base, hexlify(address.encode()))
+		data.append(len(addr))
+		data.extend(addr)
+
+		key1 = scramble(base, privateKey)
+		data.append(len(key1))
+		data.extend(key1)
+
+		if secondPrivateKey:
+			key2 = scramble(base, secondPrivateKey)
+			data.append(len(key2))
+			data.extend(key2)
+		
+		out.write(data)
+
+
+def loadAccount(base, name):
+	filepath = os.path.join(HOME, ".account", cfg.network, name+".account")
+	result = {}
+	if os.path.exists(filepath):
+		with io.open(filepath, "rb") as in_:
+			data = in_.read()
+
+			i = 0
+			len_addr = data[i]
+			i += 1
+			result["address"] = unhexlify(unScramble(base, data[i:i+len_addr])).decode("utf-8")
+			i += len_addr
+			len_key1 = data[i]
+			i += 1
+			result["privateKey"] = unScramble(base, data[i:i+len_key1])
+			i += len_key1
+
+			if i < len(data):
+				len_key2 = data[i]
+				i += 1
+				result["secondPrivateKey"] = unScramble(base, data[i:i+len_key2])
+			
+	return result
 

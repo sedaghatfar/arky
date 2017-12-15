@@ -1,6 +1,6 @@
 # -*- encoding: utf8 -*-
 # © Toons
-__version__ = "1.0"
+__version__ = "1.1"
 
 import os
 import imp
@@ -13,11 +13,13 @@ __FROZEN__ = hasattr(sys, "frozen") or hasattr(sys, "importers") or imp.is_froze
 
 # ROOT is the folder containing the __inti__.py file or the frozen executable
 ROOT = os.path.normpath(os.path.abspath(os.path.dirname(sys.executable if __FROZEN__ else __file__)))
-#
-try:
-	HOME = os.path.join(os.environ["HOMEDRIVE"], os.environ["HOMEPATH"])
-except:
-	HOME = os.environ.get("HOME", ROOT)
+if __FROZEN__:
+	HOME = ROOT
+else:
+	try:
+		HOME = os.path.join(os.environ["HOMEDRIVE"], os.environ["HOMEPATH"])
+	except:
+		HOME = os.environ.get("HOME", ROOT)
 
 logging.getLogger('requests').setLevel(logging.CRITICAL)
 logging.basicConfig(
