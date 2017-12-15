@@ -293,7 +293,7 @@ def dumpAccount(base, address, privateKey, secondPrivateKey=None, name="unamed")
 	filename = os.path.join(folder, name+".account")
 	data = bytearray()
 	with io.open(filename, "wb") as out:
-		addr = scramble(base, hexlify(address.encode()))
+		addr = scramble(base, hexlify(address.encode("utf-8")))
 		data.append(len(addr))
 		data.extend(addr)
 

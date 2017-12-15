@@ -6,7 +6,7 @@ Usage:
     account link [<secret>] [<2ndSecret>|-e]
     account unlink
     account status
-	account save <name>
+    account save <name>
     account register <username>
     account register 2ndSecret <secret>
     account register escrow <thirdparty>
@@ -24,6 +24,7 @@ Subcommands:
                contains spaces, it must be enclosed within double quotes
                (ie "secret with spaces").
     unlink   : unlink account.
+    save     : encrypt account using pin code and save it localy.
     status   : show information about linked account.
     register : register linked account as delegate;
                or
@@ -128,7 +129,7 @@ def link(param):
 	if not param["<secret>"]:
 		choices = util.findAccounts()
 		if choices:
-			name = util.chooseItem("Network(s) found:", *choices)
+			name = util.chooseItem("Account(s) found:", *choices)
 			try:
 				data = util.loadAccount(util.createBase(input("Enter pin code> ")), name)
 			except:
@@ -139,16 +140,18 @@ def link(param):
 				DATA.firstkeys = dict(publicKey=DATA.account["publicKey"], privateKey=data["privateKey"])
 				if "secondPrivateKey" in data:
 					DATA.secondkeys = dict(publicKey=DATA.account["secondPublicKey"], privateKey=data["secondPrivateKey"])
+				_address = data["address"]
 		else:
 			sys.stdout.write("    No registered account found...\n")
 			return
-				
+
 	else:
 		DATA.firstkeys = arky.core.crypto.getKeys(param["<secret>"])
-		DATA.account = rest.GET.api.accounts(address=arky.core.crypto.getAddress(DATA.firstkeys["publicKey"])).get("account", {})
+		_address = arky.core.crypto.getAddress(DATA.firstkeys["publicKey"])
+		DATA.account = rest.GET.api.accounts(address=_address).get("account", {})
 	
 	if not DATA.account:
-		sys.stdout.write("    Account does not exixts in %s blockchain...\n" % cfg.network)
+		sys.stdout.write("    %s does not exixt in %s blockchain...\n" % (_address, cfg.network))
 		unlink(param)
 	else:
 		if param["<2ndSecret>"]:
