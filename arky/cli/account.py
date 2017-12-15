@@ -133,11 +133,15 @@ def link(param):
 				data = util.loadAccount(util.createBase(input("Enter pin code> ")), name)
 			except:
 				sys.stdout.write("    Bad pin code...\n")
+				return
 			else:
 				DATA.account = rest.GET.api.accounts(address=data["address"]).get("account", {})
 				DATA.firstkeys = dict(publicKey=DATA.account["publicKey"], privateKey=data["privateKey"])
 				if "secondPrivateKey" in data:
 					DATA.secondkeys = dict(publicKey=DATA.account["secondPublicKey"], privateKey=data["secondPrivateKey"])
+		else:
+			sys.stdout.write("    No registered account found...\n")
+			return
 				
 	else:
 		DATA.firstkeys = arky.core.crypto.getKeys(param["<secret>"])
