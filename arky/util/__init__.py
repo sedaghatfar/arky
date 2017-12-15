@@ -13,6 +13,8 @@ def getTokenPrice(token, fiat="usd"):
         return float(cmc_ark[0]["price_%s" % fiat])
     except requests.ConnectionError:
         return 1
+    except KeyError:
+         return("Currency not found")
 
 
 def getArkFiatPrice(fiat):
