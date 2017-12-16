@@ -231,7 +231,7 @@ def floatAmount(amount):
 				return False
 		return (float(amount[:-1])/100 * balance - cfg.fees["send"])/100000000.
 	elif amount[0] in ["$", "€", "£", "¥"]:
-		price = getTokenPrice(cfg.token, {"$":"usd", "EUR":"eur", "€":"eur", "£":"gbp", "¥":"cny"}[amount[0]])
+		price = util.getTokenPrice(cfg.token, {"$":"usd", "EUR":"eur", "€":"eur", "£":"gbp", "¥":"cny"}[amount[0]])
 		result = float(amount[1:])/price
 		if askYesOrNo("%s=%s%f (%s/%s=%f) - Validate ?" % (amount, cfg.token, result, cfg.token, amount[0], price)):
 			return result

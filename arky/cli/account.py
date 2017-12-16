@@ -68,7 +68,7 @@ def _send(payload):
 		util.dumpJson(registry, registry_file)
 	else:
 		_address = DATA.getCurrentAddress()
-		registry_file = "%s.registry" % DATA.account.get("address", _address if _address else "thirdparty")
+		registry_file = "%s.registry" % (_address if _address else "thirdparty")
 		registry = util.loadJson(registry_file)
 		typ_ = payload["type"]
 		sys.stdout.write("    Broadcasting transaction...\n" if typ_ == 0 else \
@@ -84,11 +84,6 @@ def _send(payload):
 
 def _getVoteList(param):
 	# get account votes
-	
-	# if DATA.account:
-	# 	voted = rest.GET.api.accounts.delegates(address=DATA.account["address"]).get("delegates", [])
-	# elif DATA.ledger:
-	
 	voted = rest.GET.api.accounts.delegates(address=DATA.getCurrentAddress()).get("delegates", [])
 	
 	# if usernames is/are given
