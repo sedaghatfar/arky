@@ -58,16 +58,17 @@ import sys
 def _send(payload):
 	if DATA.escrowed:
 		sys.stdout.write("    Writing transaction...\n")
-		registry_file = "%s.escrow" % DATA.account["address"]
+		registry_file = "%s.escrow" % DATA.getCurrentAddress()
 		registry = util.loadJson(registry_file)
 		if registry == {}:
-			registry["secondPublicKey"] = DATA.account["secondPublicKey"]
+			registry["secondPublicKey"] = DATA.getCurrent2ndPKey()
 			registry["transactions"] = []
 		payload.pop("id", None)
 		registry["transactions"].extend([payload])
 		util.dumpJson(registry, registry_file)
 	else:
-		registry_file = "%s.registry" % DATA.account.get("address", "thirdparty")
+		_address = DATA.getCurrentAddress()
+		registry_file = "%s.registry" % DATA.account.get("address", _address if _address else "thirdparty")
 		registry = util.loadJson(registry_file)
 		typ_ = payload["type"]
 		sys.stdout.write("    Broadcasting transaction...\n" if typ_ == 0 else \
@@ -84,10 +85,11 @@ def _send(payload):
 def _getVoteList(param):
 	# get account votes
 	
-	if DATA.account:
-		voted = rest.GET.api.accounts.delegates(address=DATA.account["address"]).get("delegates", [])
-	elif DATA.ledger:
-		voted = rest.GET.api.accounts.delegates(address=DATA.ledger["address"]).get("delegates", [])
+	# if DATA.account:
+	# 	voted = rest.GET.api.accounts.delegates(address=DATA.account["address"]).get("delegates", [])
+	# elif DATA.ledger:
+	
+	voted = rest.GET.api.accounts.delegates(address=DATA.getCurrentAddress()).get("delegates", [])
 	
 	# if usernames is/are given
 	if param["<delegates>"]:
@@ -118,8 +120,8 @@ def _getVoteList(param):
 
 def _whereami():
 	if DATA.account:
-		return "account[%s]" % util.shortAddress(DATA.account["publicKey"] if DATA.escrowed else \
-	                                             DATA.account["address"])
+		return "account[%s]" % util.shortAddress(DATA.getCurrent1stPKey() if DATA.escrowed else \
+	                                             DATA.getCurrentAddress())
 	else:
 		return "account"
 
@@ -131,7 +133,7 @@ def link(param):
 		if choices:
 			name = util.chooseItem("Account(s) found:", *choices)
 			try:
-				data = util.loadAccount(util.createBase(input("Enter pin code> ")), name)
+				data = util.loadAccount(util.createBase(util.hidenInput("Enter pin code: ")), name)
 			except:
 				sys.stdout.write("    Bad pin code...\n")
 				return
@@ -183,7 +185,7 @@ def status(param):
 def save(param):
 	if DATA.account:
 		util.dumpAccount(
-			util.createBase(input("Enter pin code> ")),
+			util.createBase(util.hidenInput("Enter pin code: ")),
 			DATA.account["address"],
 			DATA.firstkeys["privateKey"],
 			DATA.secondkeys.get("privateKey", None),
@@ -242,7 +244,7 @@ def register(param):
 def validate(param):
 	registry = util.loadJson(param["<registry>"])
 	if len(registry):
-		thirdpartyKeys = arky.core.crypto.getKeys(input("Enter thirdparty passphrase> "))
+		thirdpartyKeys = arky.core.crypto.getKeys(util.hidenInput("Enter thirdparty passphrase: "))
 		if registry["secondPublicKey"] == thirdpartyKeys["publicKey"]:
 			items = []
 			for tx in registry["transactions"]:

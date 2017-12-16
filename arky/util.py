@@ -15,6 +15,7 @@ import json
 import struct
 import hashlib
 import logging
+import getpass
 import binascii
 import requests
 import threading
@@ -256,6 +257,13 @@ def chooseItem(msg, *elem):
 		return False
 
 
+def hidenInput(msg):
+	data = getpass.getpass(msg)
+	if isinstance(data, bytes):
+		data = data.decode(sys.stdin.encoding)
+	return data
+
+
 def findAccounts():
 	try:
 		return [os.path.splitext(name)[0] for name in os.listdir(os.path.join(HOME, ".account", cfg.network)) if name.endswith(".account")]
@@ -266,7 +274,7 @@ def findAccounts():
 def createBase(secret):
 	hx = [e for e in "0123456789abcdef"]
 	base = ""
-	for c in hexlify(hashlib.md5(secret.encode()).digest()):
+	for c in hexlify(hashlib.md5(secret.encode() if not isinstance(secret, bytes) else secret).digest()):
 		try: base += hx.pop(hx.index(c))
 		except: pass
 	return base + "".join(hx)

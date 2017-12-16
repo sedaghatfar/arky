@@ -85,11 +85,11 @@ def link(param):
 			DATA.ledger = rest.GET.api.accounts(address=address).get("account", {})
 		except:
 			sys.stdout.write("Ledger key is not ready, try again...\n")
-			unlink(param)
+			# unlink(param)
 		else:
 			if not DATA.ledger:
 				sys.stdout.write("    %s account does not exixts in %s blockchain...\n" % (address, cfg.network))
-				unlink(param)
+				# unlink(param)
 			else:
 				DATA.ledger["path"] = ledger_dpath
 	else:
@@ -98,7 +98,9 @@ def link(param):
 
 def status(param):
 	if DATA.ledger:
-		util.prettyPrint(rest.GET.api.accounts(address=DATA.ledger["address"], returnKey="account"))
+		data = rest.GET.api.accounts(address=DATA.ledger["address"], returnKey="account")
+		data["derivationPAth"] = DATA.ledger["path"]
+		util.prettyPrint(data)
 
 
 def unlink(param):

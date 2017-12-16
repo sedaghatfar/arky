@@ -33,7 +33,6 @@ from . import checkSecondKeys
 from . import checkRegisteredTx
 
 from .account import link as _link
-from .account import unlink
 from .account import save
 
 import io
@@ -68,13 +67,13 @@ def link(param):
 		unlink(param)
 
 
-# def unlink(param):
-# 	_unlink(param)
-
-
 def status(param):
 	if DATA.delegate:
 		util.prettyPrint(dict(DATA.account, **DATA.delegate))
+
+
+def unlink(param):
+	DATA.delegate.clear()
 
 
 def forged(param):

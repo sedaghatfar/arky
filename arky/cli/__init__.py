@@ -60,7 +60,7 @@ class Data(object):
 		self.account = {}
 		self.firstkeys = {}
 		self.secondkeys = {}
-		self.executemode = False
+		object.__setattr__(self, "executemode", False)
 		object.__setattr__(self, "daemon", None)
 		object.__setattr__(self, "escrowed", False)
 
@@ -73,6 +73,23 @@ class Data(object):
 				daemon.set()
 		object.__setattr__(self, attr, value)
 
+	def getCurrentAccount(self):
+		return self.account if len(self.account) else \
+	           self.ledger  if len(self.ledger)  else \
+			   {}
+		
+	def getCurrentAddress(self):
+		return self.getCurrentAccount().get("address", None)
+
+	def getCurrentBalance(self):
+		return float(self.getCurrentAccount().get("balance", 0))
+
+	def getCurrent1stPKey(self):
+		return self.getCurrentAccount().get("publicKey", None)
+
+	def getCurrent2ndPKey(self):
+		return self.getCurrentAccount().get("secondPublicKey", None)
+		
 DATA = Data()
 
 
@@ -185,7 +202,7 @@ def askYesOrNo(msg):
 def checkSecondKeys():
 	secondPublicKey = DATA.account.get("secondPublicKey", False)
 	if secondPublicKey and not DATA.secondkeys and not DATA.escrowed:
-		secondKeys = arky.core.crypto.getKeys(input("Enter second passphrase> "))
+		secondKeys = arky.core.crypto.getKeys(util.hidenInput("Enter second passphrase: "))
 		if secondKeys["publicKey"] == secondPublicKey:
 			DATA.secondkeys = secondKeys
 			return True
