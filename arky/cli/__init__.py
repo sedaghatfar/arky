@@ -12,8 +12,6 @@ from .. import rest
 from .. import util
 from .. import cfg
 
-rest.use("dark")
-
 import io
 import os
 import sys

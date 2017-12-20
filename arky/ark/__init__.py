@@ -9,17 +9,22 @@ from .. import util
 
 from . import crypto
 
-import sys, random
+import sys
+import random
+import threading
 
 
 def selectPeers():
 	version = rest.GET.api.peers.version().get("version", "0.0.0")
-	peers = [p for p in rest.GET.api.peers().get("peers", []) if p.get("status", "") == "OK" \
-	                                                             and p.get("delay", 6000) <= cfg.timeout*1000 \
-			                                                     and p.get("version", "") == version]
+	peers = sorted([p for p in rest.GET.peer.list().get("peers", []) if p.get("status", "") == "OK" \
+	                                                                 and p.get("delay", 6000) <= cfg.timeout*1000 \
+			                                                         and p.get("version", "") == version],
+				   key=lambda e:e["delay"])
 	selection = []
-	for i in range(min(cfg.broadcast, len(peers))):
-		selection.append("http://%(ip)s:%(port)s" % random.choice(peers))
+	while(len(selection) < min(cfg.broadcast, len(peers))):
+		peer = "http://%(ip)s:%(port)s" % peers.pop(0)
+		if rest.checkPeerLatency(peer):
+			selection.append(peer)
 	if len(selection):
 		cfg.peers = selection
 
@@ -34,10 +39,9 @@ def init():
 		cfg.__dict__.update(network)
 		cfg.fees = rest.GET.api.blocks.getFees(returnKey="fees")
 		# manage peers for tx broadcasting
-		selectPeers()
-		@util.setInterval(8*51)
-		def rotatePeers():
-			selectPeers()
+		threading.Thread(target=selectPeers).start()
+		@util.setInterval(30)
+		def rotatePeers(): selectPeers()
 		DAEMON_PEERS = rotatePeers()
 	else:
 		sys.stdout.write(("%s\n" % resp.get("error", "...")).encode("ascii", errors="replace").decode())

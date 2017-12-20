@@ -27,6 +27,8 @@ import traceback
 ## API methods ##
 #################
 
+
+
 def get(entrypoint, dic={}, **kw):
 	"""
 generic GET call using requests lib. It returns server response as dict object.
@@ -64,6 +66,8 @@ Returns dict
 	else:
 		if data.get("success", False):
 			data = data[returnKey] if returnKey in data else data
+			if "balance" in data:
+				data["balance"] = float(data["balance"])/100000000
 	return data
 
 def post(entrypoint, dic={}, **kw):
@@ -206,23 +210,25 @@ def use(network, **kw):
 		cfg.verify = os.path.join(os.path.dirname(sys.executable), "cacert.pem") if __FROZEN__ else True
 		# blockchain can use differents begin time
 		cfg.begintime = slots.datetime.datetime(*cfg.begintime, tzinfo=slots.pytz.UTC)
-		# build peers
+		# get first network connection
 		if data.get("seeds", []):
-			cfg.peers = cfg.seeds
+			for seed in cfg.seeds:
+				if checkPeerLatency(seed):
+					cfg.peers = [seed]
+					break
 		else:
-			n, cfg.peers = 0, []
 			for peer in data.get("peers", []):
-				n += 1
 				peer = "http://%s:%s"%(peer, data.get("port", 22))
-				if checkPeerLatency(peer) < cfg.timeout:
-					cfg.peers.append(peer)
-				if n >= cfg.broadcast:
+				if checkPeerLatency(peer):
+					cfg.peers = [peer]
 					break
 		# if endpoints found, create them and update network
-		if loadEndPoints(cfg.endpoints):
+		if loadEndPoints(cfg.endpoints) and len(cfg.peers):
 			load(cfg.familly)
 			cfg.network = network
 			cfg.hotmode = True
+		else:
+			raise Exception("Error occur duringnetwork connexion...")
 
 	# update logger data so network appear on log
 	logger = logging.getLogger()

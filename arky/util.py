@@ -55,7 +55,7 @@ def getTokenPrice(token, fiat="usd"):
 	cmc_ark = json.loads(requests.get("https://api.coinmarketcap.com/v1/ticker/"+token+"/?convert="+fiat.upper()).text)
 	try: return float(cmc_ark[0]["price_%s"%fiat.lower()])
 	except: return 1.
-
+	
 
 def getCandidates():
 	candidates = []
