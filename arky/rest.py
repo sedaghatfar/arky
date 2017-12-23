@@ -27,6 +27,9 @@ import traceback
 ## API methods ##
 #################
 
+__PEER__ = False
+def useCustomPeer(peer): __PEER__ = peer
+def unuseCustomPeer(): __PEER__ = False
 
 
 def get(entrypoint, dic={}, **kw):
@@ -48,11 +51,12 @@ Returns dict
 	# API response contains several fields and wanted one can be extracted using
 	# a returnKey that match the field name
 	returnKey = args.pop("returnKey", False)
+	peer = kw.pop("peer", __PEER__)
+	# 
 	args = dict([k.replace("and_", "AND:") if k.startswith("and_") else k, v] for k,v in args.items())
 	try:
-		peer = random.choice(cfg.peers)
 		text = requests.get(
-			peer + entrypoint,
+			(peer if peer else random.choice(cfg.peers)) + entrypoint,
 			params=args,
 			headers=cfg.headers,
 			verify=cfg.verify,
@@ -67,12 +71,14 @@ Returns dict
 		if data.get("success", False):
 			data = data[returnKey] if returnKey in data else data
 			if "balance" in data:
+				# humanize balance value
 				data["balance"] = float(data["balance"])/100000000
 	return data
 
+
 def post(entrypoint, dic={}, **kw):
 	# merge dic and kw values
-	peer = kw.pop("peer", False)
+	peer = kw.pop("peer", __PEER__)
 	payload = dict(dic, **kw)
 	try:
 		text = requests.post(
@@ -89,9 +95,10 @@ def post(entrypoint, dic={}, **kw):
 			data["details"] = "\n"+("".join(traceback.format_tb(error.__traceback__)).rstrip())
 	return data
 
+
 def put(entrypoint, dic={}, **kw):
 	# merge dic and kw values
-	peer = kw.pop("peer", False)
+	peer = kw.pop("peer", __PEER__)
 	payload = dict(dic, **kw)
 	try:
 		text = requests.put(
@@ -171,7 +178,7 @@ def loadEndPoints(network):
 #######################
 
 def load(name):
-	# try to stop _daemon from a previous use of ark blockchain familly
+	# try to stop DAEMON_PEERS from a previous use of ark blockchain familly
 	try:
 		sys.modules[__package__].core.DAEMON_PEERS.set()
 	except:
@@ -190,20 +197,22 @@ def load(name):
 		pass
 
 def use(network, **kw):
-
+	# clear data in cfg module
+	cfg.__dict__.clear()
+	# initialize minimum vars
 	cfg.network = "..."
 	cfg.hotmode = False
 
+	# clean previous loaded modules with network name
 	try:
 		sys.modules[__package__].__delattr__(network)
 	except AttributeError:
 		pass
 
+
 	with open(os.path.join(ROOT, "net", network+".net"), "r" if __PY3__ else "rb") as _in:
-		cfg.__dict__.pop("slip44", None)
 		data = json.load(_in)
 		data.update(**kw)
-		# if "slip44" not in data:
 		# save json data as variables in cfg.py module
 		cfg.__dict__.update(data)
 		# for https uses
@@ -212,9 +221,10 @@ def use(network, **kw):
 		cfg.begintime = slots.datetime.datetime(*cfg.begintime, tzinfo=slots.pytz.UTC)
 		# get first network connection
 		if data.get("seeds", []):
-			for seed in cfg.seeds:
+			cfg.peers = []
+			for seed in data["seeds"]:
 				if checkPeerLatency(seed):
-					cfg.peers = [seed]
+					cfg.peers.append(seed)
 					break
 		else:
 			for peer in data.get("peers", []):
@@ -228,7 +238,7 @@ def use(network, **kw):
 			cfg.network = network
 			cfg.hotmode = True
 		else:
-			raise Exception("Error occur duringnetwork connexion...")
+			raise Exception("Error occured during network seting...")
 
 	# update logger data so network appear on log
 	logger = logging.getLogger()

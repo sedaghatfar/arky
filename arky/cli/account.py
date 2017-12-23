@@ -29,7 +29,7 @@ Subcommands:
     register : register linked account as delegate;
                or
                register second signature to linked account;
-			   or
+               or
                register an escrower using an account address or a publicKey.
     validate : validate transaction from registry.
     vote     : up or down vote delegate(s). <delegates> can be a coma-separated list

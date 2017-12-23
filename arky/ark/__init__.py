@@ -16,13 +16,14 @@ import threading
 
 def selectPeers():
 	version = rest.GET.api.peers.version().get("version", "0.0.0")
-	peers = sorted([p for p in rest.GET.peer.list().get("peers", []) if p.get("status", "") == "OK" \
-	                                                                 and p.get("delay", 6000) <= cfg.timeout*1000 \
-			                                                         and p.get("version", "") == version],
+	height = rest.GET.api.blocks.getHeight().get("height", 0)
+	peers = sorted([p for p in rest.GET.peer.list().get("peers", []) if p.get("delay", 6000) <= cfg.timeout*1000 \
+			                                                         and p.get("version", "") == version \
+																	 and p.get("height", -1) > height-10],
 				   key=lambda e:e["delay"])
 	selection = []
 	while(len(selection) < min(cfg.broadcast, len(peers))):
-		peer = "http://%(ip)s:%(port)s" % peers.pop(0)
+		peer = "http://%(ip)s:%(port)s" % peers[len(selection)] #.pop(0)
 		if rest.checkPeerLatency(peer):
 			selection.append(peer)
 	if len(selection):
@@ -49,17 +50,19 @@ def init():
 
 
 def sendPayload(*payloads):
-	result = rest.POST.peer.transactions(peer=cfg.peers[0], transactions=payloads)
-	success = 1 if result["success"] else 0
-	for peer in cfg.peers[1:]:
-		if rest.POST.peer.transactions(peer=peer, transactions=payloads)["success"]:
-			success += 1
-	if success > 0:
-		result["success"] = True
-		result.pop("error", None)
-		result.pop("message", None)
-	result["broadcast"] = "%.1f%%" % (100.*success/len(cfg.peers))
-	return result
+	success, msgs, ids = 0, set([]), set([])
+
+	for peer in cfg.peers:
+		resp = rest.POST.peer.transactions(peer=peer, transactions=payloads)
+		success += 1 if resp["success"] else 0
+		if "message" in resp: msgs.update([resp["message"]])
+		if "transactionIds" in resp: ids.update(resp["transactionIds"])
+
+	return {
+		"success": "%.1f%%" % (100.*success/len(cfg.peers)),
+		"transactions": list(ids),
+		"messages": list(msgs)
+	}
 
 
 # This function is a high-level broadcasting for a single tx

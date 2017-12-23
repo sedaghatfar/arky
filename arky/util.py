@@ -37,6 +37,7 @@ unpack_bytes = lambda f,n: unpack("<"+"%ss"%n, f)[0]
 pack_bytes = (lambda f,v: pack("!"+"%ss"%len(v), f, (v,))) if __PY3__ else \
              (lambda f,v: pack("!"+"c"*len(v), f, v))
 
+
 def hexlify(data):
 	result = binascii.hexlify(data)
 	return str(result.decode() if isinstance(result, bytes) else result)
@@ -54,7 +55,7 @@ def unhexlify(data):
 def getTokenPrice(token, fiat="usd"):
 	cmc_ark = json.loads(requests.get("https://api.coinmarketcap.com/v1/ticker/"+token+"/?convert="+fiat.upper()).text)
 	try: return float(cmc_ark[0]["price_%s"%fiat.lower()])
-	except: return 1.
+	except: return 0.
 	
 
 def getCandidates():
@@ -94,7 +95,7 @@ def getHistory(address, timestamp=0):
 
 def getVoteForce(address, **kw):
 	# determine timestamp
-	balance = kw.pop("balance", False)/100000000.
+	balance = kw.pop("balance", 0)/100000000.
 	if not balance:
 		balance = float(rest.GET.api.accounts.getBalance(address=address, returnKey="balance"))/100000000.
 	delta = slots.datetime.timedelta(**kw)

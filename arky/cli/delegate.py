@@ -3,7 +3,7 @@
 
 """
 Usage: 
-    delegate link <secret> [<2ndSecret>]
+    delegate link [<secret>] [<2ndSecret>]
     delegate unlink
     delegate save <name>
     delegate status

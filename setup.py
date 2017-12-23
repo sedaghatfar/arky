@@ -18,7 +18,7 @@ kw.update(**{
 	"maintainer": "Toons",
 	"maintainer_email": "moustikitos@gmail.com",
 	"url": "https://github.com/ArkEcosystem/arky",
-	"download_url": "https://github.com/ArkEcosystem/arky.git",
+	"download_url": "https://github.com/ArkEcosystem/arky/archive/aip11.zip",
 	"include_package_data": True,
 	"description": "Python API bridging DPOS blockchains",
 	"long_description": long_description.read(),
