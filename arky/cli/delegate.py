@@ -69,7 +69,8 @@ def link(param):
 
 def status(param):
 	if DATA.delegate:
-		util.prettyPrint(dict(DATA.account, **DATA.delegate))
+		account = rest.GET.api.accounts(address=DATA.account["address"], returnKey="account")
+		util.prettyPrint(dict(account, **DATA.delegate))
 
 
 def unlink(param):
@@ -79,8 +80,8 @@ def unlink(param):
 def forged(param):
 	if DATA.delegate:
 		resp = rest.GET.api.delegates.forging.getForgedByAccount(generatorPublicKey=DATA.account["publicKey"])
-		resp.pop("success")
-		util.prettyPrint(resp)
+		if resp.pop("success"):
+			util.prettyPrint(dict([k,float(v)/100000000] for k,v in resp.items()))
 
 
 def voters(param):
