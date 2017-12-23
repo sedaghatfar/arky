@@ -12,10 +12,6 @@
     "port" : "8000"
   },
 
-  "seeds": [
-    "https://login.lisk.io"
-  ],
-
   "explorer" : "https://explorer.lisk.io",
   "token" : "lisk",
   "symbol" : "Ⱡ",

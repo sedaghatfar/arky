@@ -90,7 +90,7 @@ def delegates(param):
 			sys.stdout.write("    #%02d - %s: %.3f\n" % (i, name.ljust(maxlen), vote))
 			i += 1
 	else:
-		sys.stdout.write("%s\n    Error occur using peer %s... retry !\n" % (resp["error"], resp.get("peer", "???")))
+		sys.stdout.write("%s\n    Error occured using peer %s... retry !\n" % (resp["error"], resp.get("peer", "???")))
 
 
 def staking(param):

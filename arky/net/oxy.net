@@ -13,6 +13,7 @@
   },
 
   "seeds": [
+    "https://wallet.oxynode.net",
     "https://wallet.oxycoin.io",
     "https://corenode1.oxycoin.io",
     "https://corenode2.oxycoin.io",

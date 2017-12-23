@@ -6,7 +6,7 @@ Usage:
     account link [<secret>] [<2ndSecret>|-e]
     account unlink
     account status
-	account save <name>
+    account save <name>
     account register <username>
     account register 2ndSecret <secret>
     account register escrow <thirdparty>
@@ -24,11 +24,12 @@ Subcommands:
                contains spaces, it must be enclosed within double quotes
                (ie "secret with spaces").
     unlink   : unlink account.
+    save     : encrypt account using pin code and save it localy.
     status   : show information about linked account.
     register : register linked account as delegate;
                or
                register second signature to linked account;
-			   or
+               or
                register an escrower using an account address or a publicKey.
     validate : validate transaction from registry.
     vote     : up or down vote delegate(s). <delegates> can be a coma-separated list
@@ -57,16 +58,17 @@ import sys
 def _send(payload):
 	if DATA.escrowed:
 		sys.stdout.write("    Writing transaction...\n")
-		registry_file = "%s.escrow" % DATA.account["address"]
+		registry_file = "%s.escrow" % DATA.getCurrentAddress()
 		registry = util.loadJson(registry_file)
 		if registry == {}:
-			registry["secondPublicKey"] = DATA.account["secondPublicKey"]
+			registry["secondPublicKey"] = DATA.getCurrent2ndPKey()
 			registry["transactions"] = []
 		payload.pop("id", None)
 		registry["transactions"].extend([payload])
 		util.dumpJson(registry, registry_file)
 	else:
-		registry_file = "%s.registry" % DATA.account.get("address", "thirdparty")
+		_address = DATA.getCurrentAddress()
+		registry_file = "%s.registry" % (_address if _address else "thirdparty")
 		registry = util.loadJson(registry_file)
 		typ_ = payload["type"]
 		sys.stdout.write("    Broadcasting transaction...\n" if typ_ == 0 else \
@@ -82,11 +84,7 @@ def _send(payload):
 
 def _getVoteList(param):
 	# get account votes
-	
-	if DATA.account:
-		voted = rest.GET.api.accounts.delegates(address=DATA.account["address"]).get("delegates", [])
-	elif DATA.ledger:
-		voted = rest.GET.api.accounts.delegates(address=DATA.ledger["address"]).get("delegates", [])
+	voted = rest.GET.api.accounts.delegates(address=DATA.getCurrentAddress()).get("delegates", [])
 	
 	# if usernames is/are given
 	if param["<delegates>"]:
@@ -117,8 +115,8 @@ def _getVoteList(param):
 
 def _whereami():
 	if DATA.account:
-		return "account[%s]" % util.shortAddress(DATA.account["publicKey"] if DATA.escrowed else \
-	                                             DATA.account["address"])
+		return "account[%s]" % util.shortAddress(DATA.getCurrent1stPKey() if DATA.escrowed else \
+	                                             DATA.getCurrentAddress())
 	else:
 		return "account"
 
@@ -128,9 +126,9 @@ def link(param):
 	if not param["<secret>"]:
 		choices = util.findAccounts()
 		if choices:
-			name = util.chooseItem("Network(s) found:", *choices)
+			name = util.chooseItem("Account(s) found:", *choices)
 			try:
-				data = util.loadAccount(util.createBase(input("Enter pin code> ")), name)
+				data = util.loadAccount(util.createBase(util.hidenInput("Enter pin code: ")), name)
 			except:
 				sys.stdout.write("    Bad pin code...\n")
 				return
@@ -139,16 +137,18 @@ def link(param):
 				DATA.firstkeys = dict(publicKey=DATA.account["publicKey"], privateKey=data["privateKey"])
 				if "secondPrivateKey" in data:
 					DATA.secondkeys = dict(publicKey=DATA.account["secondPublicKey"], privateKey=data["secondPrivateKey"])
+				_address = data["address"]
 		else:
 			sys.stdout.write("    No registered account found...\n")
 			return
-				
+
 	else:
 		DATA.firstkeys = arky.core.crypto.getKeys(param["<secret>"])
-		DATA.account = rest.GET.api.accounts(address=arky.core.crypto.getAddress(DATA.firstkeys["publicKey"])).get("account", {})
+		_address = arky.core.crypto.getAddress(DATA.firstkeys["publicKey"])
+		DATA.account = rest.GET.api.accounts(address=_address).get("account", {})
 	
 	if not DATA.account:
-		sys.stdout.write("    Account does not exixts in %s blockchain...\n" % cfg.network)
+		sys.stdout.write("    %s does not exixt in %s blockchain...\n" % (_address, cfg.network))
 		unlink(param)
 	else:
 		if param["<2ndSecret>"]:
@@ -180,7 +180,7 @@ def status(param):
 def save(param):
 	if DATA.account:
 		util.dumpAccount(
-			util.createBase(input("Enter pin code> ")),
+			util.createBase(util.hidenInput("Enter pin code: ")),
 			DATA.account["address"],
 			DATA.firstkeys["privateKey"],
 			DATA.secondkeys.get("privateKey", None),
@@ -239,7 +239,7 @@ def register(param):
 def validate(param):
 	registry = util.loadJson(param["<registry>"])
 	if len(registry):
-		thirdpartyKeys = arky.core.crypto.getKeys(input("Enter thirdparty passphrase> "))
+		thirdpartyKeys = arky.core.crypto.getKeys(util.hidenInput("Enter thirdparty passphrase: "))
 		if registry["secondPublicKey"] == thirdpartyKeys["publicKey"]:
 			items = []
 			for tx in registry["transactions"]:

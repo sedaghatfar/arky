@@ -8,13 +8,29 @@ from .. import util
 from . import crypto
 
 import sys
+import threading
+
+
+def selectPeers():
+	selection = []
+	for seed in cfg.seeds:
+		if rest.checkPeerLatency(seed):
+			selection.append(seed)
+	if len(selection):
+		cfg.peers = selection
+
 
 def init():
+	global DAEMON_PEERS
 	resp = rest.GET.api.blocks.getNethash()
 	if resp["success"]:
 		cfg.headers["version"] = "%s" % rest.GET.api.peers.version(returnKey="version")
 		cfg.headers["nethash"] = resp["nethash"]
 		cfg.fees = rest.GET.api.blocks.getFees(returnKey="fees")
+		threading.Thread(target=selectPeers).start()
+		@util.setInterval(30)
+		def rotatePeers(): selectPeers()
+		DAEMON_PEERS = rotatePeers()
 	else:
 		sys.stdout.write(("%s\n" % resp.get("error", "...")).encode("ascii", errors="replace").decode())
 		raise Exception("Initialization error with peer %s" % resp.get("peer", "???"))

@@ -4,8 +4,12 @@
 from ledgerblue.comm import getDongle
 
 from . import __PY3__
+from . import HOME
 from . import util
+from . import cfg
 
+import io
+import os
 import arky
 import struct
 
@@ -76,3 +80,22 @@ def signTx(tx, path, debug=False, selectCommand=None):
 	tx["id"] = arky.core.crypto.getId(tx)
 
 	return tx
+
+
+def dumpBip39(pin, bip39, name="unamed"):
+	bip39 = bip39 if isinstance(bip39, bytes) else bip39.encode("utf-8")
+	folder = os.path.join(HOME, ".bip39", cfg.network)
+	if not os.path.exists(folder):
+		os.makedirs(folder)
+	filename = os.path.join(folder, name+".bip39")
+	with io.open(filename, "wb") as out:
+		out.write(util.scramble(util.createBase(pin), util.hexlify(bip39)))
+
+
+def loadBip39(pin, name="unamed"):
+	filename = os.path.join(HOME, ".bip39", cfg.network, name+".bip39")
+	if os.path.exists(filename):
+		with io.open(filename, "rb") as in_:
+			data = util.unScramble(util.createBase(pin), in_.read())
+		return util.unhexlify(data).decode("utf-8")
+

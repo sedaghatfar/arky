@@ -1,3 +1,2 @@
 recursive-include arky *.net
 recursive-include arky *.ndpt
-recursive-include arky\cli pshare??.pyc

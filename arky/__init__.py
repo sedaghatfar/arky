@@ -1,6 +1,6 @@
 # -*- encoding: utf8 -*-
 # © Toons
-__version__ = "1.1"
+__version__ = "1.3"
 
 import os
 import imp
@@ -14,6 +14,7 @@ __FROZEN__ = hasattr(sys, "frozen") or hasattr(sys, "importers") or imp.is_froze
 # ROOT is the folder containing the __inti__.py file or the frozen executable
 ROOT = os.path.normpath(os.path.abspath(os.path.dirname(sys.executable if __FROZEN__ else __file__)))
 if __FROZEN__:
+	# if frozen code, HOME adn ROOT pathes are same
 	HOME = ROOT
 else:
 	try:
@@ -21,6 +22,7 @@ else:
 	except:
 		HOME = os.environ.get("HOME", ROOT)
 
+# configure logging
 logging.getLogger('requests').setLevel(logging.CRITICAL)
 logging.basicConfig(
 	filename  = os.path.normpath(

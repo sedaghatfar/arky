@@ -15,6 +15,7 @@ import json
 import struct
 import hashlib
 import logging
+import getpass
 import binascii
 import requests
 import threading
@@ -36,6 +37,7 @@ unpack_bytes = lambda f,n: unpack("<"+"%ss"%n, f)[0]
 pack_bytes = (lambda f,v: pack("!"+"%ss"%len(v), f, (v,))) if __PY3__ else \
              (lambda f,v: pack("!"+"c"*len(v), f, v))
 
+
 def hexlify(data):
 	result = binascii.hexlify(data)
 	return str(result.decode() if isinstance(result, bytes) else result)
@@ -53,8 +55,8 @@ def unhexlify(data):
 def getTokenPrice(token, fiat="usd"):
 	cmc_ark = json.loads(requests.get("https://api.coinmarketcap.com/v1/ticker/"+token+"/?convert="+fiat.upper()).text)
 	try: return float(cmc_ark[0]["price_%s"%fiat.lower()])
-	except: return 1.
-
+	except: return 0.
+	
 
 def getCandidates():
 	candidates = []
@@ -93,7 +95,7 @@ def getHistory(address, timestamp=0):
 
 def getVoteForce(address, **kw):
 	# determine timestamp
-	balance = kw.pop("balance", False)/100000000.
+	balance = kw.pop("balance", 0)/100000000.
 	if not balance:
 		balance = float(rest.GET.api.accounts.getBalance(address=address, returnKey="balance"))/100000000.
 	delta = slots.datetime.timedelta(**kw)
@@ -256,6 +258,13 @@ def chooseItem(msg, *elem):
 		return False
 
 
+def hidenInput(msg):
+	data = getpass.getpass(msg)
+	if isinstance(data, bytes):
+		data = data.decode(sys.stdin.encoding)
+	return data
+
+
 def findAccounts():
 	try:
 		return [os.path.splitext(name)[0] for name in os.listdir(os.path.join(HOME, ".account", cfg.network)) if name.endswith(".account")]
@@ -266,7 +275,7 @@ def findAccounts():
 def createBase(secret):
 	hx = [e for e in "0123456789abcdef"]
 	base = ""
-	for c in hexlify(hashlib.md5(secret.encode()).digest()):
+	for c in hexlify(hashlib.md5(secret.encode() if not isinstance(secret, bytes) else secret).digest()):
 		try: base += hx.pop(hx.index(c))
 		except: pass
 	return base + "".join(hx)
@@ -293,7 +302,7 @@ def dumpAccount(base, address, privateKey, secondPrivateKey=None, name="unamed")
 	filename = os.path.join(folder, name+".account")
 	data = bytearray()
 	with io.open(filename, "wb") as out:
-		addr = scramble(base, hexlify(address.encode()))
+		addr = scramble(base, hexlify(address.encode("utf-8")))
 		data.append(len(addr))
 		data.extend(addr)
 
