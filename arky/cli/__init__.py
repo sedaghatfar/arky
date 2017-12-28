@@ -267,7 +267,8 @@ def checkRegisteredTx(registry, folder=None, quiet=False):
 				sys.stdout.write("\nCheck finished, all transactions applied\n")
 			LOCK.set()
 		elif COUNT >= 5:
-			sys.stdout.write("\nCheck finished (max retriy reach), all transactions not applied...\n")
+			if not quiet:
+				sys.stdout.write("\nCheck finished (max retriy reach), all transactions not applied...\n")
 			LOCK.set()
 		elif not quiet:
 			sys.stdout.write("\n%d transaction%s not applied in blockchain\nWaiting two blocks (%ds) before another broadcast...\n" % (remaining, "s" if remaining>1 else "", 2*cfg.blocktime))
