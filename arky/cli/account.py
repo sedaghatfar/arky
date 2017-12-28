@@ -163,6 +163,10 @@ def link(param):
 		else:
 			DATA.escrowed = False
 
+		if not DATA.escrowed:
+			DATA.daemon = checkRegisteredTx("%s.registry" % (DATA.account["address"]), quiet=False)
+
+
 
 def unlink(param):
 	DATA.account.clear()
