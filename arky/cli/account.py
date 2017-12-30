@@ -122,6 +122,7 @@ def _whereami():
 
 
 def link(param):
+	unlink(param)
 
 	if not param["<secret>"]:
 		choices = util.findAccounts()
