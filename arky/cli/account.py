@@ -122,6 +122,7 @@ def _whereami():
 
 
 def link(param):
+	unlink(param)
 
 	if not param["<secret>"]:
 		choices = util.findAccounts()
@@ -162,6 +163,10 @@ def link(param):
 				DATA.escrowed = True
 		else:
 			DATA.escrowed = False
+
+		if not DATA.escrowed:
+			DATA.daemon = checkRegisteredTx("%s.registry" % (DATA.account["address"]), quiet=False)
+
 
 
 def unlink(param):

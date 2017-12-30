@@ -227,7 +227,7 @@ def floatAmount(amount):
 				balance = float(resp["balance"])
 			else:
 				return False
-		return (float(amount[:-1])/100 * balance - cfg.fees["send"])/100000000.
+		return float(amount[:-1])/100 * balance - cfg.fees["send"]/100000000.
 	elif amount[0] in ["$", "€", "£", "¥"]:
 		price = util.getTokenPrice(cfg.token, {"$":"usd", "EUR":"eur", "€":"eur", "£":"gbp", "¥":"cny"}[amount[0]])
 		result = float(amount[1:])/price
@@ -241,10 +241,12 @@ def floatAmount(amount):
 
 def checkRegisteredTx(registry, folder=None, quiet=False):
 	LOCK = None
+	# COUNT = 0
 
 	@util.setInterval(2*cfg.blocktime)
 	def _checkRegisteredTx(registry):
 		registered = util.loadJson(registry, folder)
+		# COUNT += 1
 
 		if not quiet:
 			sys.stdout.write("\n---\nTransaction registry check, please wait...\n")
@@ -264,6 +266,10 @@ def checkRegisteredTx(registry, folder=None, quiet=False):
 			if not quiet:
 				sys.stdout.write("\nCheck finished, all transactions applied\n")
 			LOCK.set()
+		# elif COUNT >= 5:
+		# 	if not quiet:
+		# 		sys.stdout.write("\nCheck finished (max retriy reach), all transactions not applied...\n")
+		# 	LOCK.set()
 		elif not quiet:
 			sys.stdout.write("\n%d transaction%s not applied in blockchain\nWaiting two blocks (%ds) before another broadcast...\n" % (remaining, "s" if remaining>1 else "", 2*cfg.blocktime))
 
