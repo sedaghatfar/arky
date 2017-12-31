@@ -122,7 +122,6 @@ def _whereami():
 
 
 def link(param):
-	unlink(param)
 
 	if not param["<secret>"]:
 		choices = util.findAccounts()
@@ -134,6 +133,7 @@ def link(param):
 				sys.stdout.write("    Bad pin code...\n")
 				return
 			else:
+				unlink(param)
 				DATA.account = rest.GET.api.accounts(address=data["address"]).get("account", {})
 				DATA.firstkeys = dict(publicKey=DATA.account["publicKey"], privateKey=data["privateKey"])
 				if "secondPrivateKey" in data:
@@ -152,6 +152,7 @@ def link(param):
 		sys.stdout.write("    %s does not exixt in %s blockchain...\n" % (_address, cfg.network))
 		unlink(param)
 	else:
+		DATA.secondkeys.clear()
 		if param["<2ndSecret>"]:
 			DATA.secondkeys = arky.core.crypto.getKeys(param["<2ndSecret>"])
 			DATA.escrowed = False
@@ -166,7 +167,6 @@ def link(param):
 
 		if not DATA.escrowed:
 			DATA.daemon = checkRegisteredTx("%s.registry" % (DATA.account["address"]), quiet=False)
-
 
 
 def unlink(param):
