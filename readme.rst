@@ -9,32 +9,20 @@ Install
 Ubuntu / OSX
 ^^^^^^^^^^^^
 
-Open a terminal and type :
-
-``sudo pip install arky``
-
-If you work with ``python3``
-
-``sudo pip3 install arky``
-
 From development version
 
-``sudo -H pip install git+https://github.com/ArkEcosystem/arky.git``
+``sudo -H pip install git+https://github.com/ArkEcosystem/arky.git@master``
 
 If you work with ``python3``
 
-``sudo -H pip3 install git+https://github.com/ArkEcosystem/arky.git``
+``sudo -H pip3 install git+https://github.com/ArkEcosystem/arky.git@master``
 
 Windows 
 ^^^^^^^
 
-Run a command as Administrator and type :
+From development version
 
-``pip install arky``
-
-For development version
-
-``pip install git+https://github.com/ArkEcosystem/arky.git``
+``pip install git+https://github.com/ArkEcosystem/arky.git@master``
 
 Using ``arky``
 ==============
