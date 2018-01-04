@@ -1,6 +1,8 @@
 # -*- encoding: utf8 -*-
 # © Toons
 
+# this module contains functions to connect with ledger nano s
+
 from ledgerblue.comm import getDongle
 
 from . import __PY3__
@@ -13,12 +15,13 @@ import os
 import arky
 import struct
 
+# this functions turns samely on python 2.x and 3.x
 pack = (lambda f,v: struct.pack(f, v)) if __PY3__ else \
 	   (lambda f,v: bytes(struct.pack(f, v)))
-
+# convert int to byte
 intasb = lambda i: util.unhexlify(hex(i)[2:])
 
-
+# parse a derivation path
 def parse_bip32_path(path):
 	if len(path) == 0:
 		return b""
@@ -32,7 +35,7 @@ def parse_bip32_path(path):
 			result = result + pack(">I", 0x80000000 | int(element[0]))
 	return result
 
-
+# generate tx data to be sent into the ledger key
 def buildTxApdu(dongle_path, data):
 	path_len = len(dongle_path)
 	
@@ -50,7 +53,7 @@ def buildTxApdu(dongle_path, data):
 		util.unhexlify("e0048140") + intasb(len(data2)) + data2 if len(data2) else None
 	]
 
-
+# generate data to get public key from ledger key
 def buildPkeyApdu(dongle_path):
 	path_len = len(dongle_path)
 	return util.unhexlify("e0020040") + intasb(1 + path_len) + intasb(path_len//4) + dongle_path

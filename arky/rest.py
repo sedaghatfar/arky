@@ -69,10 +69,10 @@ Returns dict
 			data["details"] = "\n"+("".join(traceback.format_tb(error.__traceback__)).rstrip())
 	else:
 		if data.get("success", False):
-			data = data[returnKey] if returnKey in data else data
-			if "balance" in data:
-				# humanize balance value
-				data["balance"] = float(data["balance"])/100000000
+			if returnKey:
+				data = data[returnKey]
+				for key in [k for k in ["balance", "unconfirmedBalance", "vote"] if k in data]:
+					data[key] = float(data[key])/100000000
 	return data
 
 
@@ -120,7 +120,7 @@ def checkPeerLatency(peer):
 	Return peer latency in seconds.
 	"""
 	try:
-		r = requests.get(peer, timeout=cfg.timeout)
+		r = requests.get(peer, timeout=cfg.timeout, verify=cfg.verify)
 	except:
 		return False
 	else:

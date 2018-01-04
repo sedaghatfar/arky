@@ -26,7 +26,7 @@ def init():
 	if resp["success"]:
 		cfg.headers["version"] = "%s" % rest.GET.api.peers.version(returnKey="version")
 		cfg.headers["nethash"] = resp["nethash"]
-		cfg.fees = rest.GET.api.blocks.getFees(returnKey="fees")
+		cfg.fees = rest.GET.api.blocks.getFees().get("fees")
 		threading.Thread(target=selectPeers).start()
 		@util.setInterval(30)
 		def rotatePeers(): selectPeers()

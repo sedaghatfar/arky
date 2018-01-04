@@ -122,6 +122,7 @@ def _whereami():
 
 
 def link(param):
+	unlink(param)
 
 	if not param["<secret>"]:
 		choices = util.findAccounts()
@@ -133,7 +134,7 @@ def link(param):
 				sys.stdout.write("    Bad pin code...\n")
 				return
 			else:
-				unlink(param)
+				# unlink(param)
 				DATA.account = rest.GET.api.accounts(address=data["address"]).get("account", {})
 				DATA.firstkeys = dict(publicKey=DATA.account["publicKey"], privateKey=data["privateKey"])
 				if "secondPrivateKey" in data:
@@ -144,15 +145,15 @@ def link(param):
 			return
 
 	else:
+		# unlink(param)
 		DATA.firstkeys = arky.core.crypto.getKeys(param["<secret>"])
 		_address = arky.core.crypto.getAddress(DATA.firstkeys["publicKey"])
 		DATA.account = rest.GET.api.accounts(address=_address).get("account", {})
 	
 	if not DATA.account:
 		sys.stdout.write("    %s does not exixt in %s blockchain...\n" % (_address, cfg.network))
-		unlink(param)
 	else:
-		DATA.secondkeys.clear()
+		# DATA.secondkeys.clear()
 		if param["<2ndSecret>"]:
 			DATA.secondkeys = arky.core.crypto.getKeys(param["<2ndSecret>"])
 			DATA.escrowed = False
@@ -166,7 +167,7 @@ def link(param):
 			DATA.escrowed = False
 
 		if not DATA.escrowed:
-			DATA.daemon = checkRegisteredTx("%s.registry" % (DATA.account["address"]), quiet=False)
+			DATA.daemon = checkRegisteredTx("%s.registry" % (DATA.account["address"]), quiet=True)
 
 
 def unlink(param):

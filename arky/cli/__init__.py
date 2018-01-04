@@ -247,11 +247,11 @@ def checkRegisteredTx(registry, folder=None, quiet=False):
 		registered = util.loadJson(registry, folder)
 		if not len(registered):
 			if not quiet:
-				sys.stdout.write("\nNo transaction remaining\n")
+				sys.stdout.write("\nNo transaction remaining\n%s"%PROMPT)
 			LOCK.set()
 		else:
 			if not quiet:
-				sys.stdout.write("\n---\nTransaction registry check, please wait...\n")
+				sys.stdout.write("\n---\nTransaction registry check...\n%s"%PROMPT)
 			for tx_id, payload in list(registered.items()):
 				if rest.GET.api.transactions.get(id=tx_id).get("success", False):
 					registered.pop(tx_id)
@@ -266,13 +266,13 @@ def checkRegisteredTx(registry, folder=None, quiet=False):
 			remaining = len(registered)
 			if not remaining:
 				if not quiet:
-					sys.stdout.write("\nCheck finished, all transactions applied\n")
+					sys.stdout.write("\nCheck finished, all transactions applied\n%s"%PROMPT)
 				LOCK.set()
 			elif not quiet:
-				sys.stdout.write("\n%d transaction%s not applied in blockchain\nWaiting two blocks (%ds) before another broadcast...\n" % (remaining, "s" if remaining>1 else "", 2*cfg.blocktime))
+				sys.stdout.write("\n%d transaction%s not applied in blockchain\nWaiting two blocks (%ds) before another broadcast...\n%s" % (remaining, "s" if remaining>1 else "", 2*cfg.blocktime, PROMPT))
 
 	if not quiet:
-		sys.stdout.write("Transaction check in two blocks (%ds), please wait...\n" % (2*cfg.blocktime))
+		sys.stdout.write("Transaction check in two blocks (%ds)...\n%s" % (2*cfg.blocktime, PROMPT))
 	LOCK = _checkRegisteredTx(registry)
 	return LOCK
 
