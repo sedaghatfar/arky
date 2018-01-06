@@ -1,7 +1,7 @@
 .. image:: https://github.com/Moustikitos/arky/raw/master/arky-logo.png
    :target: https://ark.io
 
-Copyright 2016-2017 **Toons**, Copyright 2017 **ARK**, `MIT licence`_
+Copyright 2016-2018 **Toons**, Copyright 2018 **ARK**, `MIT licence`_
 
 Install
 =======
@@ -120,9 +120,9 @@ line interface. There are two ways to launch the CLI.
 
 ::
 
-  Welcome to arky-cli [Python 3.5.1 / arky 1.0a0]
-  Available commands: network, account, delegate
-  cold@.../>
+  Welcome to arky-cli [Python x.y.z / arky 1.x]
+  Available commands: network, account, delegate, ledger
+cold@.../>
 
 Use network
 ^^^^^^^^^^^
