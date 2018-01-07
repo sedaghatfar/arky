@@ -201,7 +201,7 @@ Toons Ark address: ``AUahWfkfr5J4tYakugRbfow7RWVTK35GPW``
 .. image:: http://bruno.thoorens.free.fr/img/bitcoin.png
    :width: 100
 
-Toons Bitcoin address: ``3Jgib9SQiDLYML7QKBYtJUkHq2nyG6Z63D``
+Toons Bitcoin address: ``1qjHtN5SuzvcA8RZSxNPuf79iyLaVjxfc``
 
 **Show gratitude on Gratipay:**
 

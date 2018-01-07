@@ -224,7 +224,7 @@ def floatAmount(amount):
 		else:
 			resp = rest.GET.api.accounts.getBalance(address=account["address"])
 			if resp["success"]:
-				balance = float(resp["balance"])
+				balance = float(resp["balance"])/100000000
 			else:
 				return False
 		return float(amount[:-1])/100 * balance - cfg.fees["send"]/100000000.
@@ -266,7 +266,7 @@ def checkRegisteredTx(registry, folder=None, quiet=False):
 			remaining = len(registered)
 			if not remaining:
 				if not quiet:
-					sys.stdout.write("\nCheck finished, all transactions applied\n%s"%PROMPT)
+					sys.stdout.write("\nCheck finished, all transactions applied\n")
 				LOCK.set()
 			elif not quiet:
 				sys.stdout.write("\n%d transaction%s not applied in blockchain\nWaiting two blocks (%ds) before another broadcast...\n%s" % (remaining, "s" if remaining>1 else "", 2*cfg.blocktime, PROMPT))
