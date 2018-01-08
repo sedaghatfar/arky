@@ -1,5 +1,7 @@
 # -*- encoding: utf8 -*-
 # © Toons
+    # ledger validate <registry>
+    # validate : validate transaction from registry.
 
 """
 Usage: 
@@ -35,6 +37,7 @@ from . import DATA
 from . import parse
 from . import __name__ as __root_name__
 from . import floatAmount
+from . import askYesOrNo
 
 from .account import _send
 from .account import _getVoteList
@@ -53,6 +56,8 @@ def _sign(tx):
 			sys.stdout.write("Ledger key is not ready, try again...\n")
 		elif e.sw == 27013:
 			sys.stdout.write("Transaction canceled\n")
+		else:
+			sys.stdout.write("%r\n" % e)
 	else:
 		return tx
 
@@ -78,20 +83,20 @@ def _whereami():
 
 def link(param):
 	if hasattr(cfg, "slip44"):
+
 		ledger_dpath = "44'/"+cfg.slip44+"'/%(--account-index)s'/0/%(--address-rank)s" % param
 		try:
-			publicKey = ldgr.getPublicKey(ldgr.parse_bip32_path(ledger_dpath))
+			publicKey = ldgr.getPublicKey(ldgr.parseBip32Path(ledger_dpath))
 			address = arky.core.crypto.getAddress(publicKey)
 			DATA.ledger = rest.GET.api.accounts(address=address).get("account", {})
 		except:
 			sys.stdout.write("Ledger key is not ready, try again...\n")
-			# unlink(param)
 		else:
 			if not DATA.ledger:
 				sys.stdout.write("    %s account does not exixts in %s blockchain...\n" % (address, cfg.network))
-				# unlink(param)
 			else:
 				DATA.ledger["path"] = ledger_dpath
+
 	else:
 		_return()
 
@@ -99,7 +104,7 @@ def link(param):
 def status(param):
 	if DATA.ledger:
 		data = rest.GET.api.accounts(address=DATA.ledger["address"], returnKey="account")
-		data["derivationPAth"] = DATA.ledger["path"]
+		data["derivationPath"] = DATA.ledger["path"]
 		util.prettyPrint(data)
 
 
@@ -144,3 +149,32 @@ def vote(param):
 		)
 
 		if _sign(tx): _send(tx)
+
+
+# def validate(param):
+# 	registry = util.loadJson(param["<registry>"])
+# 	if len(registry):
+# 		if registry["secondPublicKey"] == DATA.ledger["publicKey"]:
+# 			items = []
+# 			for tx in registry["transactions"]:
+# 				if tx.get("asset", False):
+# 					items.append("type=%(type)d, asset=%(asset)s" % tx)
+# 				else:
+# 					items.append("type=%(type)d, amount=%(amount)d, recipientId=%(recipientId)s" % tx)
+# 			if not len(items):
+# 				sys.stdout.write("    No transaction found in registry\n")
+# 				return
+# 			choices = util.chooseMultipleItem("Transactions(s) found:", *items)
+# 			if askYesOrNo("Validate transactions %s ?" % ",".join([str(i) for i in choices])):
+# 				for idx in list(choices):
+# 					tx = registry["transactions"][idx-1]
+# 					if _sign(tx):
+# 						_send(tx)
+# 						registry["transactions"].pop(idx-1)
+# 				util.dumpJson(registry, param["<registry>"])
+# 			else:
+# 				sys.stdout.write("    Validation canceled\n")
+# 		else:
+# 			sys.stdout.write("    Not the valid thirdparty passphrase\n")
+# 	else:
+# 		sys.stdout.write("    Transaction registry not found\n")

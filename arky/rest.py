@@ -34,18 +34,19 @@ def unuseCustomPeer(): __PEER__ = False
 
 def get(entrypoint, dic={}, **kw):
 	"""
-generic GET call using requests lib. It returns server response as dict object.
-It uses default peers registered in cfg.peers list.
+	Generic GET call using requests lib. It returns server response as dict object.
+	It randomly select one of peersregistered in cfg.peers list. A custom peer can 
+	be used.
 
-Argument:
-entrypoint (str) -- entrypoint url path
+	Argument:
+	entrypoint (str) -- entrypoint url path
 
-Keyword argument:
-dic (dict) -- api parameters as dict type
-**kw       -- api parameters as keyword argument (overwriting dic ones)
+	Keyword argument:
+	dic (dict) -- api parameters as dict type
+	**kw -- api parameters as keyword argument (overwriting dic ones)
 
-Returns dict
-"""
+	Return dict
+	"""
 	# merge dic and kw values
 	args = dict(dic, **kw)
 	# API response contains several fields and wanted one can be extracted using

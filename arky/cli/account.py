@@ -10,7 +10,7 @@ Usage:
     account register <username>
     account register 2ndSecret <secret>
     account register escrow <thirdparty>
-    account validate <registry>
+    account validate [<registry>]
     account vote [-ud] [<delegates>]
     account send <amount> <address> [<message>]
 
@@ -39,6 +39,7 @@ Subcommands:
 
 import arky
 
+from .. import HOME
 from .. import cfg
 from .. import rest
 from .. import util
@@ -56,20 +57,26 @@ import sys
 
 
 def _send(payload):
+	_address = DATA.getCurrentAddress()
 	if DATA.escrowed:
+		folder = os.path.join(HOME, ".escrow", cfg.network)
+		try: os.makedirs(folder)
+		except: pass
 		sys.stdout.write("    Writing transaction...\n")
-		registry_file = "%s.escrow" % DATA.getCurrentAddress()
-		registry = util.loadJson(registry_file)
+		registry_file = "%s.escrow" % (_address if _address else "thirdparty")
+		registry = util.loadJson(registry_file, folder)
 		if registry == {}:
 			registry["secondPublicKey"] = DATA.getCurrent2ndPKey()
 			registry["transactions"] = []
 		payload.pop("id", None)
 		registry["transactions"].extend([payload])
-		util.dumpJson(registry, registry_file)
+		util.dumpJson(registry, registry_file, folder)
 	else:
-		_address = DATA.getCurrentAddress()
+		folder = os.path.join(HOME, ".registry", cfg.network)
+		try: os.makedirs(folder)
+		except: pass
 		registry_file = "%s.registry" % (_address if _address else "thirdparty")
-		registry = util.loadJson(registry_file)
+		registry = util.loadJson(registry_file, folder)
 		typ_ = payload["type"]
 		sys.stdout.write("    Broadcasting transaction...\n" if typ_ == 0 else \
 		                 "    Broadcasting vote...\n" if typ_ == 3 else \
@@ -78,8 +85,8 @@ def _send(payload):
 		util.prettyPrint(resp)
 		if resp["success"]:
 			registry[payload["id"]] = payload
-			util.dumpJson(registry, registry_file)
-		DATA.daemon = checkRegisteredTx(registry_file, quiet=True)
+			util.dumpJson(registry, registry_file, folder)
+		DATA.daemon = checkRegisteredTx(registry_file, folder, quiet=True)
 
 
 def _getVoteList(param):
@@ -134,7 +141,6 @@ def link(param):
 				sys.stdout.write("    Bad pin code...\n")
 				return
 			else:
-				# unlink(param)
 				DATA.account = rest.GET.api.accounts(address=data["address"]).get("account", {})
 				DATA.firstkeys = dict(publicKey=DATA.account["publicKey"], privateKey=data["privateKey"])
 				if "secondPrivateKey" in data:
@@ -145,7 +151,6 @@ def link(param):
 			return
 
 	else:
-		# unlink(param)
 		DATA.firstkeys = arky.core.crypto.getKeys(param["<secret>"])
 		_address = arky.core.crypto.getAddress(DATA.firstkeys["publicKey"])
 		DATA.account = rest.GET.api.accounts(address=_address).get("account", {})
@@ -153,7 +158,6 @@ def link(param):
 	if not DATA.account:
 		sys.stdout.write("    %s does not exixt in %s blockchain...\n" % (_address, cfg.network))
 	else:
-		# DATA.secondkeys.clear()
 		if param["<2ndSecret>"]:
 			DATA.secondkeys = arky.core.crypto.getKeys(param["<2ndSecret>"])
 			DATA.escrowed = False
@@ -167,7 +171,7 @@ def link(param):
 			DATA.escrowed = False
 
 		if not DATA.escrowed:
-			DATA.daemon = checkRegisteredTx("%s.registry" % (DATA.account["address"]), quiet=True)
+			DATA.daemon = checkRegisteredTx("%s.registry" % (DATA.account["address"]), os.path.join(HOME, ".registry", cfg.network), quiet=True)
 
 
 def unlink(param):
@@ -243,35 +247,39 @@ def register(param):
 
 
 def validate(param):
-	registry = util.loadJson(param["<registry>"])
-	if len(registry):
-		thirdpartyKeys = arky.core.crypto.getKeys(util.hidenInput("Enter thirdparty passphrase: "))
-		if registry["secondPublicKey"] == thirdpartyKeys["publicKey"]:
-			items = []
-			for tx in registry["transactions"]:
-				if tx.get("asset", False):
-					items.append("type=%(type)d, asset=%(asset)s" % tx)
+	unlink(param)
+
+	if param["<registry>"]:
+		registry = util.loadJson(param["<registry>"], os.path.join(HOME, ".escrow", cfg.network))
+		if len(registry):
+			thirdpartyKeys = arky.core.crypto.getKeys(util.hidenInput("Enter thirdparty passphrase: "))
+			if registry["secondPublicKey"] == thirdpartyKeys["publicKey"]:
+				items = []
+				for tx in registry["transactions"]:
+					if tx.get("asset", False):
+						items.append("type=%(type)d, asset=%(asset)s" % tx)
+					else:
+						items.append("type=%(type)d, amount=%(amount)d, recipientId=%(recipientId)s" % tx)
+				if not len(items):
+					sys.stdout.write("    No transaction found in registry\n")
+					return
+				choices = util.chooseMultipleItem("Transactions(s) found:", *items)
+				if askYesOrNo("Validate transactions %s ?" % ",".join([str(i) for i in choices])):
+					for idx in choices:
+						tx = registry["transactions"].pop(idx-1)
+						tx["signSignature"] = arky.core.crypto.getSignature(tx, thirdpartyKeys["privateKey"])
+						tx["id"] = arky.core.crypto.getId(tx)
+						_send(tx)
+					util.dumpJson(registry, param["<registry>"], os.path.join(HOME, ".escrow", cfg.network))
 				else:
-					items.append("type=%(type)d, amount=%(amount)d, recipientId=%(recipientId)s" % tx)
-			if not len(items):
-				sys.stdout.write("    No transaction found in registry\n")
-				return
-			choices = util.chooseMultipleItem("Transactions(s) found:", *items)
-			if askYesOrNo("Validate transactions %s ?" % ",".join([str(i) for i in choices])):
-				for idx in choices:
-					tx = registry["transactions"][idx-1]
-					tx["signSignature"] = arky.core.crypto.getSignature(tx, thirdpartyKeys["privateKey"])
-					tx["id"] = arky.core.crypto.getId(tx)
-					_send(tx)
-				registry["transactions"] = [registry["transactions"][idx] for idx in range(len(registry["transactions"])) \
-				                            if idx+1 not in choices]
-				util.dumpJson(registry, param["<registry>"])
+					sys.stdout.write("    Validation canceled\n")
 			else:
-				sys.stdout.write("    Validation canceled\n")
+				sys.stdout.write("    Not the valid thirdparty passphrase\n")
 		else:
-			sys.stdout.write("    Not the valid thirdparty passphrase\n")
-	else:
-		sys.stdout.write("    Transaction registry not found\n")
+			sys.stdout.write("    Transaction registry not found\n")
+
+	if os.path.exists(os.path.join(HOME, ".registry", cfg.network, "thirdparty.registry")):
+		DATA.daemon = checkRegisteredTx("thirdparty.registry", os.path.join(HOME, ".registry", cfg.network), quiet=False)
 
 
 def vote(param):

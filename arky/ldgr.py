@@ -101,7 +101,7 @@ def getPublicKey(dongle_path, debug=False):
 	"""
 
 	apdu = buildPkeyApdu(dongle_path)
-	dongle = getDongle(debug, selectCommand)
+	dongle = getDongle(debug)
 	data = bytes(dongle.exchange(apdu))
 	dongle.close()
 	len_pkey = util.basint(data[0])
@@ -125,9 +125,10 @@ def signTx(tx, path, debug=False):
 
 	dongle_path = parseBip32Path(path)
 	# update tx
-	tx["senderPublicKey"] = getPublicKey(dongle_path)
+	if "senderPublicKey" not in tx:
+		tx["senderPublicKey"] = getPublicKey(dongle_path)
 	apdu1, apdu2 = buildTxApdu(dongle_path, arky.core.crypto.getBytes(tx))
-	dongle = getDongle(debug, selectCommand)
+	dongle = getDongle(debug)
 	result = dongle.exchange(bytes(apdu1))
 	if apdu2:
 		result = dongle.exchange(bytes(apdu2))
@@ -155,7 +156,6 @@ def dumpBip39(pin, bip39, name="unamed"):
 	folder = os.path.join(HOME, ".bip39", cfg.network)
 	if not os.path.exists(folder):
 		os.makedirs(folder)
-	# filename = os.path.join(folder, name+".bip39")
 	with io.open(os.path.join(folder, name+".bip39"), "wb") as out:
 		out.write(util.scramble(util.createBase(pin), util.hexlify(bip39)))
 
