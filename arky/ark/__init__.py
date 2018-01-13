@@ -38,7 +38,7 @@ def init():
 		cfg.headers["version"] = "%s" % network.pop("version")
 		cfg.headers["nethash"] = network.pop("nethash")
 		cfg.__dict__.update(network)
-		cfg.fees = rest.GET.api.blocks.getFees(returnKey="fees")
+		cfg.fees = rest.GET.api.blocks.getFees().get("fees")
 		# manage peers for tx broadcasting
 		threading.Thread(target=selectPeers).start()
 		@util.setInterval(30)

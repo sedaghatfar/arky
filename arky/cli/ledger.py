@@ -22,7 +22,10 @@ Subcommands:
     vote     : up or down vote delegate(s). <delegates> can be a coma-separated list
                or a valid new-line-separated file list conaining delegate names.
 """
+    # ledger validate <registry>
+    # validate : validate transaction from registry.
 
+from .. import HOME
 from .. import rest
 from .. import cfg
 from .. import util
@@ -33,19 +36,23 @@ from . import __PY3__
 from . import PROMPT
 from . import DATA
 from . import parse
+from . import input
 from . import __name__ as __root_name__
 from . import floatAmount
+from . import askYesOrNo
 
 from .account import _send
 from .account import _getVoteList
 
+import traceback
 import arky
 import sys
+import os
 
 
-def _sign(tx):
+def _sign(tx, derivation_path):
 	try:
-		tx = ldgr.signTx(tx, DATA.ledger["path"])
+		tx = ldgr.signTx(tx, derivation_path, debug=True)
 	except Exception as e:
 		if not len(e.__dict__):
 			sys.stdout.write("%r\n" % e)
@@ -53,6 +60,9 @@ def _sign(tx):
 			sys.stdout.write("Ledger key is not ready, try again...\n")
 		elif e.sw == 27013:
 			sys.stdout.write("Transaction canceled\n")
+		else:
+			sys.stdout.write("".join(traceback.format_tb(e.__traceback__)).rstrip() + "\n")
+			sys.stdout.write("%r\n" % e)
 	else:
 		return tx
 
@@ -78,20 +88,20 @@ def _whereami():
 
 def link(param):
 	if hasattr(cfg, "slip44"):
+
 		ledger_dpath = "44'/"+cfg.slip44+"'/%(--account-index)s'/0/%(--address-rank)s" % param
 		try:
-			publicKey = ldgr.getPublicKey(ldgr.parse_bip32_path(ledger_dpath))
+			publicKey = ldgr.getPublicKey(ldgr.parseBip32Path(ledger_dpath))
 			address = arky.core.crypto.getAddress(publicKey)
 			DATA.ledger = rest.GET.api.accounts(address=address).get("account", {})
 		except:
 			sys.stdout.write("Ledger key is not ready, try again...\n")
-			# unlink(param)
 		else:
 			if not DATA.ledger:
 				sys.stdout.write("    %s account does not exixts in %s blockchain...\n" % (address, cfg.network))
-				# unlink(param)
 			else:
 				DATA.ledger["path"] = ledger_dpath
+
 	else:
 		_return()
 
@@ -99,7 +109,7 @@ def link(param):
 def status(param):
 	if DATA.ledger:
 		data = rest.GET.api.accounts(address=DATA.ledger["address"], returnKey="account")
-		data["derivationPAth"] = DATA.ledger["path"]
+		data["derivationPath"] = DATA.ledger["path"]
 		util.prettyPrint(data)
 
 
@@ -124,7 +134,7 @@ def send(param):
 				vendorField=param["<message>"],
 			)
 			
-			if _sign(tx): _send(tx)
+			if _sign(tx, DATA.ledger["path"]): _send(tx)
 
 
 def vote(param):
@@ -143,4 +153,47 @@ def vote(param):
 			asset={"votes": lst}
 		)
 
-		if _sign(tx): _send(tx)
+		if _sign(tx, DATA.ledger["path"]): _send(tx)
+
+
+# def validate(param):
+# 	unlink(param)
+# 	if param["<registry>"]:
+# 		folder = os.path.join(HOME, ".escrow", cfg.network)
+# 		registry = util.loadJson(param["<registry>"], folder)
+
+# 		if len(registry):
+
+# 			derivation_path = input("Enter the derivation path: ")
+# 			try:
+# 				public_key = ldgr.getPublicKey(ldgr.parseBip32Path(derivation_path))
+# 			except Exception as e:
+# 				public_key = ""
+# 				sys.stdout.write("%r\n" % e)
+# 				return False
+
+# 			if registry["secondPublicKey"] == public_key:
+# 				items = []
+# 				for tx in registry["transactions"]:
+# 					if tx.get("asset", False):
+# 						items.append("type=%(type)d, asset=%(asset)s" % tx)
+# 					else:
+# 						items.append("type=%(type)d, amount=%(amount)d, recipientId=%(recipientId)s" % tx)
+# 				if not len(items):
+# 					sys.stdout.write("    No transaction found in registry\n")
+# 					return
+# 				choices = util.chooseMultipleItem("Transactions(s) found:", *items)
+# 				if askYesOrNo("Validate transactions %s ?" % ",".join([str(i) for i in choices])):
+# 					for idx in list(choices):
+# 						tx = registry["transactions"][idx-1]
+# 						if _sign(tx, derivation_path):
+# 							_send(tx)
+# 							registry["transactions"].pop(idx-1)
+# 					util.dumpJson(registry, param["<registry>"], folder)
+# 				else:
+# 					sys.stdout.write("    Validation canceled\n")
+# 			else:
+# 				sys.stdout.write("    Not the valid thirdparty passphrase\n")
+# 		else:
+# 			sys.stdout.write("    Transaction registry not found\n")
+

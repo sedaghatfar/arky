@@ -52,9 +52,9 @@ def _whereami():
 
 def _loadDelegate():
 	if DATA.account:
-		resp = rest.GET.api.delegates.get(publicKey=DATA.account["publicKey"])
-		if resp["success"]:
-			DATA.delegate = resp["delegate"]
+		resp = rest.GET.api.delegates.get(publicKey=DATA.account["publicKey"], returnKey="delegate")
+		if resp.get("publicKey", False):
+			DATA.delegate = resp
 			return True
 		else:
 			return False

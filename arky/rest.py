@@ -34,18 +34,19 @@ def unuseCustomPeer(): __PEER__ = False
 
 def get(entrypoint, dic={}, **kw):
 	"""
-generic GET call using requests lib. It returns server response as dict object.
-It uses default peers registered in cfg.peers list.
+	Generic GET call using requests lib. It returns server response as dict object.
+	It randomly select one of peersregistered in cfg.peers list. A custom peer can 
+	be used.
 
-Argument:
-entrypoint (str) -- entrypoint url path
+	Argument:
+	entrypoint (str) -- entrypoint url path
 
-Keyword argument:
-dic (dict) -- api parameters as dict type
-**kw       -- api parameters as keyword argument (overwriting dic ones)
+	Keyword argument:
+	dic (dict) -- api parameters as dict type
+	**kw -- api parameters as keyword argument (overwriting dic ones)
 
-Returns dict
-"""
+	Return dict
+	"""
 	# merge dic and kw values
 	args = dict(dic, **kw)
 	# API response contains several fields and wanted one can be extracted using
@@ -69,10 +70,10 @@ Returns dict
 			data["details"] = "\n"+("".join(traceback.format_tb(error.__traceback__)).rstrip())
 	else:
 		if data.get("success", False):
-			data = data[returnKey] if returnKey in data else data
-			if "balance" in data:
-				# humanize balance value
-				data["balance"] = float(data["balance"])/100000000
+			if returnKey:
+				data = data[returnKey]
+				for key in [k for k in ["balance", "unconfirmedBalance", "vote"] if k in data]:
+					data[key] = float(data[key])/100000000
 	return data
 
 
@@ -120,7 +121,7 @@ def checkPeerLatency(peer):
 	Return peer latency in seconds.
 	"""
 	try:
-		r = requests.get(peer, timeout=cfg.timeout)
+		r = requests.get(peer, timeout=cfg.timeout, verify=cfg.verify)
 	except:
 		return False
 	else:

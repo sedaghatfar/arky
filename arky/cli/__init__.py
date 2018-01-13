@@ -157,7 +157,7 @@ def start():
 	
 	if DATA.daemon:
 		sys.stdout.write("Closing registry daemon...\n")
-		DATA.daemon.wait()
+		DATA.daemon.set()
 
 
 def execute(*lines):
@@ -224,7 +224,7 @@ def floatAmount(amount):
 		else:
 			resp = rest.GET.api.accounts.getBalance(address=account["address"])
 			if resp["success"]:
-				balance = float(resp["balance"])
+				balance = float(resp["balance"])/100000000
 			else:
 				return False
 		return float(amount[:-1])/100 * balance - cfg.fees["send"]/100000000.
@@ -241,40 +241,38 @@ def floatAmount(amount):
 
 def checkRegisteredTx(registry, folder=None, quiet=False):
 	LOCK = None
-	# COUNT = 0
 
 	@util.setInterval(2*cfg.blocktime)
 	def _checkRegisteredTx(registry):
 		registered = util.loadJson(registry, folder)
-		# COUNT += 1
-
-		if not quiet:
-			sys.stdout.write("\n---\nTransaction registry check, please wait...\n")
-		for tx_id, payload in list(registered.items()):
-			if rest.GET.api.transactions.get(id=tx_id).get("success", False):
-				registered.pop(tx_id)
-			else:
-				if not quiet:
-					sys.stdout.write("Broadcasting transaction #%s\n" % tx_id)
-				result = arky.core.sendPayload(payload)
-				if not quiet:
-					util.prettyPrint(result, log=False)
-		
-		util.dumpJson(registered, registry, folder)
-		remaining = len(registered)
-		if not remaining:
+		if not len(registered):
 			if not quiet:
-				sys.stdout.write("\nCheck finished, all transactions applied\n")
+				sys.stdout.write("\nNo transaction remaining\n%s"%PROMPT)
 			LOCK.set()
-		# elif COUNT >= 5:
-		# 	if not quiet:
-		# 		sys.stdout.write("\nCheck finished (max retriy reach), all transactions not applied...\n")
-		# 	LOCK.set()
-		elif not quiet:
-			sys.stdout.write("\n%d transaction%s not applied in blockchain\nWaiting two blocks (%ds) before another broadcast...\n" % (remaining, "s" if remaining>1 else "", 2*cfg.blocktime))
+		else:
+			if not quiet:
+				sys.stdout.write("\n---\nTransaction registry check...\n")
+			for tx_id, payload in list(registered.items()):
+				if rest.GET.api.transactions.get(id=tx_id).get("success", False):
+					registered.pop(tx_id)
+				else:
+					if not quiet:
+						sys.stdout.write("Broadcasting transaction #%s\n" % tx_id)
+					result = arky.core.sendPayload(payload)
+					if not quiet:
+						util.prettyPrint(result, log=False)
+			
+			util.dumpJson(registered, registry, folder)
+			remaining = len(registered)
+			if not remaining:
+				if not quiet:
+					sys.stdout.write("\nCheck finished, all transactions applied\n%s"%PROMPT)
+				LOCK.set()
+			elif not quiet:
+				sys.stdout.write("\n%d transaction%s not applied in blockchain\nWaiting two blocks (%ds) before another broadcast...\n%s" % (remaining, "s" if remaining>1 else "", 2*cfg.blocktime, PROMPT))
 
 	if not quiet:
-		sys.stdout.write("Transaction check in two blocks (%ds), please wait...\n" % (2*cfg.blocktime))
+		sys.stdout.write("Transaction check in two blocks (%ds)...\n" % (2*cfg.blocktime))
 	LOCK = _checkRegisteredTx(registry)
 	return LOCK
 
