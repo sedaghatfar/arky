@@ -32,10 +32,10 @@ REST API
 >>> import arky.rest
 >>> arky.rest.use("ark")
 
-It loads the ``ark.net`` file and create associated REST API endpoinds.
-All endpoinds can be reached using this syntax :
+It loads the ``ark.net`` file and create associated REST API endpoints.
+All endpoints can be reached using this syntax :
 
-``arky.rest.[METHOD].[endpoinds with "/" replaced by "."](param=value, ...[returnKey=name])``
+``arky.rest.[METHOD].[endpoints with "/" replaced by "."](param=value, ...[returnKey=name])``
 
 >>> # http equivalent [PEER ADDRESS]/api/delegates/get?username=arky
 >>> arky.rest.GET.api.delegates.get(username="arky")
