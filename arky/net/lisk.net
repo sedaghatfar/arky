@@ -16,9 +16,15 @@
     "https://main.liskwallet.io",
     "https://wallet.lisknode.io",
     "https://wallet.mylisk.com",
-    "https://example124124asdfasdgadsg.com"
+    "https://example124124asdfasdgadsg.com",
+    "https://lisk-login.vipertkd.com",
+    "https://lisk.multiwallet.online",
+    "https://lisknode.grumlin.com",
+    "https://liskwallet.punkrock.me",
+    "https://liskworld.info",
+    "https://login.lisk.com.au",
+    "https://login.lisk.io"
   ],
-  "broadcast": 10,
 
   "explorer" : "https://explorer.lisk.io",
   "token" : "lisk",
