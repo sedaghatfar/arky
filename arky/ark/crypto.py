@@ -1,8 +1,10 @@
 # -*- encoding: utf8 -*-
 # © Toons
 
-from ecdsa.keys import SigningKey
-from ecdsa.util import sigencode_der_canonize
+from ecdsa import BadSignatureError
+from ecdsa.der import UnexpectedDER
+from ecdsa.keys import SigningKey, VerifyingKey
+from ecdsa.util import sigencode_der_canonize, sigdecode_der
 from ecdsa.curves import SECP256k1
 import base58
 
@@ -17,6 +19,7 @@ from ..util import unpack_bytes
 from ..util import pack_bytes
 from ..util import hexlify
 from ..util import unhexlify
+from ..util import pow_mod
 
 if not __PY3__:
 	from StringIO import StringIO
@@ -32,6 +35,16 @@ def compressEcdsaPublicKey(pubkey):
 	# check if last digit of second part is even (2%2 = 0, 3%2 = 1)
 	even = not bool(basint(last[-1]) % 2)
 	return (b"\x02" if even else b"\x03") + first
+
+def uncompressEcdsaPublicKey(pubkey):
+	p = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f
+	y_parity = int(pubkey[:2]) - 2
+	x = int(pubkey[2:], 16)
+	a = (pow_mod(x, 3, p) + 7) % p
+	y = pow_mod(a, (p + 1) // 4, p)
+	if y % 2 != y_parity:
+		y = -y % p
+	return '{:x}{:x}'.format(x, y)
 
 def getKeys(secret, seed=None):
 	"""
@@ -88,6 +101,16 @@ def getId(tx):
 def getSignatureFromBytes(data, privateKey):
 	signingKey = SigningKey.from_string(unhexlify(privateKey), SECP256k1, hashlib.sha256)
 	return hexlify(signingKey.sign_deterministic(data, hashlib.sha256, sigencode=sigencode_der_canonize))
+
+def verifySignatureFromBytes(data, pubkey, signature):
+	if cfg.compressed: pubkey = uncompressEcdsaPublicKey(pubkey)
+
+	vk = VerifyingKey.from_string(unhexlify(pubkey), SECP256k1, hashlib.sha256)
+	try:
+		vk.verify(unhexlify(signature), data, hashlib.sha256, sigdecode_der)
+	except (BadSignatureError, UnexpectedDER):
+		return False
+	return True
 
 def getIdFromBytes(data):
 	return hexlify(hashlib.sha256(data).digest())
