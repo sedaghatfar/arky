@@ -30,7 +30,7 @@ def selectPeers():
 	good_peers = sorted(good_peers, key=lambda e: e["delay"])
 
 	selection = []
-	while(len(selection) < min(cfg.broadcast, len(good_peers))):
+	while(len(selection) < min(getattr(cfg, "broadcast", 0), len(good_peers))):
 		peer = "http://{ip}:{port}".format(**good_peers[len(selection)])
 		if rest.checkPeerLatency(peer):
 			selection.append(peer)

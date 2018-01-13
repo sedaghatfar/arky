@@ -171,7 +171,6 @@ def verifySignatureFromBytes(data, publicKey, signature):
 	"""
 	if len(publicKey) == 66:
 		publicKey = uncompressEcdsaPublicKey(publicKey)
-
 	verifyingKey = VerifyingKey.from_string(unhexlify(publicKey), SECP256k1, hashlib.sha256)
 	try:
 		verifyingKey.verify(unhexlify(signature), data, hashlib.sha256, sigdecode_der)
@@ -270,17 +269,17 @@ def bakeTransaction(**kw):
 		}[kw.get("type", 0)])
 	}
 
-	# add sender public key if any key or secret is given
-	if len(keys):
-		payload["senderPublicKey"] = keys.get("publicKey", None)
-
 	# add optional data
 	for key in (k for k in ["requesterPublicKey", "recipientId", "vendorField", "asset"] if k in kw):
 		if kw[key]:
 			payload[key] = kw[key]
 
+	# add sender public key if any key or secret is given
+	if len(keys):
+		payload["senderPublicKey"] = keys.get("publicKey", None)
+
 	# sign payload if possible
-	if kw.get("privateKey", False):
+	# if len(keys):
 		payload["signature"] = getSignature(payload, keys["privateKey"])
 		if kw.get("secondSecret", False):
 			secondKeys = getKeys(kw["secondSecret"])
