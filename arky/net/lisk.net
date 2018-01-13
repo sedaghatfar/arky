@@ -12,6 +12,14 @@
     "port" : "8000"
   },
 
+  "seeds": [
+    "https://main.liskwallet.io",
+    "https://wallet.lisknode.io",
+    "https://wallet.mylisk.com",
+    "https://example124124asdfasdgadsg.com"
+  ],
+  "broadcast": 10,
+
   "explorer" : "https://explorer.lisk.io",
   "token" : "lisk",
   "symbol" : "Ⱡ",

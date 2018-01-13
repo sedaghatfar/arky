@@ -1,7 +1,7 @@
 .. image:: https://github.com/Moustikitos/arky/raw/master/arky-logo.png
    :target: https://ark.io
 
-Copyright 2016-2017 **Toons**, Copyright 2017 **ARK**, `MIT licence`_
+Copyright 2016-2018 **Toons**, Copyright 2018 **ARK**, `MIT licence`_
 
 Install
 =======
@@ -32,10 +32,10 @@ REST API
 >>> import arky.rest
 >>> arky.rest.use("ark")
 
-It loads the ``ark.net`` file and create associated REST API endpoinds.
-All endpoinds can be reached using this syntax :
+It loads the ``ark.net`` file and create associated REST API endpoints.
+All endpoints can be reached using this syntax :
 
-``arky.rest.[METHOD].[endpoinds with "/" replaced by "."](param=value, ...[returnKey=name])``
+``arky.rest.[METHOD].[endpoints with "/" replaced by "."](param=value, ...[returnKey=name])``
 
 >>> # http equivalent [PEER ADDRESS]/api/delegates/get?username=arky
 >>> arky.rest.GET.api.delegates.get(username="arky")
@@ -120,9 +120,9 @@ line interface. There are two ways to launch the CLI.
 
 ::
 
-  Welcome to arky-cli [Python 3.5.1 / arky 1.0a0]
-  Available commands: network, account, delegate
-  cold@.../>
+  Welcome to arky-cli [Python x.y.z / arky 1.x]
+  Available commands: network, account, delegate, ledger
+cold@.../>
 
 Use network
 ^^^^^^^^^^^

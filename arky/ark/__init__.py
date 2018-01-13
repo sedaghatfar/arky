@@ -17,15 +17,24 @@ import threading
 def selectPeers():
 	version = rest.GET.api.peers.version().get("version", "0.0.0")
 	height = rest.GET.api.blocks.getHeight().get("height", 0)
-	peers = sorted([p for p in rest.GET.peer.list().get("peers", []) if p.get("delay", 6000) <= cfg.timeout*1000 \
-			                                                         and p.get("version", "") == version \
-																	 and p.get("height", -1) > height-10],
-				   key=lambda e:e["delay"])
+
+	peers = rest.GET.peer.list().get("peers", [])
+	good_peers = []
+	for peer in peers:
+		if (
+			peer.get("delay", 6000) <= cfg.timeout * 1000 and peer.get("version") == version and
+			peer.get("height", -1) > height - 10
+		):
+			good_peers.append(peer)
+
+	good_peers = sorted(good_peers, key=lambda e: e["delay"])
+
 	selection = []
-	while(len(selection) < min(cfg.broadcast, len(peers))):
-		peer = "http://%(ip)s:%(port)s" % peers[len(selection)] #.pop(0)
+	while(len(selection) < min(cfg.broadcast, len(good_peers))):
+		peer = "http://{ip}:{port}".format(**good_peers[len(selection)])
 		if rest.checkPeerLatency(peer):
 			selection.append(peer)
+
 	if len(selection):
 		cfg.peers = selection
 
