@@ -183,7 +183,7 @@ def execute(*lines):
 
 def launch(script):
 	if os.path.exists(script):
-		in_ = io.open(script, "r")
+		in_ = io.open(script)
 		execute(*[l.strip() for l in in_.readlines()])
 		in_.close()
 
