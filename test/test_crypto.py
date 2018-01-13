@@ -10,7 +10,7 @@ class TestArkCrypto(unittest.TestCase):
 	@classmethod
 	def setUpClass(self):
 		arky.rest.use("dark")
-		# here is a valid send tx created :
+		# here is a valid tx :
 		# amount = 100000000
 		# secret = "secret"
 		# timestamp = devnet begintime
@@ -26,7 +26,7 @@ class TestArkCrypto(unittest.TestCase):
 				'2230e40dbaa57e3f7275e0ef65a439a16c406f2f9b0a266d819ef8f0b375aefa',
 			'id': 'a299642a90a25fdfea93eab43cf18c6ab21f1c16565d64066f896001594fd892',
 		}
-		# tx hash in hexadecimale
+		# hexadecimal tx hash 
 		self.hexaTx = \
 			"00993c0b0003a02b9d5fdd1307c2ee4652ba54d492d1fd11a7d1bb3f3a44c4a05e79f19de9330000"\
 			"00000000000000000000000000000000000000000000000000000000000000000000000000000000"\
