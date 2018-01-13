@@ -49,7 +49,8 @@ def unhexlify(data):
 	return result if isinstance(result, bytes) else result.encode()
 
 
-def pow_mod(x, y, z):
+def powMod(x, y, z):
+	"Calculate (x ** y) % z efficiently."
 	number = 1
 	while y:
 		if y & 1:
@@ -204,7 +205,7 @@ def dumpJson(cnf, name, folder=None):
 def loadJson(name, folder=None):
 	filename = os.path.join(HOME if not folder else folder, name)
 	if os.path.exists(filename):
-		in_ = io.open(filename, "r" if __PY3__ else "rb")
+		in_ = io.open(filename)
 		data = json.load(in_)
 		in_.close()
 		return data
@@ -335,19 +336,21 @@ def loadAccount(base, name):
 	if os.path.exists(filepath):
 		with io.open(filepath, "rb") as in_:
 			data = in_.read()
+			try: data = data.encode("utf-8")
+			except: pass
 
 			i = 0
-			len_addr = data[i]
+			len_addr = basint(data[i])
 			i += 1
 			result["address"] = unhexlify(unScramble(base, data[i:i+len_addr])).decode("utf-8")
 			i += len_addr
-			len_key1 = data[i]
+			len_key1 =  basint(data[i])
 			i += 1
 			result["privateKey"] = unScramble(base, data[i:i+len_key1])
 			i += len_key1
 
 			if i < len(data):
-				len_key2 = data[i]
+				len_key2 = basint(data[i])
 				i += 1
 				result["secondPrivateKey"] = unScramble(base, data[i:i+len_key2])
 			

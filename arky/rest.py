@@ -212,7 +212,7 @@ def use(network, **kw):
 	except AttributeError:
 		pass
 
-	with io.open(os.path.join(ROOT, "net", network + ".net"), "rb") as f:
+	with io.open(os.path.join(ROOT, "net", network + ".net")) as f:
 		data = json.load(f)
 
 	data.update(**kw)

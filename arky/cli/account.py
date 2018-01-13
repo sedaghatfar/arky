@@ -97,7 +97,7 @@ def _getVoteList(param):
 	if param["<delegates>"]:
 		# try to load it from file if a valid path is given
 		if os.path.exists(param["<delegates>"]):
-			with io.open(param["<delegates>"], "r") as in_:
+			with io.open(param["<delegates>"]) as in_:
 				usernames = [str(e) for e in in_.read().split() if e != ""]
 		else:
 			usernames = param["<delegates>"].split(",")
