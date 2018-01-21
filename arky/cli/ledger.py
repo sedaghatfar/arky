@@ -129,7 +129,7 @@ def send(param):
 				type=0,
 				timestamp=int(slots.getTime()),
 				fee=cfg.fees["send"],
-				amount=amount*100000000,
+				amount=int(amount*100000000),
 				recipientId=param["<address>"],
 				vendorField=param["<message>"],
 			)

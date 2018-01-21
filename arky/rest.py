@@ -73,8 +73,9 @@ def get(entrypoint, dic={}, **kw):
 		if data.get("success", False):
 			if returnKey:
 				data = data[returnKey]
-				for key in [k for k in ["balance", "unconfirmedBalance", "vote"] if k in data]:
-					data[key] = float(data[key])/100000000
+				if isinstance(data, dict):
+					for key in [k for k in ["balance", "unconfirmedBalance", "vote"] if k in data]:
+						data[key] = float(data[key])/100000000
 	return data
 
 
