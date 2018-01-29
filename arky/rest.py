@@ -118,6 +118,7 @@ def put(entrypoint, dic={}, **kw):
 			data["details"] = "\n"+("".join(traceback.format_tb(error.__traceback__)).rstrip())
 	return data
 
+
 def checkPeerLatency(peer):
 	"""
 	Return peer latency in seconds.
@@ -149,6 +150,7 @@ class Endpoint:
 			if not hasattr(ndpt, name):
 				setattr(ndpt, name, Endpoint(method, newpath))
 			ndpt = getattr(ndpt, name)
+
 
 def load_endpoints(network):
 	global POST, PUT, GET
@@ -199,6 +201,7 @@ def load(name):
 		sys.modules[__package__].__delattr__(name)
 	except AttributeError:
 		pass
+
 
 def use(network, **kw):
 	# clear data in cfg module

@@ -13,6 +13,7 @@ Usage:
     account validate [<registry>]
     account vote [-ud] [<delegates>]
     account send <amount> <address> [<message>]
+    account wsend <amount> <weighting> [<message>]
 
 Options:
 -e --escrow  link as escrowed account
@@ -35,6 +36,8 @@ Subcommands:
     vote     : up or down vote delegate(s). <delegates> can be a coma-separated list
                or a valid new-line-separated file list conaining delegate names.
     send     : send token amount to address. You can set a 64-char message.
+    wsend    : send token amount to multiple addresses using <weighting> json file 
+	           (address-weight pairs). You can set a 64-char message.
 """
 
 import arky
@@ -78,9 +81,9 @@ def _send(payload):
 		registry_file = "%s.registry" % (_address if _address else "thirdparty")
 		registry = util.loadJson(registry_file, folder)
 		typ_ = payload["type"]
-		sys.stdout.write("    Broadcasting transaction...\n" if typ_ == 0 else \
-		                 "    Broadcasting vote...\n" if typ_ == 3 else \
-						 "")
+		sys.stdout.write(("    Broadcasting transaction of %.8f %s to %s\n" % (payload["amount"]/100000000, cfg.token, payload["recipientId"])) if typ_ == 0 else \
+		                  "    Broadcasting vote...\n" if typ_ == 3 else \
+						  "    Broadcasting transaction...\n")
 		resp = arky.core.sendPayload(payload)
 		util.prettyPrint(resp)
 		if resp["success"]:
@@ -92,7 +95,7 @@ def _send(payload):
 def _getVoteList(param):
 	# get account votes
 	voted = rest.GET.api.accounts.delegates(address=DATA.getCurrentAddress()).get("delegates", [])
-	
+
 	# if usernames is/are given
 	if param["<delegates>"]:
 		# try to load it from file if a valid path is given
@@ -154,7 +157,7 @@ def link(param):
 		DATA.firstkeys = arky.core.crypto.getKeys(param["<secret>"])
 		_address = arky.core.crypto.getAddress(DATA.firstkeys["publicKey"])
 		DATA.account = rest.GET.api.accounts(address=_address).get("account", {})
-	
+
 	if not DATA.account:
 		sys.stdout.write("    %s does not exixt in %s blockchain...\n" % (_address, cfg.network))
 	else:
@@ -313,3 +316,38 @@ def send(param):
 				privateKey=DATA.firstkeys["privateKey"],
 				secondPrivateKey=DATA.secondkeys.get("privateKey", None)
 			))
+
+
+def wsend(param):
+
+	if DATA.account:
+		amount = floatAmount(param["<amount>"])
+		weighting = util.loadJson(param["<weighting>"])
+		util.prettyPrint(weighting)
+
+		try:
+			checksum = sum(weighting.values())
+			if checksum != 1.0:
+				sys.stdout.write("    Bad weighting : checksum=%f (should be 1.0)\n" % checksum)
+				return
+		except:
+			sys.stdout.write("    Not a valid weighting file\n")
+			return
+
+		if amount and askYesOrNo("Send %(amount).8f %(token)s to %(recipientId)s addresses ?" % \
+		                        {"token": cfg.token, "amount": amount, "recipientId": len(weighting)}) \
+				  and checkSecondKeys():
+
+			for address,weight in weighting.items():
+				share = weight*amount
+				if share*100000000 > cfg.fees["send"]:
+					_send(arky.core.crypto.bakeTransaction(
+						amount=share*100000000-cfg.fees["send"],
+						recipientId=address,
+						vendorField=param["<message>"],
+						publicKey=DATA.firstkeys["publicKey"],
+						privateKey=DATA.firstkeys["privateKey"],
+						secondPrivateKey=DATA.secondkeys.get("privateKey", None)
+					))
+
+			DATA.daemon = checkRegisteredTx("%s.registry" % (DATA.account["address"]), os.path.join(HOME, ".registry", cfg.network), quiet=True)
