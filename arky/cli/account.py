@@ -323,7 +323,6 @@ def wsend(param):
 	if DATA.account:
 		amount = floatAmount(param["<amount>"])
 		weighting = util.loadJson(param["<weighting>"])
-		util.prettyPrint(weighting)
 
 		try:
 			checksum = sum(weighting.values())
@@ -334,6 +333,7 @@ def wsend(param):
 			sys.stdout.write("    Not a valid weighting file\n")
 			return
 
+		util.prettyPrint(weighting)
 		if amount and askYesOrNo("Send %(amount).8f %(token)s to %(recipientId)s addresses ?" % \
 		                        {"token": cfg.token, "amount": amount, "recipientId": len(weighting)}) \
 				  and checkSecondKeys():
