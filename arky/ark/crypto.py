@@ -19,7 +19,6 @@ from ..util import unpack_bytes
 from ..util import pack_bytes
 from ..util import hexlify
 from ..util import unhexlify
-from ..util import powMod
 
 if not __PY3__:
 	from StringIO import StringIO
@@ -50,8 +49,8 @@ def uncompressEcdsaPublicKey(pubkey):
 	p = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f
 	y_parity = int(pubkey[:2]) - 2
 	x = int(pubkey[2:], 16)
-	a = (powMod(x, 3, p) + 7) % p
-	y = powMod(a, (p + 1) // 4, p)
+	a = (pow(x, 3, p) + 7) % p
+	y = pow(a, (p + 1) // 4, p)
 	if y % 2 != y_parity:
 		y = -y % p
 	# return result as der signature (no 0x04 preffix)
