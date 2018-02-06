@@ -1,34 +1,29 @@
 # -*- encoding: utf8 -*-
 # © Toons
-__version__ = "1.3.2"
-
-import os
 import imp
-import sys
 import logging
-import requests
+import os
+import sys
+
+
+__version__ = "1.3.2"
 
 __PY3__ = True if sys.version_info[0] >= 3 else False
 __FROZEN__ = hasattr(sys, "frozen") or hasattr(sys, "importers") or imp.is_frozen("__main__")
 
-# ROOT is the folder containing the __inti__.py file or the frozen executable
-ROOT = os.path.normpath(os.path.abspath(os.path.dirname(sys.executable if __FROZEN__ else __file__)))
 if __FROZEN__:
-	# if frozen code, HOME adn ROOT pathes are same
-	HOME = ROOT
+    # if frozen code, HOME and ROOT pathes are same
+    ROOT = os.path.normpah(os.path.abspath(os.path.dirname(sys.executable)))
+    HOME = ROOT
+    filename = os.path.join(ROOT, __name__ + ".log")
 else:
-	try:
-		HOME = os.path.join(os.environ["HOMEDRIVE"], os.environ["HOMEPATH"])
-	except:
-		HOME = os.environ.get("HOME", ROOT)
+    ROOT = os.path.normpath(os.path.abspath(os.path.dirname(__file__)))
+    try:
+        HOME = os.path.join(os.environ["HOMEDRIVE"], os.environ["HOMEPATH"])
+    except:
+        HOME = os.environ.get("HOME", ROOT)
+    filename = os.path.normpath(os.path.join(HOME, "." + __name__))
+
 
 # configure logging
-logging.getLogger('requests').setLevel(logging.CRITICAL)
-logging.basicConfig(
-	filename  = os.path.normpath(
-		os.path.join(ROOT, __name__+".log")) if __FROZEN__ else \
-		os.path.normpath(os.path.join(HOME, "."+__name__)
-	),
-	format = '[None][%(asctime)s] %(message)s',
-	level = logging.INFO,
-)
+logging.basicConfig(level=logging.INFO)
