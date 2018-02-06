@@ -60,16 +60,15 @@ def get(entrypoint, **kwargs):
         data = {"success": False, "error": error, "peer": peer}
     else:
         if not data.get("success"):
-            return
+            return {}
 
         if return_key:
             data = data[return_key]
 
             if isinstance(data, dict):
                 for item in ["balance", "unconfirmedBalance", "vote"]:
-                    if item not in data:
-                        continue
-                    data[item] = float(data[item]) / 100000000
+                    if item in data:
+                        data[item] = float(data[item]) / 100000000
     return data
 
 
