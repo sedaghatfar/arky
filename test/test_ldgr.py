@@ -13,7 +13,7 @@ rest.use("ark")
 
 dpath = "44'/111'/0'/0/0"
 print("Recovering publicKey and Addresses from derivation path : <%s>..." % dpath)
-apdu = ldgr.buildPkeyApdu(ldgr.parse_bip32_path(dpath))
+apdu = ldgr.buildPkeyApdu(ldgr.parseBip32Path(dpath))
 dongle = getDongle()
 data = bytes(dongle.exchange(apdu))
 dongle.close()
