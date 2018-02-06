@@ -1,4 +1,9 @@
 language: python
+addons:
+  apt:
+    packages:
+      - libudev-dev
+      - libusb-1.0-0-dev
 python:
   - "2.7"
   - "3.2"
