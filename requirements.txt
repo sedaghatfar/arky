@@ -11,6 +11,7 @@ future==0.16.0
 hidapi==0.7.99.post21
 idna==2.6
 ledgerblue==0.1.16
+ecpy==0.8.1
 mccabe==0.6.1
 mock==2.0.0
 pbr==3.1.1
