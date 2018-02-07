@@ -1,4 +1,6 @@
 language: python
+env:
+  - ENV=ci
 addons:
   apt:
     packages:
