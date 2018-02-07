@@ -1,13 +1,20 @@
 language: python
+env:
+  - ENV=ci
+addons:
+  apt:
+    packages:
+      - libudev-dev
+      - libusb-1.0-0-dev
 python:
   - "2.7"
-  - "3.2"
   - "3.3"
   - "3.4"
   - "3.5"
   - "3.6"
 install:
   - pip install -r requirements.txt
+  - pip install -e .
 script:
   - python -m unittest discover
 os:
