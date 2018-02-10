@@ -26,12 +26,15 @@ Subcommands:
     staking   : show coin-supply ratio used on delegate voting.
 """
 
+from .. import ROOT
+from .. import HOME
 from .. import rest
 from .. import cfg
 from .. import util
 
 from . import DATA
 
+import logging
 import arky
 import sys
 import imp
@@ -57,6 +60,10 @@ def use(param):
 		broadcast=int(param.get("--broadcast", 10)),
 		timeout=float(param.get("--latency", 5000))/1000
 	)
+
+	logger = logging.getLogger()
+	logger.handlers[0].setFormatter(logging.Formatter('[%s]'%cfg.network + '[%(asctime)s] %(message)s'))
+
 
 
 def browse(param):
