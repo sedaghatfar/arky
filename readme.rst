@@ -3,6 +3,9 @@
 
 Copyright 2016-2018 **Toons**, Copyright 2018 **ARK**, `MIT licence`_
 
+.. image:: https://travis-ci.org/ArkEcosystem/arky.svg?branch=aip11
+    :target: https://travis-ci.org/ArkEcosystem/arky
+
 Install
 =======
 

@@ -25,6 +25,9 @@ kw = {
 	"long_description": LONG_DESCRIPTION,
 	"packages": ["arky", "arky.ark", "arky.lisk", "arky.cli"],
 	"install_requires": ["requests", "ecdsa", "pynacl", "pytz", "base58", "docopt", "ledgerblue"],
+	"scripts": [
+		"bin/arky-cli",
+	],
 	"license": "Copyright 2016-2017 Toons, Copyright 2017 ARK, MIT licence",
 	"classifiers": [
 		"Development Status :: 6 - Mature",

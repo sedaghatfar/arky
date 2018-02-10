@@ -77,7 +77,7 @@ def publickey(param):
 
 
 def wif(param):
-	sys.stdout.write("    %s\n" % arky.core.crypto.getKeys(param["<secret>"].encode("ascii")).get("wif", "This blockchaine does not use WIF"))
+	sys.stdout.write("    %s\n" % arky.core.crypto.getKeys(param["<secret>"].encode("ascii")).get("wif", "This blockchain does not use WIF"))
 
 
 def delegates(param):
