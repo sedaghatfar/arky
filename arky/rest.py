@@ -1,21 +1,20 @@
 # -*- encoding: utf8 -*-
 # © Toons
 import io
-import json
-import logging
 import os
-import random
 import sys
-from datetime import datetime
-from importlib import import_module
-
-from arky import __FROZEN__, cfg, ROOT
-
+import json
 import pytz
-
+import logging
+import random
 import requests
 
-log = logging.getLogger(__name__)
+from importlib import import_module
+from datetime import datetime
+from arky import __FROZEN__, cfg, ROOT
+
+
+LOG = logging.getLogger(__name__)
 
 
 #################
@@ -59,10 +58,9 @@ def get(entrypoint, **kwargs):
     except Exception as error:
         data = {"success": False, "error": error, "peer": peer}
     else:
-        if not data.get("success"):
-            return {}
-
-        if return_key:
+        # if not data.get("success"):
+        #     return data
+        elif return_key:
             data = data[return_key]
 
             if isinstance(data, dict):
@@ -179,7 +177,7 @@ def load_endpoints(network):
         with io.open(os.path.join(ROOT, "ndpt", network + ".ndpt")) as f:
             endpoints = json.load(f)
     except IOError:
-        log.debug('No endpoints file found for %s', network)
+        LOG.debug('No endpoints file found for %s', network)
         return False
 
     POST = Endpoint(post, "")

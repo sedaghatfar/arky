@@ -6,6 +6,8 @@ import arky
 __all__ = ["network", "account", "delegate", "ledger"]
 
 from .. import __version__
+from .. import HOME
+from .. import ROOT
 from .. import __FROZEN__
 from .. import __PY3__
 from .. import rest
@@ -22,6 +24,7 @@ import traceback
 import threading
 
 input = raw_input if not __PY3__ else input
+
 
 class _Prompt(object):
 	enable = True
@@ -128,7 +131,29 @@ def parse(argv):
 	return True, False
 
 
+def snapLogging():
+	logging.getLogger('requests').setLevel(logging.CRITICAL)
+	logger = logging.getLogger()
+	previous_logger_handler = logger.handlers.pop(0)
+	logger.addHandler(
+		logging.FileHandler(
+			os.path.normpath(os.path.join(ROOT, __name__+".log")) if __FROZEN__ else \
+			os.path.normpath(os.path.join(HOME, "."+__name__))
+		)
+	)
+	return previous_logger_handler
+
+
+def restoreLogging(handler):
+	logging.getLogger('requests').setLevel(logging.INFO)
+	logger = logging.getLogger()
+	logger.handlers.pop(0)
+	logger.addHandler(handler)
+
+
 def start():
+	_handler = snapLogging()
+
 	sys.stdout.write(__doc__+"\n")
 	_xit = False
 	while not _xit:
@@ -158,6 +183,8 @@ def start():
 	if DATA.daemon:
 		sys.stdout.write("Closing registry daemon...\n")
 		DATA.daemon.set()
+
+	restoreLogging(_handler)
 
 
 def execute(*lines):

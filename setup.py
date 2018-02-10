@@ -24,7 +24,7 @@ kw = {
 	"description": "Python API bridging DPOS blockchains",
 	"long_description": LONG_DESCRIPTION,
 	"packages": ["arky", "arky.ark", "arky.lisk", "arky.cli"],
-	"install_requires": ["requests", "ecdsa", "pynacl", "pytz", "base58", "docopt", "ledgerblue"],
+	"install_requires": ["requests", "responses", "ecdsa", "pynacl", "pytz", "base58", "docopt", "ledgerblue"],
 	"scripts": [
 		"bin/arky-cli",
 	],
