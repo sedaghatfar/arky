@@ -60,7 +60,7 @@ def get(entrypoint, **kwargs):
     else:
         # if not data.get("success"):
         #     return data
-        elif return_key:
+        if return_key:
             data = data[return_key]
 
             if isinstance(data, dict):
