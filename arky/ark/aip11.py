@@ -1,11 +1,11 @@
 # -*- encoding: utf8 -*-
 # © Toons
 
+from six import PY3
 from .. import slots
 from .. import rest
 from .. import cfg
 
-from . import __PY3__
 from . import crypto
 from . import init
 
@@ -16,8 +16,8 @@ C = 0.0001*100000000
 rest.POST.createEndpoint(rest.POST, rest.post, "/peer/transactions/v1")
 
 
-class Payload:
-	
+class Payload(object):
+
 	@staticmethod
 	def setArkPerByteFees(value):
 		global C
@@ -33,7 +33,8 @@ class Payload:
 			recipientId = crypto.base58.b58decode_check(kw["recipientId"])
 		except:
 			raise Exception("no recipientId defined")
-		return struct.pack("<QI21s" if __PY3__ else ("<QI"+21*"c"),
+		return struct.pack(
+			"<QI21s" if PY3 else ("<QI" + 21 * "c"),
 			kw.get("amount", 0),
 			kw.get("expiration", 0),
 			recipientId
@@ -47,8 +48,8 @@ class Payload:
 			secondPublicKey = kw["secondPublicKey"]
 		else:
 			raise Exception("no secondSecret or secondPublicKey given")
-		return struct.pack("<33s", crypto.unhexlify(secondPublicKey)) if __PY3__ else \
-	           struct.pack(33*"c", secondPublicKey)
+		return struct.pack("<33s", crypto.unhexlify(secondPublicKey)) if PY3 else \
+	           struct.pack(33 * "c", secondPublicKey)
 
 	@staticmethod
 	def type2(**kw):
@@ -56,7 +57,7 @@ class Payload:
 		if username:
 			length = len(username)
 			if 3 <= length <= 255:
-				return struct.pack("<B%ds"%length, length, username.encode()) if __PY3__ else \
+				return struct.pack("<B%ds"%length, length, username.encode()) if PY3 else \
 				       struct.pack("<B" + length*"c", length, username)
 			else:
 				raise Exception("bad username length [3-255]: %s" % username)
@@ -84,7 +85,7 @@ def getHeaders(**kw):
 		int(slots.getTime())
 	)
 
-	header += struct.pack("<33s", crypto.unhexlify(publicKey)) if __PY3__ else \
+	header += struct.pack("<33s", crypto.unhexlify(publicKey)) if PY3 else \
 	          struct.pack(33*"c", publicKey)
 
 	header += struct.pack("<Q", kw.get("fees", 0))
@@ -93,7 +94,7 @@ def getHeaders(**kw):
 	n = min(255, len(vendorField))
 	header += struct.pack("<B", n)
 	if n > 0:
-		header += struct.pack("<%ss"%n, crypto.unhexlify(publicKey[:n])) if __PY3__ else \
+		header += struct.pack("<%ss"%n, crypto.unhexlify(publicKey[:n])) if PY3 else \
 		          struct.pack(n*"c", publicKey[:n])
 
 	return crypto.hexlify(header)

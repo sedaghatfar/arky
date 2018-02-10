@@ -7,7 +7,6 @@ __all__ = ["network", "account", "delegate", "ledger"]
 
 from .. import __version__
 from .. import __FROZEN__
-from .. import __PY3__
 from .. import rest
 from .. import util
 from .. import cfg
@@ -20,8 +19,7 @@ import docopt
 import logging
 import traceback
 import threading
-
-input = raw_input if not __PY3__ else input
+from builtins import input
 
 class _Prompt(object):
 	enable = True
@@ -75,7 +73,7 @@ class Data(object):
 		return self.account if len(self.account) else \
 	           self.ledger  if len(self.ledger)  else \
 			   {}
-		
+
 	def getCurrentAddress(self):
 		return self.getCurrentAccount().get("address", None)
 
@@ -87,7 +85,7 @@ class Data(object):
 
 	def getCurrent2ndPKey(self):
 		return self.getCurrentAccount().get("secondPublicKey", None)
-		
+
 DATA = Data()
 
 
@@ -154,7 +152,7 @@ def start():
 					if hasattr(error, "__traceback__"):
 						sys.stdout.write("".join(traceback.format_tb(error.__traceback__)).rstrip() + "\n")
 					sys.stdout.write("%s\n" % error)
-	
+
 	if DATA.daemon:
 		sys.stdout.write("Closing registry daemon...\n")
 		DATA.daemon.set()
@@ -261,7 +259,7 @@ def checkRegisteredTx(registry, folder=None, quiet=False):
 					result = arky.core.sendPayload(payload)
 					if not quiet:
 						util.prettyPrint(result, log=False)
-			
+
 			util.dumpJson(registered, registry, folder)
 			remaining = len(registered)
 			if not remaining:
