@@ -14,14 +14,20 @@ import os
 import arky
 import struct
 
+from six import PY3
+
 
 def pack(f, v):
-    return struct.pack(f, v)
+	if PY3:
+		output = struct.pack(f, v)
+	else:
+		output = bytes(struct.pack(f, v))
+	return output
 
 
 # convert int to byte
 def intasb(i):
-    return util.unhexlify(hex(i)[2:])
+	return util.unhexlify(hex(i)[2:])
 
 
 def parseBip32Path(path):
