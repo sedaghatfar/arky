@@ -5,7 +5,6 @@
 
 from ledgerblue.comm import getDongle
 
-from . import __PY3__
 from . import HOME
 from . import util
 from . import cfg
@@ -15,11 +14,20 @@ import os
 import arky
 import struct
 
-# this functions turns samely on python 2.x and 3.x
-pack = (lambda f,v: struct.pack(f, v)) if __PY3__ else \
-	   (lambda f,v: bytes(struct.pack(f, v)))
+from six import PY3
+
+
+def pack(f, v):
+	if PY3:
+		output = struct.pack(f, v)
+	else:
+		output = bytes(struct.pack(f, v))
+	return output
+
+
 # convert int to byte
-intasb = lambda i: util.unhexlify(hex(i)[2:])
+def intasb(i):
+	return util.unhexlify(hex(i)[2:])
 
 
 def parseBip32Path(path):
@@ -39,7 +47,7 @@ def parseBip32Path(path):
 	for pathElement in elements:
 		element = pathElement.split("'")
 		if len(element) == 1:
-			result = result + pack(">I", int(element[0]))	
+			result = result + pack(">I", int(element[0]))
 		else:
 			result = result + pack(">I", 0x80000000 | int(element[0]))
 	return result
@@ -52,12 +60,12 @@ def buildTxApdu(dongle_path, data):
 	Argument:
 	dongle_path -- value returned by parseBip32Path
 	data -- value returned by arky.core.crypto.getBytes
-	
+
 	Return bytes
 	"""
 
 	path_len = len(dongle_path)
-	
+
 	if len(data) > 255 - (path_len+1):
 		data1 = data[:255-(path_len+1)]
 		data2 = data[255-(path_len+1):]
@@ -79,7 +87,7 @@ def buildPkeyApdu(dongle_path):
 
 	Argument:
 	dongle_path -- value returned by parseBip32Path
-	
+
 	Return bytes
 	"""
 
@@ -93,10 +101,10 @@ def getPublicKey(dongle_path, debug=False):
 
 	Argument:
 	dongle_path -- value returned by parseBip32Path
-	
+
 	Keyword argument:
 	debug -- flag to activate debug messages from ledger key [default: False]
-	
+
 	Return str (hex)
 	"""
 
@@ -110,16 +118,16 @@ def getPublicKey(dongle_path, debug=False):
 
 def signTx(tx, path, debug=False):
 	"""
-	Sign a transaction. It generates the signature accordingly to derivation path 
+	Sign a transaction. It generates the signature accordingly to derivation path
 	and computes the id of the transaction. The tx is then updated and returned.
 
 	Argument:
 	tx -- a dict object containing explicit fields and values defining a valid transaction
-	path -- a derivation path 
+	path -- a derivation path
 
 	Keyword argument:
 	debug -- flag to activate debug messages from ledger key [default: False]
-	
+
 	Return dict
 	"""
 
