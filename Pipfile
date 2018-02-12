@@ -1,0 +1,25 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+requests = "*"
+responses = "*"
+ecdsa = "*"
+pynacl = "*"
+pytz = "*"
+"base58" = "*"
+docopt = "*"
+ledgerblue = "*"
+
+
+[dev-packages]
+
+mock = "*"
+"flake8" = "*"
+funcsigs = "*"
+yawttk = "*"
