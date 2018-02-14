@@ -11,7 +11,7 @@ from arky import ldgr
 from arky import util
 from arky import slots
 
-if os.environ['ENV'] == 'ci':
+if os.environ.get('ENV') == 'ci':
     pass
 else:
     rest.use("ark")

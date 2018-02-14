@@ -2,7 +2,7 @@
 # © Toons
 
 """
-Usage: 
+Usage:
     ledger link [-i <index> -r <rank>]
     ledger unlink
     ledger status
@@ -32,7 +32,6 @@ from .. import util
 from .. import ldgr
 from .. import slots
 
-from . import __PY3__
 from . import PROMPT
 from . import DATA
 from . import parse
@@ -133,7 +132,7 @@ def send(param):
 				recipientId=param["<address>"],
 				vendorField=param["<message>"],
 			)
-			
+
 			if _sign(tx, DATA.ledger["path"]): _send(tx)
 
 
