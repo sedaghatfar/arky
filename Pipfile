@@ -8,7 +8,6 @@ name = "pypi"
 [packages]
 
 requests = "*"
-responses = "*"
 ecdsa = "*"
 pynacl = "*"
 pytz = "*"
@@ -21,6 +20,7 @@ ecpy = {version = "==0.8.2"}
 [dev-packages]
 
 mock = "*"
+responses = "*"
 "flake8" = "*"
 funcsigs = "*"
 yawttk = "*"
