@@ -7,9 +7,12 @@ import io
 import json
 import logging
 import os
+import pytz
 import struct
 import sys
 import threading
+
+from datetime import datetime, timedelta
 
 from arky import cfg, HOME, rest, ROOT, slots
 
@@ -119,10 +122,10 @@ def getVoteForce(address, **kw):
 	balance = kw.pop("balance", 0) / 100000000.
 	if not balance:
 		balance = float(rest.GET.api.accounts.getBalance(address=address, returnKey="balance")) / 100000000.
-	delta = slots.datetime.timedelta(**kw)
+	delta = timedelta(**kw)
 	if delta.total_seconds() < 86400:
 		return balance
-	now = slots.datetime.datetime.now(slots.pytz.UTC)
+	now = datetime.now(pytz.UTC)
 	timestamp_limit = slots.getTime(now - delta)
 	# get transaction history
 	history = getHistory(address, timestamp_limit)
