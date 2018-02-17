@@ -70,10 +70,10 @@ def unhexlify(data):
 ###############
 
 def getTokenPrice(token, fiat="usd"):
-	cmc_ark = json.loads(requests.get(
+	cmc_ark = requests.get(
 		"https://api.coinmarketcap.com/v1/ticker/{0}/?convert={1}".format(token, fiat.upper()),
 		verify=cfg.verify
-	).text)
+	).json()
 	try:
 		return float(cmc_ark[0]["price_%s" % fiat.lower()])
 	except:
@@ -224,8 +224,8 @@ def loadJson(name, folder=None):
 	data = {}
 	if os.path.exists(filename):
 		with io.open(filename, "rb") as file:
-			file_contents = file.read()
-			data = json.load(file_contents) if file_contents else {}
+			content = file.read()
+			data = json.loads(content) if content else {}
 	return data
 
 
