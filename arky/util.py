@@ -187,7 +187,7 @@ def shortAddress(addr, sep="...", n=5):
 
 def prettyfy(dic, tab="    "):
 	result = ""
-	if len(dic):
+	if dic:
 		maxlen = max([len(e) for e in dic.keys()])
 		for k, v in dic.items():
 			if isinstance(v, dict):
@@ -196,7 +196,7 @@ def prettyfy(dic, tab="    "):
 			else:
 				result += tab + "%s: %s" % (k.rjust(maxlen), v)
 			result += "\n"
-		return result.encode("ascii", errors="replace")
+		return result
 
 
 def prettyPrint(dic, tab="    ", log=True):
@@ -221,13 +221,12 @@ def dumpJson(cnf, name, folder=None):
 
 def loadJson(name, folder=None):
 	filename = os.path.join(HOME if not folder else folder, name)
+	data = {}
 	if os.path.exists(filename):
-		in_ = io.open(filename)
-		data = json.load(in_)
-		in_.close()
-		return data
-	else:
-		return {}
+		with io.open(filename, "rb") as file:
+			file_contents = file.read()
+			data = json.load(file_contents) if file_contents else {}
+	return data
 
 
 def popJson(name, folder=None):
