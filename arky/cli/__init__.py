@@ -31,11 +31,11 @@ class _Prompt(object):
 		object.__setattr__(self, attr, value)
 
 	def __repr__(self):
-		return "%(hoc)s@%(net)s/%(wai)s> " % {
-			"hoc": "hot" if cfg.hotmode else "cold",
-			"net": cfg.network,
-			"wai": self.module._whereami()
-		}
+		return "{hoc}@{net}/{wai}>".format(
+			hoc="hot" if cfg.hotmode else "cold",
+			net=cfg.network,
+			wai=self.module._whereami()
+		)
 
 	def state(self, state=True):
 		_Prompt.enable = state
@@ -59,23 +59,18 @@ class Data(object):
 		self.account = {}
 		self.firstkeys = {}
 		self.secondkeys = {}
-		object.__setattr__(self, "executemode", False)
-		object.__setattr__(self, "daemon", None)
-		object.__setattr__(self, "escrowed", False)
-
-	def __setattr__(self, attr, value):
-		if attr == "daemon":
-			if not isinstance(value, threading.Event):
-				raise AttributeError("%s value must be a valid %s class" % (value, threading.Event))
-			daemon = getattr(self, attr)
-			if daemon:
-				daemon.set()
-		object.__setattr__(self, attr, value)
+		self.executemode = False
+		self.escrowed = False
+		self.daemon = None
 
 	def getCurrentAccount(self):
-		return self.account if len(self.account) else \
-	           self.ledger  if len(self.ledger)  else \
-			   {}
+		if self.account:
+			account = self.account
+		elif self.ledger:
+			account = self.ledger
+		else:
+			account = {}
+		return account
 
 	def getCurrentAddress(self):
 		return self.getCurrentAccount().get("address", None)
@@ -129,29 +124,7 @@ def parse(argv):
 	return True, False
 
 
-def snapLogging():
-	logging.getLogger('requests').setLevel(logging.CRITICAL)
-	logger = logging.getLogger()
-	previous_logger_handler = logger.handlers.pop(0)
-	logger.addHandler(
-		logging.FileHandler(
-			os.path.normpath(os.path.join(ROOT, __name__+".log")) if __FROZEN__ else \
-			os.path.normpath(os.path.join(HOME, "."+__name__))
-		)
-	)
-	return previous_logger_handler
-
-
-def restoreLogging(handler):
-	logging.getLogger('requests').setLevel(logging.INFO)
-	logger = logging.getLogger()
-	logger.handlers.pop(0)
-	logger.addHandler(handler)
-
-
 def start():
-	_handler = snapLogging()
-
 	sys.stdout.write(__doc__+"\n")
 	_xit = False
 	while not _xit:
@@ -181,8 +154,6 @@ def start():
 	if DATA.daemon:
 		sys.stdout.write("Closing registry daemon...\n")
 		DATA.daemon.set()
-
-	restoreLogging(_handler)
 
 
 def execute(*lines):
