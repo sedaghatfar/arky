@@ -196,7 +196,7 @@ def prettyfy(dic, tab="    "):
 			else:
 				result += tab + "%s: %s" % (k.rjust(maxlen), v)
 			result += "\n"
-		return result
+		return result.encode("ascii", errors="replace")
 
 
 def prettyPrint(dic, tab="    ", log=True):
