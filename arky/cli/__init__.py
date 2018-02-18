@@ -51,6 +51,9 @@ def _whereami():
 class Data(object):
 
 	def __init__(self):
+		self.initialize()
+
+	def initialize(self):
 		self.delegate = {}
 		self.ledger = {}
 		self.account = {}
@@ -59,20 +62,6 @@ class Data(object):
 		self.executemode = False
 		self.escrowed = False
 		self.daemon = None
-
-	def clear(self):
-		"""
-		Clears all defined attribute. This is called when user switches network
-		"""
-		self.delegate = {}
-		self.ledger = {}
-		self.account = {}
-		self.firstkeys = {}
-		self.secondkeys = {}
-		self.executemode = False
-		self.escrowed = False
-		if self.daemon:
-			self.daemon.set()
 
 	def getCurrentAccount(self):
 		if self.account:
