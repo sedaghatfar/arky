@@ -70,10 +70,10 @@ def unhexlify(data):
 ###############
 
 def getTokenPrice(token, fiat="usd"):
-	cmc_ark = json.loads(requests.get(
+	cmc_ark = requests.get(
 		"https://api.coinmarketcap.com/v1/ticker/{0}/?convert={1}".format(token, fiat.upper()),
 		verify=cfg.verify
-	).text)
+	).json()
 	try:
 		return float(cmc_ark[0]["price_%s" % fiat.lower()])
 	except:
@@ -187,7 +187,7 @@ def shortAddress(addr, sep="...", n=5):
 
 def prettyfy(dic, tab="    "):
 	result = ""
-	if len(dic):
+	if dic:
 		maxlen = max([len(e) for e in dic.keys()])
 		for k, v in dic.items():
 			if isinstance(v, dict):
@@ -221,13 +221,12 @@ def dumpJson(cnf, name, folder=None):
 
 def loadJson(name, folder=None):
 	filename = os.path.join(HOME if not folder else folder, name)
+	data = {}
 	if os.path.exists(filename):
-		in_ = io.open(filename)
-		data = json.load(in_)
-		in_.close()
-		return data
-	else:
-		return {}
+		with io.open(filename, "rb") as file:
+			content = file.read()
+			data = json.loads(content) if content else {}
+	return data
 
 
 def popJson(name, folder=None):

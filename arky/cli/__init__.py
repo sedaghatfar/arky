@@ -31,11 +31,11 @@ class _Prompt(object):
 		object.__setattr__(self, attr, value)
 
 	def __repr__(self):
-		return "%(hoc)s@%(net)s/%(wai)s> " % {
-			"hoc": "hot" if cfg.hotmode else "cold",
-			"net": cfg.network,
-			"wai": self.module._whereami()
-		}
+		return "{hoc}@{net}/{wai}>".format(
+			hoc="hot" if cfg.hotmode else "cold",
+			net=cfg.network,
+			wai=self.module._whereami()
+		)
 
 	def state(self, state=True):
 		_Prompt.enable = state
@@ -73,9 +73,13 @@ class Data(object):
 		object.__setattr__(self, attr, value)
 
 	def getCurrentAccount(self):
-		return self.account if len(self.account) else \
-	           self.ledger  if len(self.ledger)  else \
-			   {}
+		if self.account:
+			account = self.account
+		elif self.ledger:
+			account = self.ledger
+		else:
+			account = {}
+		return account
 
 	def getCurrentAddress(self):
 		return self.getCurrentAccount().get("address", None)
@@ -133,12 +137,11 @@ def snapLogging():
 	logging.getLogger('requests').setLevel(logging.CRITICAL)
 	logger = logging.getLogger()
 	previous_logger_handler = logger.handlers.pop(0)
-	logger.addHandler(
-		logging.FileHandler(
-			os.path.normpath(os.path.join(ROOT, __name__+".log")) if __FROZEN__ else \
-			os.path.normpath(os.path.join(HOME, "."+__name__))
-		)
-	)
+	if __FROZEN__:
+		filepath = os.path.normpath(os.path.join(ROOT, __name__+ " .log"))
+	else:
+		filepath= os.path.normpath(os.path.join(HOME, "."+__name__))
+	logger.addHandler(logging.FileHandler(filepath))
 	return previous_logger_handler
 
 
