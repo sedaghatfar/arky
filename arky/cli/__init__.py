@@ -59,9 +59,18 @@ class Data(object):
 		self.account = {}
 		self.firstkeys = {}
 		self.secondkeys = {}
-		self.executemode = False
-		self.escrowed = False
-		self.daemon = None
+		object.__setattr__(self, "executemode", False)
+		object.__setattr__(self, "daemon", None)
+		object.__setattr__(self, "escrowed", False)
+
+	def __setattr__(self, attr, value):
+		if attr == "daemon":
+			if not isinstance(value, threading.Event):
+				raise AttributeError("%s value must be a valid %s class" % (value, threading.Event))
+			daemon = getattr(self, attr)
+			if daemon:
+				daemon.set()
+		object.__setattr__(self, attr, value)
 
 	def getCurrentAccount(self):
 		if self.account:
@@ -124,7 +133,28 @@ def parse(argv):
 	return True, False
 
 
+def snapLogging():
+	logging.getLogger('requests').setLevel(logging.CRITICAL)
+	logger = logging.getLogger()
+	previous_logger_handler = logger.handlers.pop(0)
+	if __FROZEN__:
+		filepath = os.path.normpath(os.path.join(ROOT, __name__+ " .log"))
+	else:
+		filepath= os.path.normpath(os.path.join(HOME, "."+__name__))
+	logger.addHandler(logging.FileHandler(filepath))
+	return previous_logger_handler
+
+
+def restoreLogging(handler):
+	logging.getLogger('requests').setLevel(logging.INFO)
+	logger = logging.getLogger()
+	logger.handlers.pop(0)
+	logger.addHandler(handler)
+
+
 def start():
+	_handler = snapLogging()
+
 	sys.stdout.write(__doc__+"\n")
 	_xit = False
 	while not _xit:
@@ -154,6 +184,8 @@ def start():
 	if DATA.daemon:
 		sys.stdout.write("Closing registry daemon...\n")
 		DATA.daemon.set()
+
+	restoreLogging(_handler)
 
 
 def execute(*lines):
