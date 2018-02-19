@@ -138,9 +138,9 @@ def snapLogging():
 	logger = logging.getLogger()
 	previous_logger_handler = logger.handlers.pop(0)
 	if __FROZEN__:
-		filepath = os.path.normpath(os.path.join(ROOT, __name__+ " .log"))
+		filepath = os.path.normpath(os.path.join(ROOT, __name__ + " .log"))
 	else:
-		filepath= os.path.normpath(os.path.join(HOME, "." + __name__))
+		filepath = os.path.normpath(os.path.join(HOME, "." + __name__))
 	logger.addHandler(logging.FileHandler(filepath))
 	return previous_logger_handler
 
@@ -297,7 +297,7 @@ def checkRegisteredTx(registry, folder=None, quiet=False):
 					sys.stdout.write("\nCheck finished, all transactions applied\n%s" % PROMPT)
 				LOCK.set()
 			elif not quiet:
-				sys.stdout.write("\n%d transaction%s not applied in blockchain\nWaiting two blocks (%ds) before another broadcast...\n%s" % (remaining, "s" if remaining>1 else "", 2 * cfg.blocktime, PROMPT))
+				sys.stdout.write("\n%d transaction%s not applied in blockchain\nWaiting two blocks (%ds) before another broadcast...\n%s" % (remaining, "s" if remaining > 1 else "", 2 * cfg.blocktime, PROMPT))
 
 	if not quiet:
 		sys.stdout.write("Transaction check in two blocks (%ds)...\n" % (2 * cfg.blocktime))

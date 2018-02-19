@@ -2,7 +2,7 @@
 # © Toons
 
 """
-Usage: 
+Usage:
     network use [<name> -b <number> -l <ms>]
     network browse [-t|-a <id>]
     network publickey <secret>

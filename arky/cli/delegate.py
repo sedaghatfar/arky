@@ -2,7 +2,7 @@
 # © Toons
 
 """
-Usage: 
+Usage:
     delegate link [<secret>] [<2ndSecret>]
     delegate unlink
     delegate save <name>

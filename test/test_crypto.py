@@ -19,14 +19,14 @@ class TestArkCrypto(unittest.TestCase):
 			'fee': 10000000,     # arky.rest.cfg.fees["send"]
 			'amount': 100000000, # 1 DARK = 100000000 satoshi
 			'timestamp': 736409, # arky.rest.cfg.begintime.toordinal()
-			'senderPublicKey': 
+			'senderPublicKey':
 				'03a02b9d5fdd1307c2ee4652ba54d492d1fd11a7d1bb3f3a44c4a05e79f19de933',
 			'signature':
 				'304402205ee5487995b0bbdb8a062c7ad45051b321cc32cd535b404c8b02bfd85fe4f6d80220'
 				'2230e40dbaa57e3f7275e0ef65a439a16c406f2f9b0a266d819ef8f0b375aefa',
 			'id': 'a299642a90a25fdfea93eab43cf18c6ab21f1c16565d64066f896001594fd892',
 		}
-		# hexadecimal tx hash 
+		# hexadecimal tx hash
 		self.hexaTx = \
 			"00993c0b0003a02b9d5fdd1307c2ee4652ba54d492d1fd11a7d1bb3f3a44c4a05e79f19de9330000"\
 			"00000000000000000000000000000000000000000000000000000000000000000000000000000000"\
