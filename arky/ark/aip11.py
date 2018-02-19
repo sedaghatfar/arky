@@ -12,7 +12,7 @@ from . import init
 import struct
 
 
-C = 0.0001*100000000
+C = 0.0001 * 100000000
 rest.POST.createEndpoint(rest.POST, rest.post, "/peer/transactions/v1")
 
 
@@ -58,7 +58,7 @@ class Payload(object):
 			length = len(username)
 			if 3 <= length <= 255:
 				return struct.pack("<B%ds"%length, length, username.encode()) if PY3 else \
-				       struct.pack("<B" + length*"c", length, username)
+				       struct.pack("<B" + length * "c", length, username)
 			else:
 				raise Exception("bad username length [3-255]: %s" % username)
 		else:
@@ -86,7 +86,7 @@ def getHeaders(**kw):
 	)
 
 	header += struct.pack("<33s", crypto.unhexlify(publicKey)) if PY3 else \
-	          struct.pack(33*"c", publicKey)
+	          struct.pack(33 * "c", publicKey)
 
 	header += struct.pack("<Q", kw.get("fees", 0))
 
@@ -95,7 +95,7 @@ def getHeaders(**kw):
 	header += struct.pack("<B", n)
 	if n > 0:
 		header += struct.pack("<%ss"%n, crypto.unhexlify(publicKey[:n])) if PY3 else \
-		          struct.pack(n*"c", publicKey[:n])
+		          struct.pack(n * "c", publicKey[:n])
 
 	return crypto.hexlify(header)
 
@@ -135,7 +135,7 @@ def sendTransaction(**kw):
 	for peer in cfg.peers[1:]:
 		if rest.POST.peer.transactions.v1(peer=peer, transactions=[tx])["success"]:
 			success += 1
-	result["broadcast"] = "%.1f%%" % (100.*success/len(cfg.peers))
+	result["broadcast"] = "%.1f%%" % (100. * success / len(cfg.peers))
 	return result
 
 #######################

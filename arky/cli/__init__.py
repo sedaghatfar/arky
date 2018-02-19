@@ -140,7 +140,7 @@ def snapLogging():
 	if __FROZEN__:
 		filepath = os.path.normpath(os.path.join(ROOT, __name__+ " .log"))
 	else:
-		filepath= os.path.normpath(os.path.join(HOME, "."+__name__))
+		filepath= os.path.normpath(os.path.join(HOME, "." + __name__))
 	logger.addHandler(logging.FileHandler(filepath))
 	return previous_logger_handler
 
@@ -155,7 +155,7 @@ def restoreLogging(handler):
 def start():
 	_handler = snapLogging()
 
-	sys.stdout.write(__doc__+"\n")
+	sys.stdout.write(__doc__ + "\n")
 	_xit = False
 	while not _xit:
 		try:
@@ -173,7 +173,7 @@ def start():
 				if "link" not in argv:
 					logging.info(command)
 				else:
-					logging.info(" ".join(argv[:2]+["x" * len(e) for e in ([] if len(argv) <= 2 else argv[2:])]))
+					logging.info(" ".join(argv[:2] + ["x" * len(e) for e in ([] if len(argv) <= 2 else argv[2:])]))
 				try:
 					cmd(arg)
 				except Exception as error:
@@ -199,7 +199,7 @@ def execute(*lines):
 				if "link" not in argv:
 					logging.info(line)
 				else:
-					logging.info(" ".join(argv[:2]+["x" * len(e) for e in ([] if len(argv) <= 2 else argv[2:])]))
+					logging.info(" ".join(argv[:2] + ["x" * len(e) for e in ([] if len(argv) <= 2 else argv[2:])]))
 				try:
 					cmd(arg)
 				except Exception as error:
@@ -252,13 +252,13 @@ def floatAmount(amount):
 		else:
 			resp = rest.GET.api.accounts.getBalance(address=account["address"])
 			if resp["success"]:
-				balance = float(resp["balance"])/100000000
+				balance = float(resp["balance"]) / 100000000
 			else:
 				return False
-		return float(amount[:-1])/100 * balance - cfg.fees["send"]/100000000.
+		return float(amount[:-1]) / 100 * balance - cfg.fees["send"] / 100000000.
 	elif amount[0] in ["$", "€", "£", "¥"]:
 		price = util.getTokenPrice(cfg.token, {"$":"usd", "EUR":"eur", "€":"eur", "£":"gbp", "¥":"cny"}[amount[0]])
-		result = float(amount[1:])/price
+		result = float(amount[1:]) / price
 		if askYesOrNo("%s=%s%f (%s/%s=%f) - Validate ?" % (amount, cfg.token, result, cfg.token, amount[0], price)):
 			return result
 		else:
@@ -270,7 +270,7 @@ def floatAmount(amount):
 def checkRegisteredTx(registry, folder=None, quiet=False):
 	LOCK = None
 
-	@util.setInterval(2*cfg.blocktime)
+	@util.setInterval(2 * cfg.blocktime)
 	def _checkRegisteredTx(registry):
 		registered = util.loadJson(registry, folder)
 		if not len(registered):
@@ -297,10 +297,10 @@ def checkRegisteredTx(registry, folder=None, quiet=False):
 					sys.stdout.write("\nCheck finished, all transactions applied\n%s"%PROMPT)
 				LOCK.set()
 			elif not quiet:
-				sys.stdout.write("\n%d transaction%s not applied in blockchain\nWaiting two blocks (%ds) before another broadcast...\n%s" % (remaining, "s" if remaining>1 else "", 2*cfg.blocktime, PROMPT))
+				sys.stdout.write("\n%d transaction%s not applied in blockchain\nWaiting two blocks (%ds) before another broadcast...\n%s" % (remaining, "s" if remaining>1 else "", 2 * cfg.blocktime, PROMPT))
 
 	if not quiet:
-		sys.stdout.write("Transaction check in two blocks (%ds)...\n" % (2*cfg.blocktime))
+		sys.stdout.write("Transaction check in two blocks (%ds)...\n" % (2 * cfg.blocktime))
 	LOCK = _checkRegisteredTx(registry)
 	return LOCK
 

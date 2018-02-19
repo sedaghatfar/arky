@@ -88,7 +88,7 @@ def _whereami():
 def link(param):
 	if hasattr(cfg, "slip44"):
 
-		ledger_dpath = "44'/"+cfg.slip44+"'/%(--account-index)s'/0/%(--address-rank)s" % param
+		ledger_dpath = "44'/" + cfg.slip44 + "'/%(--account-index)s'/0/%(--address-rank)s" % param
 		try:
 			publicKey = ldgr.getPublicKey(ldgr.parseBip32Path(ledger_dpath))
 			address = arky.core.crypto.getAddress(publicKey)
@@ -128,7 +128,7 @@ def send(param):
 				type=0,
 				timestamp=int(slots.getTime()),
 				fee=cfg.fees["send"],
-				amount=int(amount*100000000),
+				amount=int(amount * 100000000),
 				recipientId=param["<address>"],
 				vendorField=param["<message>"],
 			)

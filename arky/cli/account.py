@@ -81,7 +81,7 @@ def _send(payload):
 		registry_file = "%s.registry" % (_address if _address else "thirdparty")
 		registry = util.loadJson(registry_file, folder)
 		typ_ = payload["type"]
-		sys.stdout.write(("    Broadcasting transaction of %.8f %s to %s\n" % (payload["amount"]/100000000, cfg.token, payload["recipientId"])) if typ_ == 0 else \
+		sys.stdout.write(("    Broadcasting transaction of %.8f %s to %s\n" % (payload["amount"] / 100000000, cfg.token, payload["recipientId"])) if typ_ == 0 else \
 		                  "    Broadcasting vote...\n" if typ_ == 3 else \
 						  "    Broadcasting transaction...\n")
 		resp = arky.core.sendPayload(payload)
@@ -269,7 +269,7 @@ def validate(param):
 				choices = util.chooseMultipleItem("Transactions(s) found:", *items)
 				if askYesOrNo("Validate transactions %s ?" % ",".join([str(i) for i in choices])):
 					for idx in choices:
-						tx = registry["transactions"].pop(idx-1)
+						tx = registry["transactions"].pop(idx - 1)
 						tx["signSignature"] = arky.core.crypto.getSignature(tx, thirdpartyKeys["privateKey"])
 						tx["id"] = arky.core.crypto.getId(tx)
 						_send(tx)
@@ -309,7 +309,7 @@ def send(param):
 		                        {"token": cfg.token, "amount": amount, "recipientId": param["<address>"]}) \
 		          and checkSecondKeys():
 			_send(arky.core.crypto.bakeTransaction(
-				amount=amount*100000000,
+				amount=amount * 100000000,
 				recipientId=param["<address>"],
 				vendorField=param["<message>"],
 				publicKey=DATA.firstkeys["publicKey"],
@@ -339,10 +339,10 @@ def wsend(param):
 				  and checkSecondKeys():
 
 			for address,weight in weighting.items():
-				share = weight*amount
-				if share*100000000 > cfg.fees["send"]:
+				share = weight * amount
+				if share * 100000000 > cfg.fees["send"]:
 					_send(arky.core.crypto.bakeTransaction(
-						amount=share*100000000-cfg.fees["send"],
+						amount=share * 100000000 - cfg.fees["send"],
 						recipientId=address,
 						vendorField=param["<message>"],
 						publicKey=DATA.firstkeys["publicKey"],

@@ -81,7 +81,7 @@ def forged(param):
 	if DATA.delegate:
 		resp = rest.GET.api.delegates.forging.getForgedByAccount(generatorPublicKey=DATA.account["publicKey"])
 		if resp.pop("success"):
-			util.prettyPrint(dict([k,float(v)/100000000] for k,v in resp.items()))
+			util.prettyPrint(dict([k,float(v) / 100000000] for k,v in resp.items()))
 
 
 def voters(param):
