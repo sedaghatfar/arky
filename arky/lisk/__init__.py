@@ -99,7 +99,7 @@ def upVoteDelegate(usernames, secret, secondSecret=None):
         privateKey=keys["privateKey"],
         recipientId=crypto.getAddress(keys["publicKey"]),
         secondSecret=secondSecret,
-        asset={"votes":["+%s"%pk for pk in util.getDelegatesPublicKeys(*usernames)]}
+        asset={"votes":["+%s" % pk for pk in util.getDelegatesPublicKeys(*usernames)]}
     )
 
 def downVoteDelegate(usernames, secret, secondSecret=None):
@@ -110,5 +110,5 @@ def downVoteDelegate(usernames, secret, secondSecret=None):
         privateKey=keys["privateKey"],
         recipientId=crypto.getAddress(keys["publicKey"]),
         secondSecret=secondSecret,
-        asset={"votes":["-%s"%pk for pk in util.getDelegatesPublicKeys(*usernames)]}
+        asset={"votes":["-%s" % pk for pk in util.getDelegatesPublicKeys(*usernames)]}
     )

@@ -25,7 +25,7 @@ class Payload(object):
 
 	@staticmethod
 	def get(typ, **kw):
-		return crypto.hexlify(getattr(Payload, "type%d"%typ)(**kw))
+		return crypto.hexlify(getattr(Payload, "type%d" % typ)(**kw))
 
 	@staticmethod
 	def type0(**kw):
@@ -57,7 +57,7 @@ class Payload(object):
 		if username:
 			length = len(username)
 			if 3 <= length <= 255:
-				return struct.pack("<B%ds"%length, length, username.encode()) if PY3 else \
+				return struct.pack("<B%ds" % length, length, username.encode()) if PY3 else \
 				       struct.pack("<B" + length * "c", length, username)
 			else:
 				raise Exception("bad username length [3-255]: %s" % username)
@@ -94,7 +94,7 @@ def getHeaders(**kw):
 	n = min(255, len(vendorField))
 	header += struct.pack("<B", n)
 	if n > 0:
-		header += struct.pack("<%ss"%n, crypto.unhexlify(publicKey[:n])) if PY3 else \
+		header += struct.pack("<%ss" % n, crypto.unhexlify(publicKey[:n])) if PY3 else \
 		          struct.pack(n * "c", publicKey[:n])
 
 	return crypto.hexlify(header)

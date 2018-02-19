@@ -115,10 +115,10 @@ def _getVoteList(param):
 			fmt = "+%s"
 			to_vote = [username for username in usernames if username not in voted]
 
-		return [fmt%pk for pk in util.getDelegatesPublicKeys(*to_vote)], verb, to_vote
+		return [fmt % pk for pk in util.getDelegatesPublicKeys(*to_vote)], verb, to_vote
 
 	elif len(voted):
-		util.prettyPrint(dict([d["username"], "%s%%"%d["approval"]] for d in voted))
+		util.prettyPrint(dict([d["username"], "%s%%" % d["approval"]] for d in voted))
 
 	return [], "", []
 

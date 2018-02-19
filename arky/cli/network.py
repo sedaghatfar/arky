@@ -62,7 +62,7 @@ def use(param):
 	)
 
 	logger = logging.getLogger()
-	logger.handlers[0].setFormatter(logging.Formatter('[%s]'%cfg.network + '[%(asctime)s] %(message)s'))
+	logger.handlers[0].setFormatter(logging.Formatter('[%s]' % cfg.network + '[%(asctime)s] %(message)s'))
 
 
 

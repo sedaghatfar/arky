@@ -92,5 +92,5 @@ def voters(param):
 		for addr, vote in sorted([[c["address"], float(c["balance"]) / 100000000] for c in accounts], key=lambda e:e[-1]):
 			log[addr] = "%.3f" % vote
 			sum_ += vote
-		log["%d voters"%len(accounts)] = "%.3f" % sum_
+		log["%d voters" % len(accounts)] = "%.3f" % sum_
 		util.prettyPrint(log)

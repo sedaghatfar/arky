@@ -275,7 +275,7 @@ def checkRegisteredTx(registry, folder=None, quiet=False):
 		registered = util.loadJson(registry, folder)
 		if not len(registered):
 			if not quiet:
-				sys.stdout.write("\nNo transaction remaining\n%s"%PROMPT)
+				sys.stdout.write("\nNo transaction remaining\n%s" % PROMPT)
 			LOCK.set()
 		else:
 			if not quiet:
@@ -294,7 +294,7 @@ def checkRegisteredTx(registry, folder=None, quiet=False):
 			remaining = len(registered)
 			if not remaining:
 				if not quiet:
-					sys.stdout.write("\nCheck finished, all transactions applied\n%s"%PROMPT)
+					sys.stdout.write("\nCheck finished, all transactions applied\n%s" % PROMPT)
 				LOCK.set()
 			elif not quiet:
 				sys.stdout.write("\n%d transaction%s not applied in blockchain\nWaiting two blocks (%ds) before another broadcast...\n%s" % (remaining, "s" if remaining>1 else "", 2 * cfg.blocktime, PROMPT))
