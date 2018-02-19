@@ -16,10 +16,10 @@ class TestArkCrypto(unittest.TestCase):
 		# secret = "secret"
 		# timestamp = devnet begintime
 		self.tx = {
-			'type': 0,           # send-type transaction
-			'fee': 10000000,     # arky.rest.cfg.fees["send"]
-			'amount': 100000000, # 1 DARK = 100000000 satoshi
-			'timestamp': 736409, # arky.rest.cfg.begintime.toordinal()
+			'type': 0,            # send-type transaction
+			'fee': 10000000,      # arky.rest.cfg.fees["send"]
+			'amount': 100000000,  # 1 DARK = 100000000 satoshi
+			'timestamp': 736409,  # arky.rest.cfg.begintime.toordinal()
 			'senderPublicKey':
 				'03a02b9d5fdd1307c2ee4652ba54d492d1fd11a7d1bb3f3a44c4a05e79f19de933',
 			'signature':

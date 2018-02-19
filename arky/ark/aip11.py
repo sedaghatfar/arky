@@ -139,7 +139,7 @@ def sendTransaction(**kw):
 	return result
 
 #######################
-## basic transaction ##
+#  basic transaction  #
 #######################
 
 # def sendToken(amount, recipientId, vendorField, secret, secondSecret=None):

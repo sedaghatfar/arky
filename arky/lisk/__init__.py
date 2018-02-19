@@ -56,7 +56,7 @@ def sendPayload(*payloads):
 
 
 #######################
-## basic transaction ##
+#  basic transaction  #
 #######################
 
 def sendToken(amount, recipientId, secret, secondSecret=None):

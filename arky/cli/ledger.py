@@ -22,8 +22,8 @@ Subcommands:
     vote     : up or down vote delegate(s). <delegates> can be a coma-separated list
                or a valid new-line-separated file list conaining delegate names.
 """
-    # ledger validate <registry>
-    # validate : validate transaction from registry.
+#   ledger validate <registry>
+#   validate : validate transaction from registry.
 
 from .. import HOME
 from .. import rest

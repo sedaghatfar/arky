@@ -29,7 +29,7 @@ else:
     len_address = util.basint(data[len_pkey + 1])
     print(data[-len_address:].decode())
 
-    #put your recipient address here
+    # put your recipient address here
     recipientId = "..."
 
     tx = dict(
