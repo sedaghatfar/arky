@@ -12,7 +12,7 @@ from . import init
 import struct
 
 
-C = 0.0001*100000000
+C = 0.0001 * 100000000
 rest.POST.createEndpoint(rest.POST, rest.post, "/peer/transactions/v1")
 
 
@@ -25,7 +25,7 @@ class Payload(object):
 
 	@staticmethod
 	def get(typ, **kw):
-		return crypto.hexlify(getattr(Payload, "type%d"%typ)(**kw))
+		return crypto.hexlify(getattr(Payload, "type%d" % typ)(**kw))
 
 	@staticmethod
 	def type0(**kw):
@@ -57,8 +57,8 @@ class Payload(object):
 		if username:
 			length = len(username)
 			if 3 <= length <= 255:
-				return struct.pack("<B%ds"%length, length, username.encode()) if PY3 else \
-				       struct.pack("<B" + length*"c", length, username)
+				return struct.pack("<B%ds" % length, length, username.encode()) if PY3 else \
+				       struct.pack("<B" + length * "c", length, username)
 			else:
 				raise Exception("bad username length [3-255]: %s" % username)
 		else:
@@ -86,7 +86,7 @@ def getHeaders(**kw):
 	)
 
 	header += struct.pack("<33s", crypto.unhexlify(publicKey)) if PY3 else \
-	          struct.pack(33*"c", publicKey)
+	          struct.pack(33 * "c", publicKey)
 
 	header += struct.pack("<Q", kw.get("fees", 0))
 
@@ -94,8 +94,8 @@ def getHeaders(**kw):
 	n = min(255, len(vendorField))
 	header += struct.pack("<B", n)
 	if n > 0:
-		header += struct.pack("<%ss"%n, crypto.unhexlify(publicKey[:n])) if PY3 else \
-		          struct.pack(n*"c", publicKey[:n])
+		header += struct.pack("<%ss" % n, crypto.unhexlify(publicKey[:n])) if PY3 else \
+		          struct.pack(n * "c", publicKey[:n])
 
 	return crypto.hexlify(header)
 
@@ -129,17 +129,17 @@ def bakePayload(**kw):
 
 # This function is a high-level broadcasting for a single tx
 def sendTransaction(**kw):
-	tx = bakePayload(**dict([k,v] for k,v in kw.items() if v))
+	tx = bakePayload(**dict([k, v] for k, v in kw.items() if v))
 	result = rest.POST.peer.transactions.v1(peer=cfg.peers[0], transactions=[tx])
 	success = 1 if result["success"] else 0
 	for peer in cfg.peers[1:]:
 		if rest.POST.peer.transactions.v1(peer=peer, transactions=[tx])["success"]:
 			success += 1
-	result["broadcast"] = "%.1f%%" % (100.*success/len(cfg.peers))
+	result["broadcast"] = "%.1f%%" % (100. * success / len(cfg.peers))
 	return result
 
 #######################
-## basic transaction ##
+#  basic transaction  #
 #######################
 
 # def sendToken(amount, recipientId, vendorField, secret, secondSecret=None):

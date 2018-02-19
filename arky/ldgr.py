@@ -66,9 +66,9 @@ def buildTxApdu(dongle_path, data):
 
 	path_len = len(dongle_path)
 
-	if len(data) > 255 - (path_len+1):
-		data1 = data[:255-(path_len+1)]
-		data2 = data[255-(path_len+1):]
+	if len(data) > 255 - (path_len + 1):
+		data1 = data[:255 - (path_len + 1)]
+		data2 = data[255 - (path_len + 1):]
 		p1 = util.unhexlify("e0040040")
 	else:
 		data1 = data
@@ -76,7 +76,7 @@ def buildTxApdu(dongle_path, data):
 		p1 =  util.unhexlify("e0048040")
 
 	return [
-		p1 + intasb(path_len + 1 + len(data1)) + intasb(path_len//4) + dongle_path + data1,
+		p1 + intasb(path_len + 1 + len(data1)) + intasb(path_len // 4) + dongle_path + data1,
 		util.unhexlify("e0048140") + intasb(len(data2)) + data2 if len(data2) else None
 	]
 
@@ -92,7 +92,7 @@ def buildPkeyApdu(dongle_path):
 	"""
 
 	path_len = len(dongle_path)
-	return util.unhexlify("e0020040") + intasb(1 + path_len) + intasb(path_len//4) + dongle_path
+	return util.unhexlify("e0020040") + intasb(1 + path_len) + intasb(path_len // 4) + dongle_path
 
 
 def getPublicKey(dongle_path, debug=False):
@@ -113,7 +113,7 @@ def getPublicKey(dongle_path, debug=False):
 	data = bytes(dongle.exchange(apdu))
 	dongle.close()
 	len_pkey = util.basint(data[0])
-	return util.hexlify(data[1:len_pkey+1])
+	return util.hexlify(data[1:len_pkey + 1])
 
 
 def signTx(tx, path, debug=False):
@@ -164,7 +164,7 @@ def dumpBip39(pin, bip39, name="unamed"):
 	folder = os.path.join(HOME, ".bip39", cfg.network)
 	if not os.path.exists(folder):
 		os.makedirs(folder)
-	with io.open(os.path.join(folder, name+".bip39"), "wb") as out:
+	with io.open(os.path.join(folder, name + ".bip39"), "wb") as out:
 		out.write(util.scramble(util.createBase(pin), util.hexlify(bip39)))
 
 
@@ -179,9 +179,8 @@ def loadBip39(pin, name="unamed"):
 	name -- the filname you want decrypt
 	"""
 
-	filename = os.path.join(HOME, ".bip39", cfg.network, name+".bip39")
+	filename = os.path.join(HOME, ".bip39", cfg.network, name + ".bip39")
 	if os.path.exists(filename):
 		with io.open(filename, "rb") as in_:
 			data = util.unScramble(util.createBase(pin), in_.read())
 		return util.unhexlify(data).decode("utf-8")
-
