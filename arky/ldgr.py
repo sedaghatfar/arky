@@ -184,4 +184,3 @@ def loadBip39(pin, name="unamed"):
 		with io.open(filename, "rb") as in_:
 			data = util.unScramble(util.createBase(pin), in_.read())
 		return util.unhexlify(data).decode("utf-8")
-

@@ -40,6 +40,7 @@ import sys
 import imp
 import webbrowser
 
+
 def _whereami():
 	return "network"
 
@@ -63,7 +64,6 @@ def use(param):
 
 	logger = logging.getLogger()
 	logger.handlers[0].setFormatter(logging.Formatter('[%s]' % cfg.network + '[%(asctime)s] %(message)s'))
-
 
 
 def browse(param):

@@ -195,4 +195,3 @@ def vote(param):
 # 				sys.stdout.write("    Not the valid thirdparty passphrase\n")
 # 		else:
 # 			sys.stdout.write("    Transaction registry not found\n")
-

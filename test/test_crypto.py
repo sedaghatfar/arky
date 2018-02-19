@@ -5,6 +5,7 @@ import unittest
 import arky.rest
 import arky.util
 
+
 class TestArkCrypto(unittest.TestCase):
 
 	@classmethod

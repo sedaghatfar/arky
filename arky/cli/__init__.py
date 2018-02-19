@@ -40,6 +40,7 @@ class _Prompt(object):
 	def state(self, state=True):
 		_Prompt.enable = state
 
+
 PROMPT = _Prompt()
 PROMPT.module = sys.modules[__name__]
 
@@ -92,6 +93,7 @@ class Data(object):
 
 	def getCurrent2ndPKey(self):
 		return self.getCurrentAccount().get("secondPublicKey", None)
+
 
 DATA = Data()
 

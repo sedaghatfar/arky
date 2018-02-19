@@ -67,6 +67,7 @@ def sendToken(amount, recipientId, secret, secondSecret=None):
         secondSecret=secondSecret
     )
 
+
 def registerSecondPublicKey(secondPublicKey, secret, secondSecret=None):
     keys = crypto.getKeys(secret)
     return sendTransaction(
@@ -77,9 +78,11 @@ def registerSecondPublicKey(secondPublicKey, secret, secondSecret=None):
         asset={"signature": {"publicKey": secondPublicKey}}
     )
 
+
 def registerSecondPassphrase(secondPassphrase, secret, secondSecret=None):
     secondKeys = crypto.getKeys(secondPassphrase)
     return registerSecondPublicKey(secondKeys["publicKey"], secret, secondSecret)
+
 
 def registerDelegate(username, secret, secondSecret=None):
     keys = crypto.getKeys(secret)
@@ -91,6 +94,7 @@ def registerDelegate(username, secret, secondSecret=None):
         asset={"delegate": {"username": username, "publicKey": publicKey}}
     )
 
+
 def upVoteDelegate(usernames, secret, secondSecret=None):
     keys = crypto.getKeys(secret)
     return sendTransaction(
@@ -101,6 +105,7 @@ def upVoteDelegate(usernames, secret, secondSecret=None):
         secondSecret=secondSecret,
         asset={"votes": ["+%s" % pk for pk in util.getDelegatesPublicKeys(*usernames)]}
     )
+
 
 def downVoteDelegate(usernames, secret, secondSecret=None):
     keys = crypto.getKeys(secret)
