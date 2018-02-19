@@ -51,7 +51,6 @@ class TestRest(unittest.TestCase):
         )
         latency = arky.rest.check_latency(peer)
         assert latency is not None
-        assert isinstance(latency, int)
 
     @responses.activate
     def test_check_latency_timeout(self):
