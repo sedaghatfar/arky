@@ -74,7 +74,7 @@ def registerSecondPublicKey(secondPublicKey, secret, secondSecret=None):
         publicKey=keys["publicKey"],
         privateKey=keys["privateKey"],
         secondSecret=secondSecret,
-        asset={"signature":{"publicKey":secondPublicKey}}
+        asset={"signature": {"publicKey": secondPublicKey}}
     )
 
 def registerSecondPassphrase(secondPassphrase, secret, secondSecret=None):
@@ -88,7 +88,7 @@ def registerDelegate(username, secret, secondSecret=None):
         publicKey=keys["publicKey"],
         privateKey=keys["privateKey"],
         secondSecret=secondSecret,
-        asset={"delegate":{"username":username, "publicKey":publicKey}}
+        asset={"delegate": {"username": username, "publicKey": publicKey}}
     )
 
 def upVoteDelegate(usernames, secret, secondSecret=None):
@@ -99,7 +99,7 @@ def upVoteDelegate(usernames, secret, secondSecret=None):
         privateKey=keys["privateKey"],
         recipientId=crypto.getAddress(keys["publicKey"]),
         secondSecret=secondSecret,
-        asset={"votes":["+%s" % pk for pk in util.getDelegatesPublicKeys(*usernames)]}
+        asset={"votes": ["+%s" % pk for pk in util.getDelegatesPublicKeys(*usernames)]}
     )
 
 def downVoteDelegate(usernames, secret, secondSecret=None):
@@ -110,5 +110,5 @@ def downVoteDelegate(usernames, secret, secondSecret=None):
         privateKey=keys["privateKey"],
         recipientId=crypto.getAddress(keys["publicKey"]),
         secondSecret=secondSecret,
-        asset={"votes":["-%s" % pk for pk in util.getDelegatesPublicKeys(*usernames)]}
+        asset={"votes": ["-%s" % pk for pk in util.getDelegatesPublicKeys(*usernames)]}
     )

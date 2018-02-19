@@ -257,7 +257,7 @@ def floatAmount(amount):
 				return False
 		return float(amount[:-1]) / 100 * balance - cfg.fees["send"] / 100000000.
 	elif amount[0] in ["$", "€", "£", "¥"]:
-		price = util.getTokenPrice(cfg.token, {"$":"usd", "EUR":"eur", "€":"eur", "£":"gbp", "¥":"cny"}[amount[0]])
+		price = util.getTokenPrice(cfg.token, {"$": "usd", "EUR": "eur", "€": "eur", "£": "gbp", "¥": "cny"}[amount[0]])
 		result = float(amount[1:]) / price
 		if askYesOrNo("%s=%s%f (%s/%s=%f) - Validate ?" % (amount, cfg.token, result, cfg.token, amount[0], price)):
 			return result
@@ -311,4 +311,4 @@ from . import delegate
 from . import ledger
 
 __doc__ = """Welcome to arky-cli [Python %(python)s / arky %(arky)s]
-Available commands: %(sets)s""" % {"python": sys.version.split()[0], "arky":__version__, "sets": ", ".join(__all__)}
+Available commands: %(sets)s""" % {"python": sys.version.split()[0], "arky": __version__, "sets": ", ".join(__all__)}

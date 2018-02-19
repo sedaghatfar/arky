@@ -214,7 +214,7 @@ def register(param):
 					publicKey=DATA.firstkeys["publicKey"],
 					privateKey=DATA.firstkeys["privateKey"],
 					secondPrivateKey=DATA.secondkeys.get("privateKey", None),
-					asset={"signature":{"publicKey":secondPublicKey}}
+					asset={"signature": {"publicKey": secondPublicKey}}
 				))
 		elif param["escrow"]:
 			if DATA.account["secondPublicKey"]:
@@ -233,7 +233,7 @@ def register(param):
 					publicKey=DATA.firstkeys["publicKey"],
 					privateKey=DATA.firstkeys["privateKey"],
 					secondPrivateKey=DATA.secondkeys.get("privateKey", None),
-					asset={"signature":{"publicKey":secondPublicKey}}
+					asset={"signature": {"publicKey": secondPublicKey}}
 				))
 		else:
 			username = param["<username>"]
@@ -245,7 +245,7 @@ def register(param):
 					publicKey=DATA.firstkeys["publicKey"],
 					privateKey=DATA.firstkeys["privateKey"],
 					secondPrivateKey=DATA.secondkeys.get("privateKey", None),
-					asset={"delegate":{"username":username, "publicKey":DATA.firstkeys["publicKey"]}}
+					asset={"delegate": {"username": username, "publicKey": DATA.firstkeys["publicKey"]}}
 				))
 
 
@@ -338,7 +338,7 @@ def wsend(param):
 		                        {"token": cfg.token, "amount": amount, "recipientId": len(weighting)}) \
 				  and checkSecondKeys():
 
-			for address,weight in weighting.items():
+			for address, weight in weighting.items():
 				share = weight * amount
 				if share * 100000000 > cfg.fees["send"]:
 					_send(arky.core.crypto.bakeTransaction(

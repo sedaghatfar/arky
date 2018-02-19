@@ -129,7 +129,7 @@ def bakePayload(**kw):
 
 # This function is a high-level broadcasting for a single tx
 def sendTransaction(**kw):
-	tx = bakePayload(**dict([k,v] for k,v in kw.items() if v))
+	tx = bakePayload(**dict([k, v] for k, v in kw.items() if v))
 	result = rest.POST.peer.transactions.v1(peer=cfg.peers[0], transactions=[tx])
 	success = 1 if result["success"] else 0
 	for peer in cfg.peers[1:]:
