@@ -3,16 +3,14 @@
 
 """This module contains functions to connect with Ledger Nano S"""
 
-from ledgerblue.comm import getDongle
-
-from . import HOME
-from . import util
-from . import cfg
-
 import io
 import os
-import arky
 import struct
+
+import arky
+from arky import HOME, cfg, util
+
+from ledgerblue.comm import getDongle
 
 from six import PY3
 
@@ -73,7 +71,7 @@ def buildTxApdu(dongle_path, data):
 	else:
 		data1 = data
 		data2 = util.unhexlify("")
-		p1 =  util.unhexlify("e0048040")
+		p1 = util.unhexlify("e0048040")
 
 	return [
 		p1 + intasb(path_len + 1 + len(data1)) + intasb(path_len // 4) + dongle_path + data1,
@@ -102,48 +100,41 @@ def getPublicKey(dongle_path, debug=False):
 	Argument:
 	dongle_path -- value returned by parseBip32Path
 
-	Keyword argument:
-	debug -- flag to activate debug messages from ledger key [default: False]
-
 	Return str (hex)
 	"""
-
-	apdu = buildPkeyApdu(dongle_path)
 	dongle = getDongle(debug)
-	data = bytes(dongle.exchange(apdu))
+	pkey_apdu = buildPkeyApdu(dongle_path)
+	data = dongle.exchange(pkey_apdu)
 	dongle.close()
 	len_pkey = util.basint(data[0])
 	return util.hexlify(data[1:len_pkey + 1])
 
 
-def signTx(tx, path, debug=False):
+def signTx(tx, dongle_path, debug=False):
 	"""
 	Sign a transaction. It generates the signature accordingly to derivation path
 	and computes the id of the transaction. The tx is then updated and returned.
 
 	Argument:
 	tx -- a dict object containing explicit fields and values defining a valid transaction
-	path -- a derivation path
+	dongle_path -- a derivation path
 
 	Keyword argument:
 	debug -- flag to activate debug messages from ledger key [default: False]
 
 	Return dict
 	"""
-
-	dongle_path = parseBip32Path(path)
-	# update tx
-	if "senderPublicKey" not in tx:
-		tx["senderPublicKey"] = getPublicKey(dongle_path)
 	apdu1, apdu2 = buildTxApdu(dongle_path, arky.core.crypto.getBytes(tx))
 	dongle = getDongle(debug)
-	result = dongle.exchange(bytes(apdu1))
 	if apdu2:
-		result = dongle.exchange(bytes(apdu2))
+		result = dongle.exchange(apdu2)
+	else:
+		result = dongle.exchange(apdu1)
 	dongle.close()
-	# update tx
-	tx["signature"] = util.hexlify(result)
-	tx["id"] = arky.core.crypto.getId(tx)
+	tx.update({
+		"signature": util.hexlify(result),
+		"id": arky.core.crypto.getId(tx)
+	})
 	return tx
 
 
