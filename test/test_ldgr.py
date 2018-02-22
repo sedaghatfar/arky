@@ -53,11 +53,8 @@ class TestLdgr(unittest.TestCase):
         """
         rest.use("dark")
 
-        dongle_path = ldgr.parseBip32Path(self.path)
         with patch.object(ldgr, 'getDongle', return_value=MockedHIDDongleHIDAPI()):
-            public_key = ldgr.getPublicKey(dongle_path)
             tx = dict(
-                senderPublicKey=public_key,
                 vendorField="First Tx using ledger with arky!",
                 timestamp=int(slots.getTime()),
                 type=0,
@@ -65,7 +62,7 @@ class TestLdgr(unittest.TestCase):
                 recipientId='DUGvQBxLzQqrNy68asPcU3stWQyzVq8G49',
                 fee=10000000
             )
-            signed_tx = ldgr.signTx(tx, dongle_path)
+            signed_tx = ldgr.signTx(tx, self.path)
         assert signed_tx
 
 

@@ -110,20 +110,25 @@ def getPublicKey(dongle_path, debug=False):
 	return util.hexlify(data[1:len_pkey + 1])
 
 
-def signTx(tx, dongle_path, debug=False):
+def signTx(tx, path, debug=False):
 	"""
 	Sign a transaction. It generates the signature accordingly to derivation path
 	and computes the id of the transaction. The tx is then updated and returned.
 
 	Argument:
 	tx -- a dict object containing explicit fields and values defining a valid transaction
-	dongle_path -- a derivation path
+	path -- a derivation path
 
 	Keyword argument:
 	debug -- flag to activate debug messages from ledger key [default: False]
 
 	Return dict
 	"""
+	dongle_path = parseBip32Path(path)
+
+	if tx.get("senderPublicKey"):
+		tx["senderPublicKey"] = getPublicKey(dongle_path)
+
 	apdu1, apdu2 = buildTxApdu(dongle_path, arky.core.crypto.getBytes(tx))
 	dongle = getDongle(debug)
 	if apdu2:
