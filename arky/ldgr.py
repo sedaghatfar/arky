@@ -104,7 +104,7 @@ def getPublicKey(dongle_path, debug=False):
 	"""
 	dongle = getDongle(debug)
 	pkey_apdu = buildPkeyApdu(dongle_path)
-	data = dongle.exchange(pkey_apdu)
+	data = bytes(dongle.exchange(pkey_apdu))
 	dongle.close()
 	len_pkey = util.basint(data[0])
 	return util.hexlify(data[1:len_pkey + 1])

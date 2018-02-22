@@ -1,8 +1,14 @@
 # -*- encoding: utf8 -*-
 import unittest
-from unittest.mock import patch
 
 from arky import ldgr, rest, slots
+
+from six import PY3
+
+if PY3:
+    from unittest.mock import patch
+else:
+    from mock import patch
 
 
 """
