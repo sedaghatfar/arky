@@ -1,18 +1,6 @@
 # -*- encoding: utf8 -*-
 # © Toons
 
-import arky
-
-__all__ = ["network", "account", "delegate", "ledger"]
-
-from .. import __version__
-from .. import HOME
-from .. import ROOT
-from .. import __FROZEN__
-from .. import rest
-from .. import util
-from .. import cfg
-
 import io
 import os
 import sys
@@ -21,7 +9,13 @@ import docopt
 import logging
 import traceback
 import threading
+from importlib import import_module
 from builtins import input
+
+import arky
+from arky import __version__, __FROZEN__, HOME, ROOT, rest, util, cfg
+
+PACKAGES = ['network', 'account', 'delegate', 'ledger']
 
 
 class _Prompt(object):
@@ -99,8 +93,10 @@ DATA = Data()
 
 
 def parse(argv):
-	if argv[0] in __all__:
-		module = getattr(sys.modules[__name__], argv[0])
+	if argv[0] in PACKAGES:
+		module = getattr(sys.modules[__name__], argv[0], None)
+		if not module:
+			module = import_module("arky.cli.{0}".format(argv[0]))
 		if hasattr(module, "_whereami"):
 			PROMPT.module = module
 			if len(argv) > 1:
@@ -156,8 +152,14 @@ def restoreLogging(handler):
 
 def start():
 	_handler = snapLogging()
-
-	sys.stdout.write(__doc__ + "\n")
+	sys.stdout.write(
+		'Welcome to arky-cli [Python %(python)s / arky %(arky)s]\n'
+		'Available commands: %(sets)s\n' % {
+			"python": sys.version.split()[0],
+			"arky": __version__,
+			"sets": ", ".join(PACKAGES)
+		}
+	)
 	_xit = False
 	while not _xit:
 		try:
@@ -175,7 +177,8 @@ def start():
 				if "link" not in argv:
 					logging.info(command)
 				else:
-					logging.info(" ".join(argv[:2] + ["x" * len(e) for e in ([] if len(argv) <= 2 else argv[2:])]))
+					command = censorship(argv)
+					logging.info(command)
 				try:
 					cmd(arg)
 				except Exception as error:
@@ -201,7 +204,8 @@ def execute(*lines):
 				if "link" not in argv:
 					logging.info(line)
 				else:
-					logging.info(" ".join(argv[:2] + ["x" * len(e) for e in ([] if len(argv) <= 2 else argv[2:])]))
+					line = censorship(argv)
+					logging.info(line)
 				try:
 					cmd(arg)
 				except Exception as error:
@@ -307,10 +311,8 @@ def checkRegisteredTx(registry, folder=None, quiet=False):
 	return LOCK
 
 
-from . import network
-from . import account
-from . import delegate
-from . import ledger
-
-__doc__ = """Welcome to arky-cli [Python %(python)s / arky %(arky)s]
-Available commands: %(sets)s""" % {"python": sys.version.split()[0], "arky": __version__, "sets": ", ".join(__all__)}
+def censorship(argv):
+	"""
+	Censors any delicate information from a given command arguments
+	"""
+	return " ".join(argv[:2] + ["x" * len(e) for e in ([] if len(argv) <= 2 else argv[2:])])
