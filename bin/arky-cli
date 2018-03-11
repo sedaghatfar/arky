@@ -1,12 +1,10 @@
-# -*- coding:utf-8 -*-
-# created by Toons on 01/05/2017
-
+#!/usr/bin/env python
 import os, sys
-
-from arky import cli
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from arky.cli import CLI, launch
 
 if __name__ == "__main__":
 	if len(sys.argv) > 1 and os.path.exists(sys.argv[-1]):
-		cli.launch(sys.argv[-1])
+		launch(sys.argv[-1])
 	else:
-		cli.start()
+		CLI().start()
