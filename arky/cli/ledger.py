@@ -32,11 +32,8 @@ from .. import util
 from .. import ldgr
 from .. import slots
 
-from . import PROMPT
 from . import DATA
-from . import parse
 from . import input
-from . import __name__ as __root_name__
 from . import floatAmount
 from . import askYesOrNo
 
@@ -47,6 +44,8 @@ import traceback
 import arky
 import sys
 import os
+
+from arky.exceptions import ParserException
 
 
 def _sign(tx, derivation_path):
@@ -68,12 +67,6 @@ def _sign(tx, derivation_path):
 	return False
 
 
-def _return():
-	sys.stdout.write("Ledger not available on %s network\n" % cfg.network)
-	PROMPT.module = sys.modules[__root_name__]
-	parse(["ledger", ".."])
-
-
 def _whereami():
 	if hasattr(cfg, "slip44"):
 		if DATA.ledger:
@@ -81,8 +74,7 @@ def _whereami():
 		else:
 			return "ledger"
 	else:
-		_return()
-		return ""
+		raise ParserException('Ledger not available on {} network'.format(cfg.network))
 
 
 def link(param):
@@ -102,7 +94,7 @@ def link(param):
 				DATA.ledger["path"] = ledger_dpath
 
 	else:
-		_return()
+		raise ParserException('Ledger not available on {} network'.format(cfg.network))
 
 
 def status(param):
