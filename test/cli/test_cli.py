@@ -4,6 +4,7 @@ import mock
 from importlib import import_module
 from arky.cli import CLI
 from arky.exceptions import ParserException
+from arky.rest import use as use_network
 
 
 class TestCLI(unittest.TestCase):
@@ -29,6 +30,7 @@ class TestCLI(unittest.TestCase):
         assert arg["<name>"] == "dark"
 
     def test_parse_ledger_wrong_network(self):
+        use_network("lisk")  # make sure to select a network on which ldgr integration doesn't work
         cli = CLI()
         result = cli.parse(["ledger"])
         assert result == (True, False)

@@ -36,11 +36,10 @@ class CLI:
 		"""
 		Prompt showing current location in the CLI
 		"""
-		whereami = self.module._whereami()
 		return "{hoc}@{net}/{wai}>".format(
 			hoc="hot" if cfg.hotmode else "cold",
 			net=cfg.network,
-			wai=whereami
+			wai=self.module._whereami()
 		)
 
 	def start(self):
