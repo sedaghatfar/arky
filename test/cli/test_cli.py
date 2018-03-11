@@ -2,24 +2,24 @@
 import unittest
 import mock
 from importlib import import_module
-from parameterized import parameterized
 from arky.cli import CLI
 from arky.exceptions import ParserException
 
 
 class TestCLI(unittest.TestCase):
 
-    @parameterized.expand([
-        (["network"], (True, False)),
-        (["account"], (True, False)),
-        (["delegate"], (True, False)),
-        (["ledger"], (True, False)),
-    ])
-    def test_parse(self, command, expected):
-        cli = CLI()
-        result = cli.parse(command)
-        assert result == expected
-        assert cli.module == import_module("arky.cli.{0}".format(command[0]))
+    def test_parse(self):
+        scenarios = [
+            (["network"], (True, False)),
+            (["account"], (True, False)),
+            (["delegate"], (True, False)),
+            (["ledger"], (True, False)),
+        ]
+        for command, expected in scenarios:
+            cli = CLI()
+            result = cli.parse(command)
+            assert result == expected
+            assert cli.module == import_module("arky.cli.{0}".format(command[0]))
 
     def test_parse_network(self):
         cli = CLI()
@@ -44,28 +44,28 @@ class TestCLI(unittest.TestCase):
         assert cmd.__name__ == "link"
         assert cli.module == import_module("arky.cli.ledger")
 
-    @parameterized.expand(["..", "exit"])
-    def test_parse_back(self, command):
-        cli = CLI()
-        cli.parse(["network"])
-        assert cli.module == import_module("arky.cli.network")
-        result = cli.parse([command])
-        assert result == (True, False)
-        assert cli.module == import_module("arky.cli")
-
-    @parameterized.expand(["help", "?"])
-    def test_parse_help(self, command):
-        cli = CLI()
-        with mock.patch('arky.cli.sys') as sysmock:
+    def test_parse_back(self):
+        for command in ["..", "exit"]:
+            cli = CLI()
+            cli.parse(["network"])
+            assert cli.module == import_module("arky.cli.network")
             result = cli.parse([command])
-            assert sysmock.stdout.write.call_count == 1
-        assert result == (True, False)
+            assert result == (True, False)
+            assert cli.module == import_module("arky.cli")
 
-    @parameterized.expand(["exit", "EXIT"])
-    def test_parse_exit(self, command):
-        cli = CLI()
-        result = cli.parse([command])
-        assert result == (False, False)
+    def test_parse_help(self):
+        for command in ["help", "?"]:
+            cli = CLI()
+            with mock.patch('arky.cli.sys') as sysmock:
+                result = cli.parse([command])
+                assert sysmock.stdout.write.call_count == 1
+            assert result == (True, False)
+
+    def test_parse_exit(self,):
+        for command in ["exit", "EXIT"]:
+            cli = CLI()
+            result = cli.parse([command])
+            assert result == (False, False)
 
 if __name__ == '__main__':
     unittest.main()
