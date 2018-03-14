@@ -202,9 +202,9 @@ def prettyfy(dic, tab="    "):
 def prettyPrint(dic, tab="    ", log=True):
 	pretty = prettyfy(dic, tab)
 	if len(dic):
-		sys.stdout.write(pretty)
+		sys.stdout.write("%s" % pretty)
 		if log:
-			logging.info("\n" + pretty.rstrip())
+			logging.info("\n %s" % pretty.rstrip())
 	else:
 		sys.stdout.write("%sNothing to print here\n" % tab)
 		if log:
