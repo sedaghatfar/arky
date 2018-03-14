@@ -12,7 +12,7 @@ __FROZEN__ = hasattr(sys, "frozen") or hasattr(sys, "importers") or imp.is_froze
 
 if __FROZEN__:
     # if frozen code, HOME and ROOT pathes are same
-    ROOT = os.path.normpah(os.path.abspath(os.path.dirname(sys.executable)))
+    ROOT = os.path.normpath(os.path.abspath(os.path.dirname(sys.executable)))
     HOME = ROOT
     filename = os.path.join(ROOT, __name__ + ".log")
 else:
