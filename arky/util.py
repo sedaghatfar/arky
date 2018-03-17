@@ -182,6 +182,9 @@ def setInterval(interval):
 
 
 def shortAddress(addr, sep="...", n=5):
+	"""
+	Generates short address used for prompts visual purposes in the CLI eg. "account[DUGvQ...q8G49]"
+	"""
 	return addr[:n] + sep + addr[-n:]
 
 
@@ -235,10 +238,14 @@ def popJson(name, folder=None):
 
 
 def findNetworks():
-	try:
-		return [os.path.splitext(name)[0] for name in os.listdir(os.path.join(ROOT, "net")) if name.endswith(".net")]
-	except:
-		return []
+	"""
+	Gets a list of all available networks
+	"""
+	networks = []
+	for name in os.listdir(os.path.join(ROOT, "net")):
+		if name.endswith(".net"):
+			networks.append(os.path.splitext(name)[0])
+	return networks
 
 
 def chooseMultipleItem(msg, *elem):
@@ -286,6 +293,10 @@ def chooseItem(msg, *elem):
 
 
 def hidenInput(msg):
+	"""
+	Uses `getpass` built-in which prompts the user without echoing. We check if output is in bytes
+	which we have to decode for compatibility reasons
+	"""
 	data = getpass.getpass(msg)
 	if isinstance(data, bytes):
 		data = data.decode(sys.stdin.encoding)
@@ -300,8 +311,13 @@ def findAccounts():
 
 
 def createBase(secret):
+	"""
+	Creates a base from a given secret
+	"""
 	hx = [e for e in "0123456789abcdef"]
 	base = ""
+	if not isinstance(secret, bytes):
+		secret = secret.encode()
 	for c in hexlify(hashlib.md5(secret).digest()):
 		try:
 			base += hx.pop(hx.index(c))
@@ -311,6 +327,9 @@ def createBase(secret):
 
 
 def scramble(base, hexa):
+	"""
+	Scramble given base and hex
+	"""
 	result = bytearray()
 	for c in hexa:
 		result.append(base.index(c))
@@ -318,6 +337,9 @@ def scramble(base, hexa):
 
 
 def unScramble(base, data):
+	"""
+	Unscramble given scrambed data using the provided base
+	"""
 	result = ""
 	for b in data:
 		result += base[basint(b)]
@@ -325,6 +347,9 @@ def unScramble(base, data):
 
 
 def dumpAccount(base, address, privateKey, secondPrivateKey=None, name="unamed"):
+	"""
+	Store account data into file
+	"""
 	folder = os.path.join(HOME, ".account", cfg.network)
 	if not os.path.exists(folder):
 		os.makedirs(folder)
@@ -347,7 +372,10 @@ def dumpAccount(base, address, privateKey, secondPrivateKey=None, name="unamed")
 		out.write(data)
 
 
-def loadAccount(base, name):
+def loadAccount(base, name="unamed"):
+	"""
+	Load account data from file
+	"""
 	filepath = os.path.join(HOME, ".account", cfg.network, name + ".account")
 	result = {}
 	if os.path.exists(filepath):
