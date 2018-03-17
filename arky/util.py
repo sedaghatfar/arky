@@ -185,52 +185,51 @@ def shortAddress(addr, sep="...", n=5):
 	return addr[:n] + sep + addr[-n:]
 
 
-def prettyfy(dic, tab="    "):
+def prettyfy(dic, tab='\t'):
 	result = ""
 	if dic:
 		maxlen = max([len(e) for e in dic.keys()])
 		for k, v in dic.items():
 			if isinstance(v, dict):
-				result += tab + "%s:" % k.ljust(maxlen)
+				result += "{0}{1}:".format(tab, k.ljust(maxlen))
 				result += prettyfy(v, tab * 2)
 			else:
-				result += tab + "%s: %s" % (k.rjust(maxlen), v)
+				result += "{0}{1}: {2}".format(tab, k.rjust(maxlen), v)
 			result += "\n"
-		return result.encode("ascii", errors="replace")
+		return result.encode("ascii", errors="replace").decode()
 
 
-def prettyPrint(dic, tab="    ", log=True):
-	pretty = prettyfy(dic, tab)
-	if len(dic):
+def prettyPrint(dic, log=True):
+	pretty = prettyfy(dic)
+	if dic:
 		sys.stdout.write("%s" % pretty)
 		if log:
 			logging.info("\n %s" % pretty.rstrip())
 	else:
-		sys.stdout.write("%sNothing to print here\n" % tab)
+		sys.stdout.write("\tNothing to print here\n")
 		if log:
-			logging.info("%sNothing to log here" % tab)
+			logging.info("\tNothing to log here")
 
 
 def dumpJson(cnf, name, folder=None):
-	filename = os.path.join(HOME if not folder else folder, name)
-	out = io.open(filename, "w")
-	json.dump(cnf, out, indent=2)  # what exactly do we want to do here?
-	out.close()
+	filename = os.path.join(folder or HOME, name)
+	with io.open(filename, "wb") as outfile:
+		outfile.write(json.dumps(cnf).encode())
 	return os.path.basename(filename)
 
 
 def loadJson(name, folder=None):
-	filename = os.path.join(HOME if not folder else folder, name)
+	filename = os.path.join(folder or HOME, name)
 	data = {}
 	if os.path.exists(filename):
 		with io.open(filename, "rb") as file:
 			content = file.read()
-			data = json.loads(content) if content else {}
+			data = json.loads(content.decode()) if content else {}
 	return data
 
 
 def popJson(name, folder=None):
-	filename = os.path.join(HOME if not folder else folder, name)
+	filename = os.path.join(folder or HOME, name)
 	if os.path.exists(filename):
 		os.remove(filename)
 

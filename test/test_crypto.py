@@ -73,11 +73,26 @@ class TestArkCrypto(unittest.TestCase):
 			)
 		)
 
-	def test_get_bytes(self):
+	def test_get_bytes_and_hexlify(self):
 		self.assertEqual(
 			self.hexaTx,
 			arky.util.hexlify(arky.core.crypto.getBytes(self.tx))
 		)
+
+	def test_get_bytes_for_votes(self):
+		"""
+		Test if we are able to getBytes when we have a unicode (which happens when we want to vote).
+		We don't need to check the value of the `output`, we just care the fn doesn't error
+		"""
+		tx = self.tx.copy()
+		tx["type"] = 3
+		tx.update({
+			"asset": {
+				"votes": [u'+022cca9529ec97a772156c152a00aad155ee6708243e65c9d211a589cb5d43234d']
+			}
+		})
+		output = arky.core.crypto.getBytes(tx)
+		assert output
 
 
 class TestLskCrypto(unittest.TestCase):
