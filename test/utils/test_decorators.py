@@ -2,6 +2,7 @@
 import unittest
 from arky.utils.decorators import setInterval
 from threading import Event
+from six import PY3
 
 
 class TestUtilsDecorators(unittest.TestCase):
@@ -13,7 +14,11 @@ class TestUtilsDecorators(unittest.TestCase):
 
         event = testfn()
         assert event.is_set() is False
-        assert isinstance(event, Event)
+        if PY3:
+            assert isinstance(event, Event)
+        else:
+            # py2 doesn't support Event object in isinstance
+            assert event.__module__ == 'threading'
         event.set()
         assert event.is_set() is True
 
