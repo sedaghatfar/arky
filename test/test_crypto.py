@@ -3,7 +3,7 @@
 
 import unittest
 import arky.rest
-import arky.util
+from arky.utils.bin import hexlify, unhexlify
 
 
 class TestArkCrypto(unittest.TestCase):
@@ -60,7 +60,7 @@ class TestArkCrypto(unittest.TestCase):
 	def test_get_id_from_bytes(self):
 		self.assertEqual(
 			'a299642a90a25fdfea93eab43cf18c6ab21f1c16565d64066f896001594fd892',
-			arky.core.crypto.getIdFromBytes(arky.util.unhexlify(self.hexaTx))
+			arky.core.crypto.getIdFromBytes(unhexlify(self.hexaTx))
 		)
 
 	def test_bake_transaction(self):
@@ -76,7 +76,7 @@ class TestArkCrypto(unittest.TestCase):
 	def test_get_bytes_and_hexlify(self):
 		self.assertEqual(
 			self.hexaTx,
-			arky.util.hexlify(arky.core.crypto.getBytes(self.tx))
+			hexlify(arky.core.crypto.getBytes(self.tx))
 		)
 
 	def test_get_bytes_for_votes(self):

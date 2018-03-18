@@ -4,7 +4,7 @@ import hashlib
 import struct
 
 from arky import cfg, slots
-from arky.util import hexlify, pack, pack_bytes, unhexlify
+from arky.utils.bin import hexlify, pack, pack_bytes, unhexlify
 
 from nacl.bindings import crypto_sign_BYTES
 from nacl.bindings.crypto_sign import crypto_sign, crypto_sign_seed_keypair

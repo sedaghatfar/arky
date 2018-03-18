@@ -2,16 +2,19 @@
 import os
 import io
 import unittest
+
 from collections import OrderedDict
 from mock import patch
-from arky import rest, util
+
+from arky.utils.bin import hexlify
+from arky.utils.data import (
+	dumpJson, dumpAccount, loadAccount, loadJson, popJson, createBase, scramble, unScramble,
+	findNetworks
+)
+from arky.utils.cli import prettyPrint, shortAddress
 
 
 class TestUtilDef(unittest.TestCase):
-
-	@classmethod
-	def setUpClass(cls):
-		rest.use("dark")
 
 	def test_json(self):
 		"""
@@ -20,12 +23,12 @@ class TestUtilDef(unittest.TestCase):
 		"""
 		data = {"testing": True}
 		filename = "test.txt"
-		util.dumpJson(data, filename)
-		data = util.loadJson(filename)
+		dumpJson(data, filename)
+		data = loadJson(filename)
 		assert data["testing"] is True
 
 		# test if file will be removed
-		util.popJson(filename)
+		popJson(filename)
 		assert not os.path.exists(filename)
 
 	def test_prettyPrint(self):
@@ -34,13 +37,13 @@ class TestUtilDef(unittest.TestCase):
 		data["testing"] = True
 		data["transactions"] = "many"
 		with patch('sys.stdout', new=io.StringIO()) as stdout:
-			util.prettyPrint(data, log=False)
+			prettyPrint(data, log=False)
 		assert stdout.getvalue() == '\t     testing: True\n\ttransactions: many\n'
 
 	def test_createBase(self):
 		pins = [str('abc123'), b'abc123', u'abc123']
 		for pin in pins:
-			output = util.createBase(pin)
+			output = createBase(pin)
 			assert output == 'e9a18c42b3d5f607'
 
 	def test_scramble_and_unscramble(self):
@@ -54,12 +57,12 @@ class TestUtilDef(unittest.TestCase):
 		)
 
 		# run test
-		base = util.createBase(pin)
-		hexa = util.hexlify(address)
-		scrambled = util.scramble(base, hexa)
+		base = createBase(pin)
+		hexa = hexlify(address)
+		scrambled = scramble(base, hexa)
 		assert scrambled == scrambled_result
 
-		unscrambled = util.unScramble(base, scrambled)
+		unscrambled = unScramble(base, scrambled)
 		assert hexa == unscrambled
 
 
@@ -67,20 +70,20 @@ class TestUtilDef(unittest.TestCase):
 		pin = "abc123"
 		address = "DUGvQBxLzQqrNy68asPcU3stWQyzVq8G49".encode()
 		privateKey = "123123123"
-		base = util.createBase(pin)
+		base = createBase(pin)
 
-		util.dumpAccount(base, address, privateKey)
+		dumpAccount(base, address, privateKey)
 
-		output = util.loadAccount(base)
+		output = loadAccount(base)
 		assert output["address"] == address
 		assert output["privateKey"] == privateKey
 
 	def test_findNetworks(self):
-		networks = util.findNetworks()
+		networks = findNetworks()
 		assert len(networks) == 11
 
 	def test_shortAddress(self):
-		output = util.shortAddress("DUGvQBxLzQqrNy68asPcU3stWQyzVq8G49")
+		output = shortAddress("DUGvQBxLzQqrNy68asPcU3stWQyzVq8G49")
 		assert output == "DUGvQ...q8G49"
 
 

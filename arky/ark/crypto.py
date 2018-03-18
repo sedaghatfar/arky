@@ -5,7 +5,7 @@ import binascii
 import hashlib
 
 from arky import cfg, slots
-from arky.util import basint, hexlify, pack, pack_bytes, unhexlify
+from arky.utils.bin import basint, hexlify, pack, pack_bytes, unhexlify
 
 import base58
 

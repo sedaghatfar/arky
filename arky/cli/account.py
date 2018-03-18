@@ -40,23 +40,17 @@ Subcommands:
 	           (address-weight pairs). You can set a 64-char message.
 """
 
-import arky
-
-from .. import HOME
-from .. import cfg
-from .. import rest
-from .. import util
-
-from . import DATA
-from . import input
-from . import checkSecondKeys
-from . import checkRegisteredTx
-from . import floatAmount
-from . import askYesOrNo
-
 import io
 import os
 import sys
+
+import arky
+from arky import cfg, HOME, rest
+from arky.cli import checkSecondKeys, checkRegisteredTx, floatAmount, DATA, askYesOrNo
+from arky.util import getDelegatesPublicKeys
+from arky.utils.cli import prettyPrint, shortAddress, chooseItem, hidenInput, chooseMultipleItem
+from arky.utils.data import createBase, loadJson, loadAccount, dumpJson, dumpAccount, findAccounts
+
 
 
 def _send(payload):
@@ -67,28 +61,28 @@ def _send(payload):
 			os.makedirs(folder)
 		sys.stdout.write("    Writing transaction...\n")
 		registry_file = "%s.escrow" % (_address if _address else "thirdparty")
-		registry = util.loadJson(registry_file, folder)
+		registry = loadJson(registry_file, folder)
 		if registry == {}:
 			registry["secondPublicKey"] = DATA.getCurrent2ndPKey()
 			registry["transactions"] = []
 		payload.pop("id", None)
 		registry["transactions"].extend([payload])
-		util.dumpJson(registry, registry_file, folder)
+		dumpJson(registry, registry_file, folder)
 	else:
 		folder = os.path.join(HOME, ".registry", cfg.network)
 		if not os.path.exists(folder):
 			os.makedirs(folder)
 		registry_file = "%s.registry" % (_address if _address else "thirdparty")
-		registry = util.loadJson(registry_file, folder)
+		registry = loadJson(registry_file, folder)
 		typ_ = payload["type"]
 		sys.stdout.write(("    Broadcasting transaction of %.8f %s to %s\n" % (payload["amount"] / 100000000, cfg.token, payload["recipientId"])) if typ_ == 0 else \
 		                  "    Broadcasting vote...\n" if typ_ == 3 else \
 						  "    Broadcasting transaction...\n")
 		resp = arky.core.sendPayload(payload)
-		util.prettyPrint(resp)
+		prettyPrint(resp)
 		if resp["success"]:
 			registry[payload["id"]] = payload
-			util.dumpJson(registry, registry_file, folder)
+			dumpJson(registry, registry_file, folder)
 		DATA.daemon = checkRegisteredTx(registry_file, folder, quiet=True)
 
 
@@ -115,18 +109,18 @@ def _getVoteList(param):
 			fmt = "+%s"
 			to_vote = [username for username in usernames if username not in voted]
 
-		return [fmt % pk for pk in util.getDelegatesPublicKeys(*to_vote)], verb, to_vote
+		return [fmt % pk for pk in getDelegatesPublicKeys(*to_vote)], verb, to_vote
 
 	elif len(voted):
-		util.prettyPrint(dict([d["username"], "%s%%" % d["approval"]] for d in voted))
+		prettyPrint(dict([d["username"], "%s%%" % d["approval"]] for d in voted))
 
 	return [], "", []
 
 
 def _whereami():
 	if DATA.account:
-		return "account[%s]" % util.shortAddress(DATA.getCurrent1stPKey() if DATA.escrowed else \
-	                                             DATA.getCurrentAddress())
+		return "account[%s]" % shortAddress(DATA.getCurrent1stPKey() if DATA.escrowed else
+											DATA.getCurrentAddress())
 	else:
 		return "account"
 
@@ -135,11 +129,11 @@ def link(param):
 	unlink(param)
 
 	if not param["<secret>"]:
-		choices = util.findAccounts()
+		choices = findAccounts()
 		if choices:
-			name = util.chooseItem("Account(s) found:", *choices)
+			name = chooseItem("Account(s) found:", *choices)
 			try:
-				data = util.loadAccount(util.createBase(util.hidenInput("Enter pin code: ")), name)
+				data = loadAccount(createBase(hidenInput("Enter pin code: ")), name)
 			except:
 				sys.stdout.write("    Bad pin code...\n")
 				return
@@ -187,13 +181,13 @@ def unlink(param):
 
 def status(param):
 	if DATA.account:
-		util.prettyPrint(rest.GET.api.accounts(address=DATA.account["address"], returnKey="account"))
+		prettyPrint(rest.GET.api.accounts(address=DATA.account["address"], returnKey="account"))
 
 
 def save(param):
 	if DATA.account:
-		util.dumpAccount(
-			util.createBase(util.hidenInput("Enter pin code: ")),
+		dumpAccount(
+			createBase(hidenInput("Enter pin code: ")),
 			DATA.account["address"],
 			DATA.firstkeys["privateKey"],
 			DATA.secondkeys.get("privateKey", None),
@@ -253,9 +247,9 @@ def validate(param):
 	unlink(param)
 
 	if param["<registry>"]:
-		registry = util.loadJson(param["<registry>"], os.path.join(HOME, ".escrow", cfg.network))
+		registry = loadJson(param["<registry>"], os.path.join(HOME, ".escrow", cfg.network))
 		if len(registry):
-			thirdpartyKeys = arky.core.crypto.getKeys(util.hidenInput("Enter thirdparty passphrase: "))
+			thirdpartyKeys = arky.core.crypto.getKeys(hidenInput("Enter thirdparty passphrase: "))
 			if registry["secondPublicKey"] == thirdpartyKeys["publicKey"]:
 				items = []
 				for tx in registry["transactions"]:
@@ -266,14 +260,14 @@ def validate(param):
 				if not len(items):
 					sys.stdout.write("    No transaction found in registry\n")
 					return
-				choices = util.chooseMultipleItem("Transactions(s) found:", *items)
+				choices = chooseMultipleItem("Transactions(s) found:", *items)
 				if askYesOrNo("Validate transactions %s ?" % ",".join([str(i) for i in choices])):
 					for idx in choices:
 						tx = registry["transactions"].pop(idx - 1)
 						tx["signSignature"] = arky.core.crypto.getSignature(tx, thirdpartyKeys["privateKey"])
 						tx["id"] = arky.core.crypto.getId(tx)
 						_send(tx)
-					util.dumpJson(registry, param["<registry>"], os.path.join(HOME, ".escrow", cfg.network))
+					dumpJson(registry, param["<registry>"], os.path.join(HOME, ".escrow", cfg.network))
 				else:
 					sys.stdout.write("    Validation canceled\n")
 			else:
@@ -322,7 +316,7 @@ def wsend(param):
 
 	if DATA.account:
 		amount = floatAmount(param["<amount>"])
-		weighting = util.loadJson(param["<weighting>"])
+		weighting = loadJson(param["<weighting>"])
 
 		try:
 			checksum = sum(weighting.values())
@@ -333,7 +327,7 @@ def wsend(param):
 			sys.stdout.write("    Not a valid weighting file\n")
 			return
 
-		util.prettyPrint(weighting)
+		prettyPrint(weighting)
 		if amount and askYesOrNo("Send %(amount).8f %(token)s to %(recipientId)s addresses ?" % \
 		                        {"token": cfg.token, "amount": amount, "recipientId": len(weighting)}) \
 				  and checkSecondKeys():

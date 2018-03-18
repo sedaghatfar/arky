@@ -26,19 +26,16 @@ Subcommands:
     staking   : show coin-supply ratio used on delegate voting.
 """
 
-from .. import ROOT
-from .. import HOME
-from .. import rest
-from .. import cfg
-from .. import util
-
-from . import DATA
-
 import logging
 import arky
 import sys
-import imp
 import webbrowser
+
+from arky import rest, cfg
+from arky.cli import DATA
+from arky.util import getCandidates
+from arky.utils.data import findNetworks
+from arky.utils.cli import chooseItem
 
 
 def _whereami():
@@ -47,9 +44,9 @@ def _whereami():
 
 def use(param):
 	if not param["<name>"]:
-		choices = util.findNetworks()
+		choices = findNetworks()
 		if choices:
-			param["<name>"] = util.chooseItem("Network(s) found:", *choices)
+			param["<name>"] = chooseItem("Network(s) found:", *choices)
 		else:
 			sys.stdout.write("No Network found\n")
 			return False
@@ -101,4 +98,4 @@ def delegates(param):
 
 
 def staking(param):
-	sys.stdout.write("    %.2f%% of coin supply used to vote for delegates\n" % sum(d["approval"] for d in util.getCandidates()))
+	sys.stdout.write("    %.2f%% of coin supply used to vote for delegates\n" % sum(d["approval"] for d in getCandidates()))
