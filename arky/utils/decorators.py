@@ -5,11 +5,12 @@ import threading
 def setInterval(interval):
     """ threaded decorator
     >>> @setInterval(10)
-    ... def tick(): print("Tick")
-    >>> stop = tick() # print 'Tick' every 10 sec
-    >>> type(stop)
+    ... def tick():
+    ...     print("Tick")
+    >>> event = tick() # print 'Tick' every 10 sec
+    >>> type(event)
     <class 'threading.Event'>
-    >>> stop.set() # stop printing 'Tick' every 10 sec
+    >>> event.set() # stop printing 'Tick' every 10 sec
     """
     def decorator(function):
         def wrapper(*args, **kwargs):

@@ -2,11 +2,11 @@
 import os
 import unittest
 
-
+from arky.rest import use
 from arky.utils.bin import hexlify
 from arky.utils.data import (
     dumpJson, dumpAccount, loadAccount, loadJson, popJson, createBase, scramble, unScramble,
-    findNetworks
+    findNetworks, findAccounts
 )
 
 
@@ -53,13 +53,18 @@ class TestUtilsData(unittest.TestCase):
         assert hexa == unscrambled
 
 
-    def test_dumpAccount_and_loadAccount(self):
+    def test_dumpAccount_findAccounts_loadAccount(self):
+        use("dark")
+
         pin = "abc123"
         address = "DUGvQBxLzQqrNy68asPcU3stWQyzVq8G49".encode()
         privateKey = "123123123"
         base = createBase(pin)
 
         dumpAccount(base, address, privateKey)
+
+        accounts = findAccounts()
+        assert accounts == ["unamed"]
 
         output = loadAccount(base)
         assert output["address"] == address

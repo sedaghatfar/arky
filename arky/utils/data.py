@@ -20,10 +20,11 @@ def findNetworks():
 
 
 def findAccounts():
-    try:
-        return [os.path.splitext(name)[0] for name in os.listdir(os.path.join(HOME, ".account", cfg.network)) if name.endswith(".account")]
-    except:
-        return []
+    accounts = []
+    for name in os.listdir(os.path.join(HOME, ".account", cfg.network)):
+        if name.endswith(".account"):
+            accounts.append(os.path.splitext(name)[0])
+    return accounts
 
 
 def createBase(secret):
