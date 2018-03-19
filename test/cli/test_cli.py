@@ -69,5 +69,6 @@ class TestCLI(unittest.TestCase):
             result = cli.parse([command])
             assert result == (False, False)
 
+
 if __name__ == '__main__':
     unittest.main()

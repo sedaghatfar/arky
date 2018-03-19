@@ -8,7 +8,9 @@ import os
 import struct
 
 import arky
-from arky import HOME, cfg, util
+from arky import HOME, cfg
+from arky.utils.bin import basint, hexlify, unhexlify
+from arky.utils.data import createBase, scramble, unScramble
 
 from ledgerblue.comm import getDongle
 
@@ -25,7 +27,7 @@ def pack(f, v):
 
 # convert int to byte
 def intasb(i):
-	return util.unhexlify(hex(i)[2:])
+	return unhexlify(hex(i)[2:])
 
 
 def parseBip32Path(path):
@@ -67,15 +69,15 @@ def buildTxApdu(dongle_path, data):
 	if len(data) > 255 - (path_len + 1):
 		data1 = data[:255 - (path_len + 1)]
 		data2 = data[255 - (path_len + 1):]
-		p1 = util.unhexlify("e0040040")
+		p1 = unhexlify("e0040040")
 	else:
 		data1 = data
-		data2 = util.unhexlify("")
-		p1 = util.unhexlify("e0048040")
+		data2 = unhexlify("")
+		p1 = unhexlify("e0048040")
 
 	return [
 		p1 + intasb(path_len + 1 + len(data1)) + intasb(path_len // 4) + dongle_path + data1,
-		util.unhexlify("e0048140") + intasb(len(data2)) + data2 if len(data2) else None
+		unhexlify("e0048140") + intasb(len(data2)) + data2 if len(data2) else None
 	]
 
 
@@ -90,7 +92,7 @@ def buildPkeyApdu(dongle_path):
 	"""
 
 	path_len = len(dongle_path)
-	return util.unhexlify("e0020040") + intasb(1 + path_len) + intasb(path_len // 4) + dongle_path
+	return unhexlify("e0020040") + intasb(1 + path_len) + intasb(path_len // 4) + dongle_path
 
 
 def getPublicKey(dongle_path, debug=False):
@@ -106,8 +108,8 @@ def getPublicKey(dongle_path, debug=False):
 	pkey_apdu = buildPkeyApdu(dongle_path)
 	data = bytes(dongle.exchange(pkey_apdu))
 	dongle.close()
-	len_pkey = util.basint(data[0])
-	return util.hexlify(data[1:len_pkey + 1])
+	len_pkey = basint(data[0])
+	return hexlify(data[1:len_pkey + 1])
 
 
 def signTx(tx, path, debug=False):
@@ -137,7 +139,7 @@ def signTx(tx, path, debug=False):
 		result = dongle.exchange(apdu1)
 	dongle.close()
 	tx.update({
-		"signature": util.hexlify(result),
+		"signature": hexlify(result),
 		"id": arky.core.crypto.getId(tx)
 	})
 	return tx
@@ -161,7 +163,7 @@ def dumpBip39(pin, bip39, name="unamed"):
 	if not os.path.exists(folder):
 		os.makedirs(folder)
 	with io.open(os.path.join(folder, name + ".bip39"), "wb") as out:
-		out.write(util.scramble(util.createBase(pin), util.hexlify(bip39)))
+		out.write(scramble(createBase(pin), hexlify(bip39)))
 
 
 def loadBip39(pin, name="unamed"):
@@ -178,5 +180,5 @@ def loadBip39(pin, name="unamed"):
 	filename = os.path.join(HOME, ".bip39", cfg.network, name + ".bip39")
 	if os.path.exists(filename):
 		with io.open(filename, "rb") as in_:
-			data = util.unScramble(util.createBase(pin), in_.read())
-		return util.unhexlify(data).decode("utf-8")
+			data = unScramble(createBase(pin), in_.read())
+		return unhexlify(data).decode("utf-8")

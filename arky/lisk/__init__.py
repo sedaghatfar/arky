@@ -1,9 +1,11 @@
 # -*- encoding: utf8 -*-
 # © Toons
-from arky import cfg, rest, util
-from arky.lisk import crypto
-
 import sys
+
+from arky import cfg, rest
+from arky.lisk import crypto
+from arky.util import getDelegatesPublicKeys
+from arky.utils.decorators import setInterval
 
 
 def select_peers():
@@ -16,7 +18,7 @@ def select_peers():
         cfg.peers = selection
 
 
-@util.setInterval(30)
+@setInterval(30)
 def rotate_peers():
     select_peers()
 
@@ -103,7 +105,7 @@ def upVoteDelegate(usernames, secret, secondSecret=None):
         privateKey=keys["privateKey"],
         recipientId=crypto.getAddress(keys["publicKey"]),
         secondSecret=secondSecret,
-        asset={"votes": ["+%s" % pk for pk in util.getDelegatesPublicKeys(*usernames)]}
+        asset={"votes": ["+%s" % pk for pk in getDelegatesPublicKeys(*usernames)]}
     )
 
 
@@ -115,5 +117,5 @@ def downVoteDelegate(usernames, secret, secondSecret=None):
         privateKey=keys["privateKey"],
         recipientId=crypto.getAddress(keys["publicKey"]),
         secondSecret=secondSecret,
-        asset={"votes": ["-%s" % pk for pk in util.getDelegatesPublicKeys(*usernames)]}
+        asset={"votes": ["-%s" % pk for pk in getDelegatesPublicKeys(*usernames)]}
     )

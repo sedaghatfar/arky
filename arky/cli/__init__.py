@@ -15,8 +15,12 @@ from importlib import import_module
 from builtins import input
 
 import arky
-from arky import __version__, __FROZEN__, HOME, ROOT, rest, util, cfg
+from arky import __version__, __FROZEN__, HOME, ROOT, rest, cfg
 from arky.exceptions import ParserException
+from arky.util import getTokenPrice
+from arky.utils.decorators import setInterval
+from arky.utils.cli import hidenInput, prettyPrint
+from arky.utils.data import loadJson, dumpJson
 
 PACKAGES = ['network', 'account', 'delegate', 'ledger']
 
@@ -260,7 +264,7 @@ def askYesOrNo(msg):
 def checkSecondKeys():
 	secondPublicKey = DATA.account.get("secondPublicKey", False)
 	if secondPublicKey and not DATA.secondkeys and not DATA.escrowed:
-		secondKeys = arky.core.crypto.getKeys(util.hidenInput("Enter second passphrase: "))
+		secondKeys = arky.core.crypto.getKeys(hidenInput("Enter second passphrase: "))
 		if secondKeys["publicKey"] == secondPublicKey:
 			DATA.secondkeys = secondKeys
 			return True
@@ -289,7 +293,7 @@ def floatAmount(amount):
 				return False
 		return float(amount[:-1]) / 100 * balance - cfg.fees["send"] / 100000000.
 	elif amount[0] in ["$", "€", "£", "¥"]:
-		price = util.getTokenPrice(cfg.token, {"$": "usd", "EUR": "eur", "€": "eur", "£": "gbp", "¥": "cny"}[amount[0]])
+		price = getTokenPrice(cfg.token, {"$": "usd", "EUR": "eur", "€": "eur", "£": "gbp", "¥": "cny"}[amount[0]])
 		result = float(amount[1:]) / price
 		if askYesOrNo("%s=%s%f (%s/%s=%f) - Validate ?" % (amount, cfg.token, result, cfg.token, amount[0], price)):
 			return result
@@ -302,9 +306,9 @@ def floatAmount(amount):
 def checkRegisteredTx(registry, folder=None, quiet=False):
 	LOCK = None
 
-	@util.setInterval(2 * cfg.blocktime)
+	@setInterval(2 * cfg.blocktime)
 	def _checkRegisteredTx(registry):
-		registered = util.loadJson(registry, folder)
+		registered = loadJson(registry, folder)
 		if not len(registered):
 			if not quiet:
 				sys.stdout.write("\nNo transaction remaining\n")
@@ -320,9 +324,9 @@ def checkRegisteredTx(registry, folder=None, quiet=False):
 						sys.stdout.write("Broadcasting transaction #%s\n" % tx_id)
 					result = arky.core.sendPayload(payload)
 					if not quiet:
-						util.prettyPrint(result, log=False)
+						prettyPrint(result, log=False)
 
-			util.dumpJson(registered, registry, folder)
+			dumpJson(registered, registry, folder)
 			remaining = len(registered)
 			if not remaining:
 				if not quiet:

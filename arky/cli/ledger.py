@@ -25,27 +25,15 @@ Subcommands:
 #   ledger validate <registry>
 #   validate : validate transaction from registry.
 
-from .. import HOME
-from .. import rest
-from .. import cfg
-from .. import util
-from .. import ldgr
-from .. import slots
-
-from . import DATA
-from . import input
-from . import floatAmount
-from . import askYesOrNo
-
-from .account import _send
-from .account import _getVoteList
-
 import traceback
 import arky
 import sys
-import os
 
+from arky import rest, cfg, ldgr, slots
+from arky.cli import DATA, floatAmount
+from arky.cli.account import _send, _getVoteList
 from arky.exceptions import ParserException
+from arky.utils.cli import prettyPrint, shortAddress
 
 
 def _sign(tx, derivation_path):
@@ -70,7 +58,7 @@ def _sign(tx, derivation_path):
 def _whereami():
 	if hasattr(cfg, "slip44"):
 		if DATA.ledger:
-			return "ledger[%s]" % util.shortAddress(DATA.ledger["address"])
+			return "ledger[%s]" % shortAddress(DATA.ledger["address"])
 		else:
 			return "ledger"
 	else:
@@ -101,7 +89,7 @@ def status(param):
 	if DATA.ledger:
 		data = rest.GET.api.accounts(address=DATA.ledger["address"], returnKey="account")
 		data["derivationPath"] = DATA.ledger["path"]
-		util.prettyPrint(data)
+		prettyPrint(data)
 
 
 def unlink(param):

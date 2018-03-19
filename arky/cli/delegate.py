@@ -21,24 +21,13 @@ Subcommands:
     forged : show forge report.
 """
 
-import arky
-
-from .. import cfg
-from .. import rest
-from .. import util
-
-from . import DATA
-from . import input
-from . import checkSecondKeys
-from . import checkRegisteredTx
-
-from .account import link as _link
-from .account import save
-
-import io
-import os
 import sys
 import collections
+
+from arky import rest
+from arky.cli import DATA
+from arky.cli.account import link as _link
+from arky.utils.cli import prettyPrint
 
 
 def _whereami():
@@ -70,7 +59,7 @@ def link(param):
 def status(param):
 	if DATA.delegate:
 		account = rest.GET.api.accounts(address=DATA.account["address"], returnKey="account")
-		util.prettyPrint(dict(account, **DATA.delegate))
+		prettyPrint(dict(account, **DATA.delegate))
 
 
 def unlink(param):
@@ -81,7 +70,7 @@ def forged(param):
 	if DATA.delegate:
 		resp = rest.GET.api.delegates.forging.getForgedByAccount(generatorPublicKey=DATA.account["publicKey"])
 		if resp.pop("success"):
-			util.prettyPrint(dict([k, float(v) / 100000000] for k, v in resp.items()))
+			prettyPrint(dict([k, float(v) / 100000000] for k, v in resp.items()))
 
 
 def voters(param):
@@ -93,4 +82,4 @@ def voters(param):
 			log[addr] = "%.3f" % vote
 			sum_ += vote
 		log["%d voters" % len(accounts)] = "%.3f" % sum_
-		util.prettyPrint(log)
+		prettyPrint(log)

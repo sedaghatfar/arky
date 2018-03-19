@@ -2,7 +2,8 @@
 # © Toons
 import logging
 
-from arky import cfg, rest, util
+from arky import cfg, rest
+from arky.utils.decorators import setInterval
 from arky.ark import crypto
 
 log = logging.getLogger(__name__)
@@ -46,7 +47,7 @@ def select_peers():
         raise Exception('Was not able to get even one live peer out of %s peers.\n' % len(peers))
 
 
-@util.setInterval(30)
+@setInterval(30)
 def rotate_peers():
     select_peers()
 
