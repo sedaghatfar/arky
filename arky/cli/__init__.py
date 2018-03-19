@@ -13,6 +13,7 @@ import traceback
 import threading
 from importlib import import_module
 from builtins import input
+from six import PY3
 
 import arky
 from arky import __version__, __FROZEN__, HOME, ROOT, rest, cfg
@@ -159,8 +160,15 @@ class Data(object):
 
 	def __setattr__(self, attr, value):
 		if attr == "daemon":
-			if not isinstance(value, threading.Event):
+			if PY3:
+				is_threading = isinstance(value, threading.Event)
+			else:
+				# py2 doesn't support Event object in isinstance
+				is_threading = value.__module__ == 'threading'
+
+			if not is_threading:
 				raise AttributeError("%s value must be a valid %s class" % (value, threading.Event))
+
 			daemon = getattr(self, attr)
 			if daemon:
 				daemon.set()
