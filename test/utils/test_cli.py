@@ -40,5 +40,6 @@ class TestUtilsCLI(unittest.TestCase):
                 output = chooseMultipleItem("Transactions(s) found:", *["first", "second", "third"])
             assert output == expected
 
+
 if __name__ == '__main__':
     unittest.main()
