@@ -237,9 +237,12 @@ def use(network, **kwargs):
         sys.modules[__package__].__delattr__(network)
     except AttributeError:
         pass
-
-    with io.open(os.path.join(ROOT, "net", network + ".net")) as f:
-        data = json.load(f)
+    paht = os.path.join(ROOT, "net", network + ".net")
+    if(os.path.exists(paht)):
+        with io.open(os.path.join(ROOT, "net", network + ".net")) as f:
+            data = json.load(f)
+    else:
+        return "File not found for {}".format(network)
 
     data.update(**kwargs)
 

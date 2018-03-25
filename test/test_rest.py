@@ -33,10 +33,10 @@ class TestRest(unittest.TestCase):
 
     def test_use_invalid_blockchain(self):
         """
-        Test if `IOError` is raised
+        Test if error is raised
         """
-        with self.assertRaises(IOError):
-            arky.rest.use('not-a-blockchain')
+        assert arky.rest.use('not-a-blockchain') == 'File not found for not-a-blockchain'
+
 
     @responses.activate
     def test_check_latency_good(self):
