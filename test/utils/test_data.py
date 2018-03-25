@@ -52,7 +52,6 @@ class TestUtilsData(unittest.TestCase):
         unscrambled = unScramble(base, scrambled)
         assert hexa == unscrambled
 
-
     def test_dumpAccount_findAccounts_loadAccount(self):
         use("dark")
 

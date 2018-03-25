@@ -113,7 +113,8 @@ def send(param):
 				vendorField=param["<message>"],
 			)
 
-			if _sign(tx, DATA.ledger["path"]): _send(tx)
+			if _sign(tx, DATA.ledger["path"]):
+				_send(tx)
 
 
 def vote(param):
@@ -132,7 +133,8 @@ def vote(param):
 			asset={"votes": lst}
 		)
 
-		if _sign(tx, DATA.ledger["path"]): _send(tx)
+		if _sign(tx, DATA.ledger["path"]):
+			_send(tx)
 
 
 # def validate(param):
