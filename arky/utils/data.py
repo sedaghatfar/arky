@@ -64,29 +64,32 @@ def unScramble(base, data):
 
 
 def dumpAccount(base, address, privateKey, secondPrivateKey=None, name="unamed"):
-    """
-    Store account data into file
-    """
-    folder = os.path.join(HOME, ".account", cfg.network)
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-    filename = os.path.join(folder, name + ".account")
-    data = bytearray()
-    with io.open(filename, "wb") as out:
-        addr = scramble(base, hexlify(address))
-        data.append(len(addr))
-        data.extend(addr)
+	"""
+	Store account data into file
+	"""
+	folder = os.path.join(HOME, ".account", cfg.network)
+	if not os.path.exists(folder):
+		os.makedirs(folder)
+	filename = os.path.join(folder, name + ".account")
+	data = bytearray()
 
-        key1 = scramble(base, privateKey)
-        data.append(len(key1))
-        data.extend(key1)
+	if isinstance(address, str):
+		address = address.encode()
+	addr = scramble(base, hexlify(address))
+	data.append(len(addr))
+	data.extend(addr)
 
-        if secondPrivateKey:
-            key2 = scramble(base, secondPrivateKey)
-            data.append(len(key2))
-            data.extend(key2)
+	key1 = scramble(base, privateKey)
+	data.append(len(key1))
+	data.extend(key1)
 
-        out.write(data)
+	if secondPrivateKey:
+		key2 = scramble(base, secondPrivateKey)
+		data.append(len(key2))
+		data.extend(key2)
+
+	with io.open(filename, "wb") as out:
+		out.write(data)
 
 
 def loadAccount(base, name="unamed"):
