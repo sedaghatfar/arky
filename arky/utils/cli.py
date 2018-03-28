@@ -33,13 +33,17 @@ def chooseItem(msg, *elem):
         sys.stdout.write(msg + "\n")
         for i in range(n):
             sys.stdout.write("    %d - %s\n" % (i + 1, elem[i]))
-        i = 0
-        while i < 1 or i > n:
+        sys.stdout.write("    0 - quit\n")
+        i = -1
+        while i < 0 or i > n:
             try:
                 i = input("Choose an item: [1-%d]> " % n)
                 i = int(i)
             except:
-                i = 0
+                i = -1
+        if i == 0:
+            # Quit without making a selection
+            return False
         return elem[i - 1]
     elif n == 1:
         return elem[0]
