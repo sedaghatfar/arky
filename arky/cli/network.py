@@ -47,6 +47,8 @@ def use(param):
 		choices = findNetworks()
 		if choices:
 			param["<name>"] = chooseItem("Network(s) found:", *choices)
+			if not param["<name>"]:
+				return
 		else:
 			sys.stdout.write("No Network found\n")
 			return False

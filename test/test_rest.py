@@ -35,7 +35,9 @@ class TestRest(unittest.TestCase):
         """
         Test if error is raised
         """
-        assert arky.rest.use('not-a-blockchain') == 'File not found for not-a-blockchain'
+        with self.assertRaises(Exception) as context:
+            arky.rest.use('not-a-blockchain')
+        assert str(context.exception) == 'File not found for not-a-blockchain'
 
 
     @responses.activate

@@ -242,7 +242,7 @@ def use(network, **kwargs):
         with io.open(os.path.join(ROOT, "net", network + ".net")) as f:
             data = json.load(f)
     else:
-        return "File not found for {}".format(network)
+        raise Exception("File not found for {}".format(network))
 
     data.update(**kwargs)
 

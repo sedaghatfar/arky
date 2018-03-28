@@ -132,6 +132,8 @@ def link(param):
 		choices = findAccounts()
 		if choices:
 			name = chooseItem("Account(s) found:", *choices)
+			if not name:
+				return
 			try:
 				data = loadAccount(createBase(hidenInput("Enter pin code: ")), name)
 			except:

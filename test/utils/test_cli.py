@@ -29,6 +29,11 @@ class TestUtilsCLI(unittest.TestCase):
         output = chooseItem("Network(s) found:", *["ark", "dark", "lisk"])
         assert output == "dark"
 
+    @patch('arky.utils.cli.input', return_value="0")
+    def test_chooseItemQuit(self, input):
+        output = chooseItem("Network(s) found:", *["ark", "dark", "lisk"])
+        assert output == False
+
     def test_chooseMultipleItem(self):
         scenarios = [
             ("1, 2", [1, 2]),
