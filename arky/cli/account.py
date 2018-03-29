@@ -125,52 +125,64 @@ def _whereami():
 		return "account"
 
 
+def _linkFromSecret(param):
+	DATA.firstkeys = arky.core.crypto.getKeys(param["<secret>"])
+	address = arky.core.crypto.getAddress(DATA.firstkeys["publicKey"])
+	DATA.account = rest.GET.api.accounts(address=address).get("account", {})
+	return address
+
+
+def _linkFromSavedAccounts(param):
+	choices = findAccounts()
+	if not choices:
+		sys.stdout.write("    No registered account found...\n")
+		return None
+	name = chooseItem("Account(s) found:", *choices)
+	if not name:
+		return None
+	try:
+		data = loadAccount(createBase(hidenInput("Enter pin code: ")), name)
+	except:
+		sys.stdout.write("    Bad pin code...\n")
+		return None
+	DATA.account = rest.GET.api.accounts(address=data["address"]).get("account", {})
+	DATA.firstkeys = {
+		"publicKey": DATA.account["publicKey"],
+		"privateKey": data["privateKey"]
+	}
+	if "secondPrivateKey" in data:
+		DATA.secondkeys = {
+			"publicKey": DATA.account["secondPublicKey"],
+			"privateKey": data["secondPrivateKey"]
+		}
+	return data["address"]
+
+
 def link(param):
 	unlink(param)
 
-	if not param["<secret>"]:
-		choices = findAccounts()
-		if choices:
-			name = chooseItem("Account(s) found:", *choices)
-			if not name:
-				return
-			try:
-				data = loadAccount(createBase(hidenInput("Enter pin code: ")), name)
-			except:
-				sys.stdout.write("    Bad pin code...\n")
-				return
-			else:
-				DATA.account = rest.GET.api.accounts(address=data["address"]).get("account", {})
-				DATA.firstkeys = dict(publicKey=DATA.account["publicKey"], privateKey=data["privateKey"])
-				if "secondPrivateKey" in data:
-					DATA.secondkeys = dict(publicKey=DATA.account["secondPublicKey"], privateKey=data["secondPrivateKey"])
-				_address = data["address"]
-		else:
-			sys.stdout.write("    No registered account found...\n")
-			return
-
+	if param["<secret>"]:
+		_address = _linkFromSecret(param)
 	else:
-		DATA.firstkeys = arky.core.crypto.getKeys(param["<secret>"])
-		_address = arky.core.crypto.getAddress(DATA.firstkeys["publicKey"])
-		DATA.account = rest.GET.api.accounts(address=_address).get("account", {})
+		_address = _linkFromSavedAccounts(param)
 
+	if not _address:
+		return
 	if not DATA.account:
 		sys.stdout.write("    %s does not exixt in %s blockchain...\n" % (_address, cfg.network))
-	else:
-		if param["<2ndSecret>"]:
-			DATA.secondkeys = arky.core.crypto.getKeys(param["<2ndSecret>"])
-			DATA.escrowed = False
-		elif param["--escrow"]:
-			if not DATA.account["secondPublicKey"]:
-				sys.stdout.write("    Accound is not escrowed...\n")
-				DATA.escrowed = False
-			else:
-				DATA.escrowed = True
-		else:
-			DATA.escrowed = False
+		return
 
-		if not DATA.escrowed:
-			DATA.daemon = checkRegisteredTx("%s.registry" % (DATA.account["address"]), os.path.join(HOME, ".registry", cfg.network), quiet=True)
+	DATA.escrowed = False
+	if param["<2ndSecret>"]:
+		DATA.secondkeys = arky.core.crypto.getKeys(param["<2ndSecret>"])
+	elif param["--escrow"]:
+		if DATA.account["secondPublicKey"]:
+			DATA.escrowed = True
+		else:
+			sys.stdout.write("    Account is not escrowed...\n")
+
+	if not DATA.escrowed:
+		DATA.daemon = checkRegisteredTx("%s.registry" % (DATA.account["address"]), os.path.join(HOME, ".registry", cfg.network), quiet=True)
 
 
 def unlink(param):
