@@ -1,4 +1,4 @@
-# -*- encoding: utf8 -*-
+# -*- coding: utf-8 -*-
 import unittest
 
 from arky import ldgr, rest, slots
