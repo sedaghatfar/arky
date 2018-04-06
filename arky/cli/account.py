@@ -45,7 +45,7 @@ import os
 import sys
 
 import arky
-from arky import cfg, HOME, rest
+from arky import cfg, HOME, rest, exceptions
 from arky.cli import checkSecondKeys, checkRegisteredTx, floatAmount, DATA, askYesOrNo
 from arky.util import getDelegatesPublicKeys
 from arky.utils.cli import prettyPrint, shortAddress, chooseItem, hidenInput, chooseMultipleItem
@@ -135,8 +135,8 @@ def link(param):
 			if not name:
 				return
 			try:
-				data = loadAccount(createBase(hidenInput("Enter pin code: ")), name)
-			except:
+				data = loadAccount(createBase(hidenInput("Enter pin code for %s: " % name)), name)
+			except exceptions.BadPinError:
 				sys.stdout.write("    Bad pin code...\n")
 				return
 			else:

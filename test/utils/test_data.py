@@ -2,6 +2,7 @@
 import os
 import unittest
 
+from arky.exceptions import BadPinError
 from arky.rest import use
 from arky.utils.bin import hexlify
 from arky.utils.data import (
@@ -60,14 +61,33 @@ class TestUtilsData(unittest.TestCase):
         privateKey = "123123123"
         base = createBase(pin)
 
+        orig_accounts = findAccounts()
+        orig_accounts.append("unamed")
+
         dumpAccount(base, address, privateKey)
 
         accounts = findAccounts()
-        assert accounts == ["unamed"]
+        assert set(accounts) == set(orig_accounts)
 
         output = loadAccount(base)
         assert output["address"] == address
         assert output["privateKey"] == privateKey
+
+    def test_loadAccount_badPin(self):
+        use("dark")
+
+        pin = "abc123"
+        address = "DUGvQBxLzQqrNy68asPcU3stWQyzVq8G49".encode()
+        privateKey = "123123123"
+        base = createBase(pin)
+
+        dumpAccount(base, address, privateKey)
+
+        badPin = "xyz123"
+        badBase = createBase(badPin)
+
+        with self.assertRaises(BadPinError) as context:
+            loadAccount(badBase)
 
     def test_findNetworks(self):
         networks = findNetworks()
