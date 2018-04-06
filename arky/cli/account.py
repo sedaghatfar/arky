@@ -135,7 +135,7 @@ def link(param):
 			if not name:
 				return
 			try:
-				data = loadAccount(createBase(hidenInput("Enter pin code: ")), name)
+				data = loadAccount(createBase(hidenInput("Enter pin code for %s: " % name)), name)
 			except exceptions.BadPinError:
 				sys.stdout.write("    Bad pin code...\n")
 				return
