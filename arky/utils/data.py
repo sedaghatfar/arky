@@ -12,16 +12,22 @@ def findNetworks():
     """
     Gets a list of all available networks
     """
+    path = os.path.join(ROOT, "net")
+    if not os.path.exists(path):
+        return []
     networks = []
-    for name in os.listdir(os.path.join(ROOT, "net")):
+    for name in os.listdir(path):
         if name.endswith(".net"):
             networks.append(os.path.splitext(name)[0])
     return networks
 
 
 def findAccounts():
+    path = os.path.join(HOME, ".account", cfg.network)
+    if not os.path.exists(path):
+        return []
     accounts = []
-    for name in os.listdir(os.path.join(HOME, ".account", cfg.network)):
+    for name in os.listdir(path):
         if name.endswith(".account"):
             accounts.append(os.path.splitext(name)[0])
     return accounts
