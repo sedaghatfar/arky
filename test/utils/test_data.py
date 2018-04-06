@@ -61,10 +61,13 @@ class TestUtilsData(unittest.TestCase):
         privateKey = "123123123"
         base = createBase(pin)
 
+        orig_accounts = findAccounts()
+        orig_accounts.append("unamed")
+
         dumpAccount(base, address, privateKey)
 
         accounts = findAccounts()
-        assert accounts == ["unamed"]
+        assert set(accounts) == set(orig_accounts)
 
         output = loadAccount(base)
         assert output["address"] == address
