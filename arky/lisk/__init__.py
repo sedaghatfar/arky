@@ -27,9 +27,9 @@ def init():
     global DAEMON_PEERS
     resp = rest.GET.api.blocks.getNethash()
     if resp["success"]:
-        cfg.headers["version"] = "%s" % rest.GET.api.peers.version(returnKey="version")
+        cfg.headers["version"] = str(rest.GET.api.peers.version(returnKey="version"))
         cfg.headers["nethash"] = resp["nethash"]
-        cfg.fees = rest.GET.api.blocks.getFees().get("fees")
+        cfg.fees = rest.GET.api.blocks.getFees()["fees"]
 
         # select peers immediately and keep refreshing them in a thread so we
         # are sure we make requests to working peers
