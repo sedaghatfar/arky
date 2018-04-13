@@ -278,7 +278,7 @@ def validate(param):
 			sys.stdout.write("    Transaction registry not found\n")
 
 	if os.path.exists(os.path.join(HOME, ".registry", cfg.network, "thirdparty.registry")):
-		DATA.daemon = checkRegisteredTx("thirdparty.registry", os.path.join(HOME, ".registry", cfg.network), quiet=False)
+		DATA.daemon = checkRegisteredTx("thirdparty.registry", os.path.join(HOME, ".registry", cfg.network), quiet=True)
 
 
 def vote(param):

@@ -146,7 +146,7 @@ def loadAccount(base, name="unamed"):
 def dumpJson(cnf, name, folder=None):
     filename = os.path.join(folder or HOME, name)
     with io.open(filename, "wb") as outfile:
-        outfile.write(json.dumps(cnf).encode())
+        outfile.write(json.dumps(cnf, indent=2).encode())
     return os.path.basename(filename)
 
 

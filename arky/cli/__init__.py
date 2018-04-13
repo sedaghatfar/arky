@@ -29,6 +29,9 @@ PACKAGES = ['network', 'account', 'delegate', 'ledger']
 def _whereami():
 	return ""
 
+def start():
+	CLI().start()
+
 
 class CLI:
 
