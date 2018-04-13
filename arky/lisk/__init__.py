@@ -14,7 +14,7 @@ def select_peers():
         if rest.check_latency(seed):
             selection.append(seed)
 
-    if selection:
+    if len(selection):
         cfg.peers = selection
 
 

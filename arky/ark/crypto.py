@@ -211,7 +211,7 @@ def getBytes(tx):
 		vendorField = tx["vendorField"][:64].ljust(64, "\x00")
 	else:
 		vendorField = "\x00" * 64
-	pack_bytes(buf, vendorField.encode("utf8"))
+	pack_bytes(buf, vendorField.encode("utf-8"))
 	# write amount and fee value
 	pack("<QQ", buf, (int(tx["amount"]), int(tx["fee"])))
 	# if there is asset data
@@ -221,9 +221,9 @@ def getBytes(tx):
 		if typ == 1 and "signature" in asset:
 			pack_bytes(buf, unhexlify(asset["signature"]["publicKey"]))
 		elif typ == 2 and "delegate" in asset:
-			pack_bytes(buf, asset["delegate"]["username"].encode())
+			pack_bytes(buf, asset["delegate"]["username"].encode("utf-8"))
 		elif typ == 3 and "votes" in asset:
-			pack_bytes(buf, "".join(asset["votes"]).encode())
+			pack_bytes(buf, "".join(asset["votes"]).encode("utf-8"))
 		else:
 			pass
 	# if there is a signature

@@ -27,6 +27,7 @@ kw = {
 		"arky",
 		"arky.ark",
 		"arky.lisk",
+		"arky.utils",
 		"arky.cli"
 	],
 	"install_requires": [
