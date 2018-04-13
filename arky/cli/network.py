@@ -33,7 +33,7 @@ import webbrowser
 
 from arky import rest, cfg
 from arky.cli import DATA
-from arky.util import getCandidates
+from arky.utils.http import getCandidates
 from arky.utils.data import findNetworks
 from arky.utils.cli import chooseItem
 

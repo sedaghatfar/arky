@@ -18,7 +18,7 @@ from six import PY3
 import arky
 from arky import __version__, __FROZEN__, HOME, ROOT, rest, cfg
 from arky.exceptions import ParserException
-from arky.util import getTokenPrice
+from arky.utils.http import getTokenPrice
 from arky.utils.decorators import setInterval
 from arky.utils.cli import hidenInput, prettyPrint
 from arky.utils.data import loadJson, dumpJson

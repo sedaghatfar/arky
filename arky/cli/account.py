@@ -47,7 +47,7 @@ import sys
 import arky
 from arky import cfg, HOME, rest, exceptions
 from arky.cli import checkSecondKeys, checkRegisteredTx, floatAmount, DATA, askYesOrNo
-from arky.util import getDelegatesPublicKeys
+from arky.utils.http import getDelegatesPublicKeys
 from arky.utils.cli import prettyPrint, shortAddress, chooseItem, hidenInput, chooseMultipleItem
 from arky.utils.data import createBase, loadJson, loadAccount, dumpJson, dumpAccount, findAccounts
 

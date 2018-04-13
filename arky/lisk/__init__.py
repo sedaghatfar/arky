@@ -4,7 +4,7 @@ import sys
 
 from arky import cfg, rest
 from arky.lisk import crypto
-from arky.util import getDelegatesPublicKeys
+from arky.utils.http import getDelegatesPublicKeys
 from arky.utils.decorators import setInterval
 
 
