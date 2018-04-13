@@ -1,4 +1,4 @@
-# -*- encoding: utf8 -*-
+# -*- coding: utf-8 -*-
 # © Toons
 
 """This module contains functions to connect with Ledger Nano S"""

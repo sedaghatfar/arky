@@ -1,4 +1,4 @@
-# -*- encoding: utf8 -*-
+# -*- coding: utf-8 -*-
 # © Toons
 """
 Available commands: network, account, delegate, ledger
