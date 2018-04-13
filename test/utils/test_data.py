@@ -1,5 +1,6 @@
 # -*- encoding: utf8 -*-
 import os
+import arky
 import unittest
 
 from arky.exceptions import BadPinError
@@ -91,7 +92,7 @@ class TestUtilsData(unittest.TestCase):
 
     def test_findNetworks(self):
         networks = findNetworks()
-        assert len(networks) == 11
+        assert len(networks) == len(os.listdir(os.path.join(arky.__path__[0], "net")))
 
 
 if __name__ == '__main__':
