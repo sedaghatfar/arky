@@ -4,7 +4,6 @@
 import pytz
 
 from arky import cfg
-
 from datetime import datetime, timedelta
 
 
