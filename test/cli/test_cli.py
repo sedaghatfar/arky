@@ -1,4 +1,4 @@
-# -*- encoding: utf8 -*-
+# -*- coding: utf-8 -*-
 import unittest
 import mock
 from importlib import import_module
