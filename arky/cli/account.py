@@ -45,7 +45,7 @@ import os
 import sys
 
 import arky
-from arky import cfg, HOME, rest
+from arky import cfg, HOME, rest, exceptions
 from arky.cli import checkSecondKeys, checkRegisteredTx, floatAmount, DATA, askYesOrNo
 from arky.util import getDelegatesPublicKeys
 from arky.utils.cli import prettyPrint, shortAddress, chooseItem, hidenInput, chooseMultipleItem
@@ -163,6 +163,7 @@ def link(param):
 
 	if param["<secret>"]:
 		_address = _linkFromSecret(param)
+    
 	else:
 		_address = _linkFromSavedAccounts(param)
 

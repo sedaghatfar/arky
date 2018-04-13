@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 # © Toons
-import imp
-import logging
+
 import os
 import sys
+import imp
+import logging
 
 
 __version__ = "1.3.3"

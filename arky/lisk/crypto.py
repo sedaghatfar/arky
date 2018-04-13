@@ -61,9 +61,9 @@ def getBytes(tx):
 		if typ == 1 and "signature" in asset:
 			pack_bytes(buf, unhexlify(asset["signature"]["publicKey"]))
 		elif typ == 2 and "delegate" in asset:
-			pack_bytes(buf, asset["delegate"]["username"])
+			pack_bytes(buf, asset["delegate"]["username"].encode())
 		elif typ == 3 and "votes" in asset:
-			pack_bytes(buf, "".join(asset["votes"]))
+			pack_bytes(buf, "".join(asset["votes"]).encode())
 		else:
 			pass
 	# if there is a signature
