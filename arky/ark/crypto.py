@@ -10,8 +10,8 @@ from arky.utils.bin import basint, hexlify, pack, pack_bytes, unhexlify
 import base58
 
 from ecdsa import BadSignatureError
-from ecdsa.curves import SECP256k1
 from ecdsa.der import UnexpectedDER
+from ecdsa.curves import SECP256k1
 from ecdsa.keys import SigningKey, VerifyingKey
 from ecdsa.util import sigdecode_der, sigencode_der_canonize
 

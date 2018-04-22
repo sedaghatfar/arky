@@ -2,6 +2,7 @@
 from arky.utils import bin
 from six import PY3
 
+import os
 import arky
 import time
 import json
@@ -21,12 +22,13 @@ class TCPHandler(socketserver.BaseRequestHandler):
 	check = False
 
 	def handle(self):
-		signature = bin.hexlify(self.request.recv(1024).strip())
+		data = self.request.recv(1024).strip()
 		
 		if TCPHandler.publicKey:
 			try:
-				TCPHandler.check = check(TCPHandler.publicKey, signature)
-			except:
+				TCPHandler.check = check(TCPHandler.publicKey, data)
+			except Exception as e:
+				# print(e)
 				pass
 		else:
 			TCPHandler.check = False
@@ -34,7 +36,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
 			self.request.sendall(b'{"granted":true}')
 		else:
 			self.request.sendall(b'{"granted":false}')
-			
+
 
 def seed():
 	utc_data = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M Z")
@@ -42,12 +44,36 @@ def seed():
 	return h.encode("utf-8") if not isinstance(h, bytes) else h
 
 
+def pack(*elements):
+	data = bytearray()
+	for elem in filter(lambda e: isinstance(e, (bytes, str)) and len(e) < 256, elements):
+		if not isinstance(elem, bytes):
+			elem = elem.encode("utf-8")
+		data.append(len(elem))
+		data.extend(elem)
+	return data
+
+
+def unpack(data):
+	idx = 0
+	elements = []
+	while idx < len(data):
+		size = bin.basint(data[idx])
+		idx += 1
+		elements.append(bytes(data[idx:idx+size]))
+		idx += size
+	return elements
+
+
 def get(privateKey):
-	return arky.core.crypto.getSignatureFromBytes(seed(), privateKey)
+	rand = os.urandom(128)
+	return pack(bin.unhexlify(arky.core.crypto.getSignatureFromBytes(seed()+rand, privateKey)), rand)
 
 
-def check(publicKey, signature):
-	return arky.core.crypto.verifySignatureFromBytes(seed(), publicKey, signature)
+def check(publicKey, data):
+	signature, rand = unpack(data)
+	# print(signature, rand)
+	return arky.core.crypto.verifySignatureFromBytes(seed()+rand, publicKey, bin.hexlify(signature))
 
 
 def post(privateKey, url):
@@ -59,9 +85,10 @@ def send(privateKey, host="localhost", port=9999):
 	sock.connect((host, port))
 	try:
 		sign = get(privateKey)
-	except:
-		sign = bin.hexlify(b"none")
-	sock.sendall(bin.unhexlify(sign))
+	except Exception as e:
+		# print(e)
+		sign = b"none"
+	sock.sendall(sign)
 	result = sock.recv(1024)
 	sock.close()
 	return json.loads(result.decode() if PY3 else result)["granted"]
@@ -83,3 +110,4 @@ def wait(publicKey, host="localhost", port=9999):
 	server.socket.close()
 	# return the result
 	return TCPHandler.check
+
