@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 # © Toons
 
-"""This module contains functions to connect with Ledger Nano S"""
+"""
+This module contains functions to connect with Ledger Nano S
+"""
 
 from ledgerblue.comm import getDongle
 from arky.utils import bin as util
@@ -19,8 +21,6 @@ import struct
 # this functions turns samely on python 2.x and 3.x
 pack = (lambda f,v: struct.pack(f, v)) if PY3 else \
 	   (lambda f,v: bytes(struct.pack(f, v)))
-# convert int to byte
-intasb = lambda i: util.unhexlify(hex(i)[2:])
 
 
 def parseBip32Path(path):
@@ -69,8 +69,8 @@ def buildTxApdu(dongle_path, data):
 		p1 =  util.unhexlify("e0048040")
 
 	return [
-		p1 + intasb(path_len + 1 + len(data1)) + intasb(path_len//4) + dongle_path + data1,
-		util.unhexlify("e0048140") + intasb(len(data2)) + data2 if len(data2) else None
+		p1 + util.intasb(path_len + 1 + len(data1)) + util.intasb(path_len//4) + dongle_path + data1,
+		util.unhexlify("e0048140") + util.intasb(len(data2)) + data2 if len(data2) else None
 	]
 
 
@@ -85,7 +85,7 @@ def buildPkeyApdu(dongle_path):
 	"""
 
 	path_len = len(dongle_path)
-	return util.unhexlify("e0020040") + intasb(1 + path_len) + intasb(path_len//4) + dongle_path
+	return util.unhexlify("e0020040") + util.intasb(1 + path_len) + util.intasb(path_len//4) + dongle_path
 
 
 def getPublicKey(dongle_path, debug=False):

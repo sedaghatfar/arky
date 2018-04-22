@@ -28,7 +28,6 @@ class TCPHandler(socketserver.BaseRequestHandler):
 			try:
 				TCPHandler.check = check(TCPHandler.publicKey, data)
 			except Exception as e:
-				# print(e)
 				pass
 		else:
 			TCPHandler.check = False
@@ -39,6 +38,9 @@ class TCPHandler(socketserver.BaseRequestHandler):
 
 
 def seed():
+	"""
+	Gives a sha 256 hash from utc time srting rounded to minute.
+	"""
 	utc_data = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M Z")
 	h = hashlib.sha256(utc_data if isinstance(utc_data, bytes) else utc_data.encode()).hexdigest()
 	return h.encode("utf-8") if not isinstance(h, bytes) else h
@@ -72,7 +74,6 @@ def get(privateKey):
 
 def check(publicKey, data):
 	signature, rand = unpack(data)
-	# print(signature, rand)
 	return arky.core.crypto.verifySignatureFromBytes(seed()+rand, publicKey, bin.hexlify(signature))
 
 
@@ -86,7 +87,6 @@ def send(privateKey, host="localhost", port=9999):
 	try:
 		sign = get(privateKey)
 	except Exception as e:
-		# print(e)
 		sign = b"none"
 	sock.sendall(sign)
 	result = sock.recv(1024)
