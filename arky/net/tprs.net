@@ -31,7 +31,7 @@
   "broadcast": 5,
   
   "explorer" : "http://testnet.explorer.persona.im",
-  "token" : "TPRS",
+  "token" : "tprs",
 	"symbol" : "TPRS",
 	"delegate": 51,
   "blocktime": 8,
