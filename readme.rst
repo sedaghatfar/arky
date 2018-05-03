@@ -30,12 +30,12 @@ From development version
 REST API
 ========
 
-``rest`` module allows developpers to send requests to the blockchain.
+``rest`` module allows developers to send requests to the blockchain.
 
 >>> import arky.rest
 >>> arky.rest.use("ark")
 
-It loads the ``ark.net`` file and create associated REST API endpoints.
+Specifying ''ark'' will load the ``ark.net`` file and create associated REST API endpoints.
 All endpoints can be reached using this syntax :
 
 ``arky.rest.[METHOD].[endpoints with "/" replaced by "."](param=value, ...[returnKey=name])``
@@ -47,8 +47,8 @@ All endpoints can be reached using this syntax :
 e110d60a15e9', 'username': 'arky', 'vote': '137484978342696', 'address': 'ARfDVW
 Z7Zwkox3ZXtMQQY1HYSANMB88vWE', 'missedblocks': 334}, 'success': True}
 
-It returns a python dictionary transposed from server json response. You can
-provide a ``returnKey`` option value to get the field you want from server response :
+It returns a python dictionary transposed from a server json response. You can
+provide a ``returnKey`` option value to get the field you want from the server response :
 
 >>> arky.rest.use("oxy")
 >>> arky.rest.GET.api.delegates.get(username="toons", returnKey="delegate")
@@ -60,8 +60,8 @@ e508ef9', 'productivity': 99.63, 'missedblocks': 5, 'vote': '1476176009882003',
 Blockchain ``core``
 ===================
 
-``arky.rest.use`` loads a blockchain package find in  ``*.net`` file as ``arky.core``.
-Blockchain package define the current interface :
+``arky.rest.use`` loads a blockchain package found in  ``*.net`` file as ``arky.core``.
+Blockchain package defines the current interface :
 
 * ``arky.core.crypto.getKeys(secret)``
 * ``arky.core.crypto.getAddress(publicKey)``
@@ -78,8 +78,8 @@ Blockchain package define the current interface :
 * ``arky.core.upVoteDelegate(usernames, secret, secondSecret=None)``
 * ``arky.core.downVoteDelegate(usernames, secret, secondSecret=None)``
 
-``arky.core`` create transaction localy using ``pynacl`` and ``ecdsa`` crypto libraries
-so no secret is sent trough the network.
+``arky.core`` creates a transaction object locally using ``pynacl`` and ``ecdsa`` crypto libraries
+sp no secrets (e.g., passphrase, second passphrase) are sent trough the network.
 
 Send coins
 ^^^^^^^^^^
@@ -115,7 +115,7 @@ Vote for delegate
 CLI
 ===
 
-You can use ``arky`` package without writing a line of code trough command
+You can use the ``arky`` package without writing a line of code through the command
 line interface. There are two ways to launch the CLI.
 
 >>> from arky import cli
