@@ -150,6 +150,8 @@ class CLI:
 class Data(object):
 
 	def __init__(self):
+		object.__setattr__(self, "executemode", False)
+		object.__setattr__(self, "daemon", None)
 		self.initialize()
 
 	def initialize(self):
@@ -158,9 +160,7 @@ class Data(object):
 		self.account = {}
 		self.firstkeys = {}
 		self.secondkeys = {}
-		object.__setattr__(self, "executemode", False)
-		object.__setattr__(self, "daemon", None)
-		object.__setattr__(self, "escrowed", False)
+		self.escrowed = False
 
 	def __setattr__(self, attr, value):
 		if attr == "daemon":
@@ -230,6 +230,7 @@ def execute(lines):
 		lines: list of commands to execute
 	"""
 	DATA.executemode = True
+	snapLogging()
 	cli = CLI()
 	for line in lines:
 		sys.stdout.write("%s%s\n" % (cli.prompt, line))
@@ -260,7 +261,7 @@ def launch(script):
 	"""
 	if os.path.exists(script):
 		with io.open(script, "rb") as file:
-			lines = [l.strip() for l in file.readlines()]
+			lines = [l.strip().decode("utf-8") for l in file.readlines()]
 			execute(lines)
 
 
@@ -296,7 +297,7 @@ def floatAmount(amount):
 
 	if amount.endswith("%"):
 		if DATA.executemode:
-			balance = float(account.get("balance", 0.))
+			balance = float(account.get("balance", 0.)) / 100000000
 		else:
 			resp = rest.GET.api.accounts.getBalance(address=account["address"])
 			if resp["success"]:
