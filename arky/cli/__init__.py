@@ -45,7 +45,7 @@ class CLI:
 		"""
 		Prompt showing current location in the CLI
 		"""
-		return "{hoc}@{net}/{wai}>".format(
+		return "{hoc}@{net}/{wai}> ".format(
 			hoc="hot" if cfg.hotmode else "cold",
 			net=cfg.network,
 			wai=self.module._whereami()

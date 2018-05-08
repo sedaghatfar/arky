@@ -170,7 +170,7 @@ def link(param):
 	if not _address:
 		return
 	if not DATA.account:
-		sys.stdout.write("    %s does not exixt in %s blockchain...\n" % (_address, cfg.network))
+		sys.stdout.write("    %s does not exists in %s blockchain...\n" % (_address, cfg.network))
 		return
 
 	DATA.escrowed = False
