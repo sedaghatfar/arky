@@ -7,12 +7,12 @@
     "maxvotepertx": 1,
 
     "compressed": true,
-    "wif": "ba",
+    "wif": "50",
     "marker": "37",
     "slip44": "1",
     "bip32": {
-        "private": 70617039,
-        "public": 70615956
+        "private": 70615956,
+        "public": 70617039
     },
 
     "headers" : {
