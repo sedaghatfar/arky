@@ -13,7 +13,8 @@ from six import BytesIO
 
 
 def getKeys(secret, seed=None):
-	seed = hashlib.sha256(secret.encode('utf-8')).digest() if not seed else seed
+	if not isinstance(secret, bytes): secret = secret.encode('utf-8')
+	seed = hashlib.sha256(secret).digest() if not seed else seed
 	publicKey, privateKey = list(hexlify(e) for e in crypto_sign_seed_keypair(seed))
 	return {"publicKey": publicKey, "privateKey": privateKey}
 
