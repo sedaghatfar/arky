@@ -193,24 +193,4 @@ Author
 
 Toons <moustikitos@gmail.com>
 
-Support this project
-====================
-
-.. image:: https://github.com/ArkEcosystem/arky/raw/master/ark-logo.png
-   :height: 30
-
-Toons Ark address: ``AUahWfkfr5J4tYakugRbfow7RWVTK35GPW``
-
-.. image:: http://bruno.thoorens.free.fr/img/bitcoin.png
-   :width: 100
-
-Toons Bitcoin address: ``1qjHtN5SuzvcA8RZSxNPuf79iyLaVjxfc``
-
-**Show gratitude on Gratipay:**
-
-.. image:: http://img.shields.io/gratipay/user/b_py.svg?style=flat-square
-   :target: https://gratipay.com/~b_py
-
-**Vote for Toons' delegate arky**
-
 .. _MIT licence: http://htmlpreview.github.com/?https://github.com/Moustikitos/arky/blob/master/arky.html
