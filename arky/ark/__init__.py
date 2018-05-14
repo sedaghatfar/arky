@@ -13,6 +13,8 @@ DAEMON_PEERS = None
 def select_peers():
 	version = rest.GET.api.peers.version(returnKey='version') or '0.0.0'
 	height = rest.GET.api.blocks.getHeight(returnKey='height') or 0
+	if isinstance(height, dict) or isinstance(version, dict):
+		return
 
 	peers = rest.GET.peer.list().get('peers', [])
 	good_peers = []
