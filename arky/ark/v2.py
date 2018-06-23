@@ -11,9 +11,7 @@ from . import init
 
 import struct
 
-
 C = 0.0001 * 100000000
-rest.POST.createEndpoint(rest.POST, rest.post, "/peer/transactions/v1")
 
 
 class Payload(object):
@@ -127,53 +125,72 @@ def bakePayload(**kw):
 	return payload
 
 
+def sendPayload(*payloads):
+	success, msgs, ids = 0, set(), set()
+
+	for peer in cfg.peers:
+		response = rest.POST.peer.transactions(peer=peer, transactions=payloads)
+		success += 1 if response["success"] else 0
+
+		if "message" in response:
+			msgs.update([response["message"]])
+
+		if "transactionIds" in response:
+			ids.update(response["transactionIds"])
+
+	return {
+		"success": "%.1f%%" % (float(100) * success / len(cfg.peers)),
+		"transactions": list(ids),
+		"messages": list(msgs)
+	}
+
+
 # This function is a high-level broadcasting for a single tx
 def sendTransaction(**kw):
 	tx = bakePayload(**dict([k, v] for k, v in kw.items() if v))
-	result = rest.POST.peer.transactions.v1(peer=cfg.peers[0], transactions=[tx])
-	success = 1 if result["success"] else 0
-	for peer in cfg.peers[1:]:
-		if rest.POST.peer.transactions.v1(peer=peer, transactions=[tx])["success"]:
-			success += 1
-	result["broadcast"] = "%.1f%%" % (100. * success / len(cfg.peers))
-	return result
+	sendPayload(tx)
+
 
 #######################
 #  basic transaction  #
 #######################
 
-# def sendToken(amount, recipientId, vendorField, secret, secondSecret=None):
-# 	return sendTransaction(
-# 		amount=amount,
-# 		recipientId=recipientId,
-# 		vendorField=VendorField,
-# 		secret=secret,
-# 		secondSecret=secondSecret
-# 	)
+def sendToken(amount, recipientId, vendorField, secret, secondSecret=None):
+	return sendTransaction(
+		amount=amount,
+		recipientId=recipientId,
+		vendorField=VendorField,
+		secret=secret,
+		secondSecret=secondSecret
+	)
 
-# def registerSecondPublicKey(secondPublicKey, secret, secondSecret=None):
-# 	keys = crypto.getKeys(secret)
-# 	return sendTransaction(
-# 		type=1,
-# 		publicKey=keys["publicKey"],
-# 		privateKey=keys["privateKey"],
-# 		secondSecret=secondSecret,
-# 		asset={"signature":{"publicKey":secondPublicKey}}
-# 	)
 
-# def registerSecondPassphrase(secondPassphrase, secret, secondSecret=None):
-# 	secondKeys = crypto.getKeys(secondPassphrase)
-# 	return registerSecondPublicKey(secondKeys["publicKey"], secret, secondSecret)
+def registerSecondPublicKey(secondPublicKey, secret, secondSecret=None):
+	keys = crypto.getKeys(secret)
+	return sendTransaction(
+		type=1,
+		publicKey=keys["publicKey"],
+		privateKey=keys["privateKey"],
+		secondSecret=secondSecret,
+		asset={"signature":{"publicKey":secondPublicKey}}
+	)
 
-# def registerDelegate(username, secret, secondSecret=None):
-# 	keys = crypto.getKeys(secret)
-# 	return sendTransaction(
-# 		type=2,
-# 		publicKey=keys["publicKey"],
-# 		privateKey=keys["privateKey"],
-# 		secondSecret=secondSecret,
-# 		asset={"delegate":{"username":username, "publicKey":keys["publicKey"]}}
-# 	)
+
+def registerSecondPassphrase(secondPassphrase, secret, secondSecret=None):
+	secondKeys = crypto.getKeys(secondPassphrase)
+	return registerSecondPublicKey(secondKeys["publicKey"], secret, secondSecret)
+
+
+def registerDelegate(username, secret, secondSecret=None):
+	keys = crypto.getKeys(secret)
+	return sendTransaction(
+		type=2,
+		publicKey=keys["publicKey"],
+		privateKey=keys["privateKey"],
+		secondSecret=secondSecret,
+		asset={"delegate":{"username":username, "publicKey":keys["publicKey"]}}
+	)
+
 
 # def upVoteDelegate(usernames, secret, secondSecret=None):
 # 	keys = crypto.getKeys(secret)
