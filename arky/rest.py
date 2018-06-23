@@ -97,7 +97,7 @@ class EndPoint:
 		return data
 
 	def __init__(self, elem=None, parent=None, method=None):
-		if method not in [EndPoint.GET, EndPoint.POST, EndPoint.PUT]:
+		if method not in [EndPoint._GET, EndPoint._POST, EndPoint._PUT]:
 			raise Exception("method is not a valid one")
 		self.elem = elem
 		self.parent = parent
