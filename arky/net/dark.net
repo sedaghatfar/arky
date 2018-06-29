@@ -7,7 +7,7 @@
   "maxvotepertx": 1,
 
   "compressed": true,
-  "wif": "ef",
+  "wif": "aa",
   "marker": "1e",
   "slip44": "111",
   "bip32": {
