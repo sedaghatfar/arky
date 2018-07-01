@@ -4,7 +4,7 @@ import binascii
 
 import hashlib
 
-from arky import cfg, slots
+from arky import cfg
 from arky.utils.bin import basint, hexlify, pack, pack_bytes, unhexlify
 
 import base58
@@ -239,60 +239,3 @@ def getBytes(tx):
 	result = buf.getvalue()
 	buf.close()
 	return result
-
-
-def bakeTransaction(**kw):
-	"""
-	Create transaction localy.
-
-	Argument:
-	tx (dict) -- transaction object
-
-	Return dict
-	"""
-	if "publicKey" in kw and "privateKey" in kw:
-		keys = {}
-		keys["publicKey"] = kw["publicKey"]
-		keys["privateKey"] = kw["privateKey"]
-	elif "secret" in kw:
-		keys = getKeys(kw["secret"])
-	else:
-		keys = {}
-		# raise Exception("Can not initialize transaction (no secret or keys given)")
-
-	# put mandatory data
-	payload = {
-		"timestamp": kw.get("timestamp", int(slots.getTime())),
-		"type": int(kw.get("type", 0)),
-		"amount": int(kw.get("amount", 0)),
-		"fee": cfg.fees.get({
-			0: "send",
-			1: "secondsignature",
-			2: "delegate",
-			3: "vote",
-			# 4: "multisignature",
-			# 5: "dapp"
-		}[kw.get("type", 0)])
-	}
-
-	# add optional data
-	for key in ["requesterPublicKey", "recipientId", "vendorField", "asset"]:
-		if key in kw:
-			payload[key] = kw[key]
-
-	# add sender public key if any key or secret is given
-	if len(keys):
-		payload["senderPublicKey"] = keys.get("publicKey", None)
-
-	# sign payload if possible
-	# if len(keys):
-		payload["signature"] = getSignature(payload, keys["privateKey"])
-		if kw.get("secondSecret", False):
-			secondKeys = getKeys(kw["secondSecret"])
-			payload["signSignature"] = getSignature(payload, secondKeys["privateKey"])
-		elif kw.get("secondPrivateKey", False):
-			payload["signSignature"] = getSignature(payload, kw["secondPrivateKey"])
-		# identify payload
-		payload["id"] = getId(payload)
-
-	return payload

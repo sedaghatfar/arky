@@ -52,7 +52,6 @@ from arky.utils.cli import prettyPrint, shortAddress, chooseItem, hidenInput, ch
 from arky.utils.data import createBase, loadJson, loadAccount, dumpJson, dumpAccount, findAccounts
 
 
-
 def _send(payload):
 	_address = DATA.getCurrentAddress()
 	if DATA.escrowed:
@@ -77,7 +76,7 @@ def _send(payload):
 		typ_ = payload["type"]
 		sys.stdout.write(("    Broadcasting transaction of %.8f %s to %s\n" % (payload["amount"] / 100000000, cfg.token, payload["recipientId"])) if typ_ == 0 else \
 		                  "    Broadcasting vote...\n" if typ_ == 3 else \
-						  "    Broadcasting transaction...\n")
+		                  "    Broadcasting transaction...\n")
 		resp = arky.core.sendPayload(payload)
 		prettyPrint(resp)
 		if resp["success"]:
@@ -218,7 +217,7 @@ def register(param):
 			if askYesOrNo("Register second public key %s ?" % secondPublicKey) \
 			   and checkSecondKeys():
 				sys.stdout.write("    Broadcasting second secret registration...\n")
-				_send(arky.core.crypto.bakeTransaction(
+				_send(arky.core.bakeTransaction(
 					type=1,
 					publicKey=DATA.firstkeys["publicKey"],
 					privateKey=DATA.firstkeys["privateKey"],
@@ -237,7 +236,7 @@ def register(param):
 			if askYesOrNo("Register thirdparty public key %s ?" % secondPublicKey) \
 			   and checkSecondKeys():
 				sys.stdout.write("    Broadcasting thirdparty registration...\n")
-				_send(arky.core.crypto.bakeTransaction(
+				_send(arky.core.bakeTransaction(
 					type=1,
 					publicKey=DATA.firstkeys["publicKey"],
 					privateKey=DATA.firstkeys["privateKey"],
@@ -249,7 +248,7 @@ def register(param):
 			if askYesOrNo("Register %s account as delegate %s ?" % (DATA.account["address"], username)) \
 			   and checkSecondKeys():
 				sys.stdout.write("    Broadcasting delegate registration...\n")
-				_send(arky.core.crypto.bakeTransaction(
+				_send(arky.core.bakeTransaction(
 					type=2,
 					publicKey=DATA.firstkeys["publicKey"],
 					privateKey=DATA.firstkeys["privateKey"],
@@ -300,7 +299,7 @@ def vote(param):
 
 	if len(lst) and askYesOrNo("%s %s ?" % (verb, ", ".join(to_vote))) \
 				and checkSecondKeys():
-		_send(arky.core.crypto.bakeTransaction(
+		_send(arky.core.bakeTransaction(
 			type=3,
 			recipientId=DATA.account["address"],
 			publicKey=DATA.firstkeys["publicKey"],
@@ -317,7 +316,7 @@ def send(param):
 		if amount and askYesOrNo("Send %(amount).8f %(token)s to %(recipientId)s ?" % \
 		                        {"token": cfg.token, "amount": amount, "recipientId": param["<address>"]}) \
 		          and checkSecondKeys():
-			_send(arky.core.crypto.bakeTransaction(
+			_send(arky.core.bakeTransaction(
 				amount=amount * 100000000,
 				recipientId=param["<address>"],
 				vendorField=param["<message>"],
@@ -350,7 +349,7 @@ def wsend(param):
 			for address, weight in weighting.items():
 				share = weight * amount
 				if share * 100000000 > cfg.fees["send"]:
-					_send(arky.core.crypto.bakeTransaction(
+					_send(arky.core.bakeTransaction(
 						amount=share * 100000000 - cfg.fees["send"],
 						recipientId=address,
 						vendorField=param["<message>"],

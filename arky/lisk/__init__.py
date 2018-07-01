@@ -2,7 +2,7 @@
 # © Toons
 import sys
 
-from arky import cfg, rest
+from arky import cfg, rest, slots
 from arky.lisk import crypto
 from arky.utils.http import getDelegatesPublicKeys
 from arky.utils.decorators import setInterval
@@ -42,18 +42,62 @@ def init():
         raise Exception("Initialization error with peer %s" % resp.get("peer", "???"))
 
 
-def sendTransaction(**kw):
-    tx = crypto.bakeTransaction(**dict([k, v] for k, v in kw.items() if v))
-    result = rest.POST.peer.transactions(transactions=[tx])
-    if result["success"]:
-        result["id"] = tx["id"]
-    return result
+def bakeTransaction(**kw):
+	if "publicKey" in kw and "privateKey" in kw:
+		publicKey, privateKey = kw["publicKey"], kw["privateKey"]
+	elif "secret" in kw:
+		keys = crypto.getKeys(kw["secret"])
+		publicKey = keys["publicKey"]
+		privateKey = keys["privateKey"]
+	else:
+		raise Exception("Can not initialize transaction (no secret or keys given)")
+
+	# put mandatory data
+	payload = {
+		"timestamp": int(slots.getTime()),
+		"type": int(kw.get("type", 0)),
+		"amount": int(kw.get("amount", 0)),
+		"fee": cfg.fees.get({
+			0: "send",
+			1: "secondsignature",
+			2: "delegate",
+			3: "vote",
+			# 4: "multisignature",
+			# 5: "dapp"
+		}[kw.get("type", 0)])
+	}
+	payload["senderPublicKey"] = publicKey
+
+	# add optional data
+	for key in (k for k in ["requesterPublicKey", "recipientId", "asset"] if k in kw):
+		payload[key] = kw[key]
+
+	# sign payload
+	payload["signature"] = crypto.getSignature(payload, privateKey)
+	if kw.get("secondSecret", None):
+		secondKeys = crypto.getKeys(kw["secondSecret"])
+		payload["signSignature"] = crypto.getSignature(payload, secondKeys["privateKey"])
+	elif kw.get("secondPrivateKey", None):
+		payload["signSignature"] = crypto.getSignature(payload, kw["secondPrivateKey"])
+
+	# identify payload
+	payload["id"] = crypto.getId(payload)
+
+	return payload
 
 
 def sendPayload(*payloads):
     result = rest.POST.peer.transactions(transactions=payloads)
     if result["success"]:
         result["id"] = [tx["id"] for tx in payloads]
+    return result
+
+
+def sendTransaction(**kw):
+    tx = crypto.bakeTransaction(**dict([k, v] for k, v in kw.items() if v))
+    result = rest.POST.peer.transactions(transactions=[tx])
+    if result["success"]:
+        result["id"] = tx["id"]
     return result
 
 
@@ -119,3 +163,4 @@ def downVoteDelegate(usernames, secret, secondSecret=None):
         secondSecret=secondSecret,
         asset={"votes": ["-%s" % pk for pk in getDelegatesPublicKeys(*usernames)]}
     )
+

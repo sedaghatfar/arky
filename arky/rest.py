@@ -2,6 +2,7 @@
 # © Toons
 import io
 import os
+import re
 import sys
 import json
 import pytz
@@ -65,12 +66,11 @@ class EndPoint:
 	@staticmethod
 	def _POST(*args, **kwargs):
 		peer = kwargs.pop("peer", False)
-		payload = kwargs
 		peer = peer if peer else random.choice(cfg.peers)
 		try:
 			data = requests.post(
 				peer + "/".join(args),
-				data=json.dumps(payload),
+				data=json.dumps(kwargs),
 				headers=cfg.headers,
 				verify=cfg.verify,
 				timeout=cfg.timeout
@@ -82,12 +82,11 @@ class EndPoint:
 	@staticmethod
 	def _PUT(*args, **kwargs):
 		peer = kwargs.pop("peer", False)
-		payload = kwargs
 		peer = peer if peer else random.choice(cfg.peers)
 		try:
 			data = requests.put(
 				peer + "/".join(args),
-				data=json.dumps(payload),
+				data=json.dumps(kwargs),
 				headers=cfg.headers,
 				verify=cfg.verify,
 				timeout=cfg.timeout
@@ -98,12 +97,14 @@ class EndPoint:
 
 	def __init__(self, elem=None, parent=None, method=None):
 		if method not in [EndPoint._GET, EndPoint._POST, EndPoint._PUT]:
-			raise Exception("method is not a valid one")
+			raise Exception("REST method is not a valid one")
 		self.elem = elem
 		self.parent = parent
 		self.method = method
 
 	def __getattr__(self, attr):
+		if re.match("^_[0-9A-Fa-f].*", attr):
+			attr = attr[1:]
 		return EndPoint(attr, self, self.method)
 
 	def __call__(self, **kwargs):

@@ -2,7 +2,7 @@
 # © Toons
 import logging
 
-from arky import cfg, rest
+from arky import cfg, rest, slots
 from arky.utils.decorators import setInterval
 from arky.ark import crypto
 
@@ -93,6 +93,65 @@ def sendPayload(*payloads):
 	}
 
 
+def bakeTransaction(**kw):
+	"""
+	Create transaction localy.
+
+	Argument:
+	tx (dict) -- transaction object
+
+	Return dict
+	"""
+	kw = dict([k,v] for k,v in kw.items() if v)
+
+	if "publicKey" in kw and "privateKey" in kw:
+		keys = {}
+		keys["publicKey"] = kw["publicKey"]
+		keys["privateKey"] = kw["privateKey"]
+	elif "secret" in kw:
+		keys = crypto.getKeys(kw["secret"])
+	else:
+		keys = {}
+		# raise Exception("Can not initialize transaction (no secret or keys given)")
+
+	# put mandatory data
+	payload = {
+		"timestamp": kw.get("timestamp", int(slots.getTime())),
+		"type": int(kw.get("type", 0)),
+		"amount": int(kw.get("amount", 0)),
+		"fee": cfg.fees.get({
+			0: "send",
+			1: "secondsignature",
+			2: "delegate",
+			3: "vote",
+			# 4: "multisignature",
+			# 5: "dapp"
+		}[kw.get("type", 0)])
+	}
+
+	# add optional data
+	for key in ["requesterPublicKey", "recipientId", "vendorField", "asset", "signature", "signSignature", "id"]:
+		if key in kw:
+			payload[key] = kw[key]
+
+	# add sender public key if any key or secret is given
+	if len(keys):
+		payload["senderPublicKey"] = keys.get("publicKey", None)
+
+	# sign payload if possible
+	# if len(keys):
+		payload["signature"] = crypto.getSignature(payload, keys["privateKey"])
+		if kw.get("secondSecret", False):
+			secondKeys = crypto.getKeys(kw["secondSecret"])
+			payload["signSignature"] = crypto.getSignature(payload, secondKeys["privateKey"])
+		elif kw.get("secondPrivateKey", False):
+			payload["signSignature"] = crypto.getSignature(payload, kw["secondPrivateKey"])
+		# identify payload
+		payload["id"] = crypto.getId(payload)
+
+	return payload
+
+
 # This function is a high-level broadcasting for a single tx
 def sendTransaction(**kwargs):
 	tx = crypto.bakeTransaction(**dict([k, v] for k, v in kwargs.items() if v))
@@ -170,3 +229,4 @@ def downVoteDelegate(usernames, secret, secondSecret=None):
 			secondSecret=secondSecret,
 			asset={"votes": ["-%s" % req["delegate"]["publicKey"]]}
 		)
+
