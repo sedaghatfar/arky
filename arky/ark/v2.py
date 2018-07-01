@@ -2,6 +2,8 @@
 # © Toons
 
 from six import PY3
+from collections import OrderedDict
+
 from .. import slots
 from .. import rest
 from .. import cfg
@@ -68,7 +70,14 @@ class Payload(object):
 
 	@staticmethod
 	def type3(**kw):
-		pass
+		delegatePublicKey = kw.get("delegatePublicKey", False)
+		if delegatePublicKey:
+			length = len(delegatePublicKey)
+			return struct.pack("<%ds" % length, delegatePublicKey.encode()) if PY3 else \
+			       struct.pack("<" + length*"c", delegatePublicKey)
+		else:
+			raise Exception("no up/down vote given")
+
 
 
 class Transaction:
@@ -94,49 +103,10 @@ class Transaction:
 			kwargs.get("type", 0),
 			int(kwargs.get("timestamp", slots.getTime()))
 		))
+		self.__payload_start = None
+		self.__signature_start = None
 		for key in ["vendorField", "publicKey", "senderPublicKey"]:
 			self[key] = kwargs.get(key, "")
-
-	def _reset(self):
-		self.__data = self.__data[:100]
-		self.identified = False
-		self.finalized = False
-		self.signSigned = False
-		self.signed = False
-
-	def finalize(self, **kwargs):
-		payload = Payload.get(self["type"], **kwargs)
-		amount = kwargs.get("amount", 0)
-		fees = int((self["type"] + (len(self.__data)+len(payload))/2) * Payload.C)
-		if amount >= fees and kwargs.get("fees_included", False):
-			kwargs["amount"] = amount - fees
-			payload = Payload.get(self["type"], **kwargs)
-		self.__data += payload
-		self["fees"] = fees
-		self.finalized = True
-
-	def sign(self, **kwargs):
-		if "privateKey" in kwargs:
-			keys = {}
-			keys["privateKey"] = kwargs["privateKey"]
-		elif "secret" in kwargs:
-			keys = crypto.getKeys(kwargs["secret"])
-			self["publicKey"] = keys["publicKey"]
-		else:
-			raise Exception("Can not sign transaction (no secret or keys given)")
-		self.__data += crypto.getSignatureFromBytes(crypto.unhexlify(self.__data), keys["privateKey"])
-		self.signed = True
-		if kwargs.get("secondSecret", False):
-			secondKeys = crypto.getKeys(kwargs["secondSecret"])
-			self.__data += crypto.getSignatureFromBytes(crypto.unhexlify(self.__data), secondKeys["privateKey"])
-			self.signSigned = True
-		elif kwargs.get("secondPrivateKey", False):
-			self.__data += crypto.getSignatureFromBytes(crypto.unhexlify(self.__data), kwargs["secondPrivateKey"])
-			self.signSigned = True
-
-	def identify(self):
-		self.__data += crypto.getIdFromBytes(crypto.unhexlify(self.__data))
-		self.identified = True
 
 	def __setitem__(self, item, value):
 		if isinstance(item, slice):
@@ -148,8 +118,10 @@ class Transaction:
 			start, fmt = Transaction.header["lenVF"]
 			start = start + 2*struct.calcsize(fmt)
 			value = value.encode("utf-8") if not isinstance(value, bytes) else value
-			self[start:start+ 2*self["lenVF"]] = crypto.hexlify(value)
+			old_n = self["lenVF"]
 			self["lenVF"] = n
+			self[start:start+ 2*old_n] = crypto.hexlify(value)
+			self.__payload_start = len(self.__data)
 		else:
 			try:
 				if isinstance(value, str):
@@ -163,8 +135,7 @@ class Transaction:
 			except KeyError:
 				raise KeyError("Transaction have no item %s" % item)
 			else:
-				if item != "fees":
-					self._reset()
+				self._reset()
 
 	def __getitem__(self, item):
 		if isinstance(item, slice):
@@ -197,22 +168,86 @@ class Transaction:
 	def __repr__(self):
 		return "%r" % self.__data
 
+	def _reset(self):
+		if self.__payload_start:
+			if self.__signature_start:
+				self.__data = self.__data[:self.__signature_start]
+				self.__signature_start = len(self.__data)
+				self.finalized = True
+			else:
+				self.__data = self.__data[:self.__payload_start]
+				self.__signature_start = None
+				self.finalized = False
+		else:
+			self.__payload_start = len(self.__data)
+		self.identified = False
+		self.finalized = False
+		self.signSigned = False
+		self.signed = False
 
-def serialize(**kw):
+	def finalize(self, **kwargs):
+		payload = Payload.get(self["type"], **kwargs)
+		amount = kwargs.get("amount", 0)
+		fees = int((self["type"] + (len(self.__data)+len(payload))/2) * Payload.C)
+		if amount >= fees and kwargs.get("fees_included", False):
+			kwargs["amount"] = amount - fees
+			payload = Payload.get(self["type"], **kwargs)
+		self["fees"] = fees
+		self.__payload_start = len(self.__data)
+		self.__data += payload
+		self.finalized = True
+
+	def sign(self, **kwargs):
+		if self.finalized and not self.signed:
+			self.__signature_start = len(self.__data)
+			if "privateKey" in kwargs:
+				keys = {}
+				keys["privateKey"] = kwargs["privateKey"]
+			elif "secret" in kwargs:
+				keys = crypto.getKeys(kwargs["secret"])
+				self["publicKey"] = keys["publicKey"]
+			else:
+				raise Exception("Can not sign transaction (no secret or keys given)")
+			self.__data += crypto.getSignatureFromBytes(crypto.unhexlify(self.__data), keys["privateKey"])
+			self.signed = True
+		if self.finalized and not self.signSigned:
+			if kwargs.get("secondSecret", False):
+				secondKeys = crypto.getKeys(kwargs["secondSecret"])
+				self.__data += crypto.getSignatureFromBytes(crypto.unhexlify(self.__data), secondKeys["privateKey"])
+				self.signSigned = True
+			elif kwargs.get("secondPrivateKey", False):
+				self.__data += crypto.getSignatureFromBytes(crypto.unhexlify(self.__data), kwargs["secondPrivateKey"])
+				self.signSigned = True
+
+	def identify(self):
+		if not self.identified:
+			self.__data += crypto.getIdFromBytes(crypto.unhexlify(self.__data))
+			self.identified = True
+
+	def serialize(self):
+		start, fmt = Transaction.header["lenVF"]
+		start = start + 2*(struct.calcsize(fmt) + self["lenVF"])
+		keys = list(Transaction.header.keys()) + ["vendorField", "senderPublicKey"]
+		return OrderedDict(
+			header=dict([key,self[key]] for key in keys),
+			payload=self.__data[start:]
+		)
+
+
+def bakeTransaction(**kw):
 	kw = dict([k,v] for k,v in kw.items() if v)
 	tx = Transaction(**kw)
 	tx.finalize(**kw)
-	tx._Transaction__data += kw["signature"]
-	tx._Transaction__data += kw.get("signSignature", "")
-	tx._Transaction__data += kw["id"]
-	return tx._Transaction__data
+	tx.sign(**kw)
+	tx.identify()
+	return tx
 
 
 def sendPayload(*payloads):
 	success, msgs, ids = 0, set(), set()
 
 	for peer in cfg.peers:
-		response = rest.POST.peer.transactions(peer=peer, transactions=[serialize(p) for p in payloads])
+		response = rest.POST.v2.peer.transactions(peer=peer, transactions=["%r"%p for p in payloads])
 		success += 1 if response["success"] else 0
 
 		if "message" in response:
@@ -228,9 +263,11 @@ def sendPayload(*payloads):
 	}
 
 
-# This function is a high-level broadcasting for a single tx
+####################################################
+# high-level broadcasting function for a single tx #
+####################################################
 def sendTransaction(**kw):
-	tx = crypto.bakeTransaction(**dict([k,v] for k,v in kw.items() if v))
+	tx = bakeTransaction(**dict([k,v] for k,v in kw.items() if v))
 	sendPayload(tx)
 
 
@@ -238,7 +275,7 @@ def sendTransaction(**kw):
 #  basic transaction  #
 #######################
 
-def sendToken(amount, recipientId, vendorField, secret, secondSecret=None):
+def sendToken(amount, recipientId, secret, secondSecret=None, vendorField=None):
 	return sendTransaction(
 		amount=amount,
 		recipientId=recipientId,
@@ -248,55 +285,54 @@ def sendToken(amount, recipientId, vendorField, secret, secondSecret=None):
 	)
 
 
-# def registerSecondPublicKey(secondPublicKey, secret, secondSecret=None):
-# 	keys = crypto.getKeys(secret)
-# 	return sendTransaction(
-# 		type=1,
-# 		publicKey=keys["publicKey"],
-# 		privateKey=keys["privateKey"],
-# 		secondSecret=secondSecret,
-# 		asset={"signature":{"publicKey":secondPublicKey}}
-# 	)
+def registerSecondPublicKey(secondPublicKey, secret):
+	keys = crypto.getKeys(secret)
+	return sendTransaction(
+		type=1,
+		publicKey=keys["publicKey"],
+		privateKey=keys["privateKey"],
+		secondPublicKey=secondPublicKey
+	)
 
 
-# def registerSecondPassphrase(secondPassphrase, secret, secondSecret=None):
-# 	secondKeys = crypto.getKeys(secondPassphrase)
-# 	return registerSecondPublicKey(secondKeys["publicKey"], secret, secondSecret)
+def registerSecondPassphrase(secret, secondSecret):
+	secondKeys = crypto.getKeys(secondSecret)
+	return registerSecondPublicKey(secondKeys["publicKey"], secret)
 
 
-# def registerDelegate(username, secret, secondSecret=None):
-# 	keys = crypto.getKeys(secret)
-# 	return sendTransaction(
-# 		type=2,
-# 		publicKey=keys["publicKey"],
-# 		privateKey=keys["privateKey"],
-# 		secondSecret=secondSecret,
-# 		asset={"delegate":{"username":username, "publicKey":keys["publicKey"]}}
-# 	)
+def registerDelegate(username, secret, secondSecret=None):
+	keys = crypto.getKeys(secret)
+	return sendTransaction(
+		type=2,
+		publicKey=keys["publicKey"],
+		privateKey=keys["privateKey"],
+		secondSecret=secondSecret,
+		username = username
+	)
 
 
-# # def upVoteDelegate(usernames, secret, secondSecret=None):
-# # 	keys = crypto.getKeys(secret)
-# # 	req = rest.GET.api.delegates.get(username=usernames[-1])
-# # 	if req["success"]:
-# # 		return sendTransaction(
-# # 			type=3,
-# # 			publicKey=keys["publicKey"],
-# # 			recipientId=crypto.getAddress(keys["publicKey"]),
-# # 			privateKey=keys["privateKey"],
-# # 			secondSecret=secondSecret,
-# # 			asset={"votes":["+%s"%req["delegate"]["publicKey"]]}
-# # 		)
+def upVoteDelegate(usernames, secret, secondSecret=None):
+	keys = crypto.getKeys(secret)
+	req = rest.GET.api.delegates.get(username=usernames[-1])
+	if req["success"]:
+		return sendTransaction(
+			type=3,
+			publicKey=keys["publicKey"],
+			recipientId=crypto.getAddress(keys["publicKey"]),
+			privateKey=keys["privateKey"],
+			secondSecret=secondSecret,
+			delegatePublicKey="01"+req["delegate"]["publicKey"]
+		)
 
-# # def downVoteDelegate(usernames, secret, secondSecret=None):
-# # 	keys = crypto.getKeys(secret)
-# # 	req = rest.GET.api.delegates.get(username=usernames[-1])
-# # 	if req["success"]:
-# # 		return sendTransaction(
-# # 			type=3,
-# # 			publicKey=keys["publicKey"],
-# # 			recipientId=crypto.getAddress(keys["publicKey"]),
-# # 			privateKey=keys["privateKey"],
-# # 			secondSecret=secondSecret,
-# # 			asset={"votes":["-%s"%req["delegate"]["publicKey"]]}
-# # 		)
+def downVoteDelegate(usernames, secret, secondSecret=None):
+	keys = crypto.getKeys(secret)
+	req = rest.GET.api.delegates.get(username=usernames[-1])
+	if req["success"]:
+		return sendTransaction(
+			type=3,
+			publicKey=keys["publicKey"],
+			recipientId=crypto.getAddress(keys["publicKey"]),
+			privateKey=keys["privateKey"],
+			secondSecret=secondSecret,
+			delegatePublicKey="00"+req["delegate"]["publicKey"]
+		)

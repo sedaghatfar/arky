@@ -93,6 +93,9 @@ def sendPayload(*payloads):
     return result
 
 
+####################################################
+# high-level broadcasting function for a single tx #
+####################################################
 def sendTransaction(**kw):
     tx = crypto.bakeTransaction(**dict([k, v] for k, v in kw.items() if v))
     result = rest.POST.peer.transactions(transactions=[tx])
@@ -114,20 +117,19 @@ def sendToken(amount, recipientId, secret, secondSecret=None):
     )
 
 
-def registerSecondPublicKey(secondPublicKey, secret, secondSecret=None):
+def registerSecondPublicKey(secondPublicKey, secret):
     keys = crypto.getKeys(secret)
     return sendTransaction(
         type=1,
         publicKey=keys["publicKey"],
         privateKey=keys["privateKey"],
-        secondSecret=secondSecret,
         asset={"signature": {"publicKey": secondPublicKey}}
     )
 
 
-def registerSecondPassphrase(secondPassphrase, secret, secondSecret=None):
-    secondKeys = crypto.getKeys(secondPassphrase)
-    return registerSecondPublicKey(secondKeys["publicKey"], secret, secondSecret)
+def registerSecondPassphrase(secret, secondSecret):
+    secondKeys = crypto.getKeys(secondSecret)
+    return registerSecondPublicKey(secondKeys["publicKey"], secret)
 
 
 def registerDelegate(username, secret, secondSecret=None):

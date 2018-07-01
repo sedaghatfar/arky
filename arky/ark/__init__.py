@@ -151,16 +151,17 @@ def bakeTransaction(**kw):
 
 	return payload
 
-
-# This function is a high-level broadcasting for a single tx
+####################################################
+# high-level broadcasting function for a single tx #
+####################################################
 def sendTransaction(**kwargs):
 	tx = crypto.bakeTransaction(**dict([k, v] for k, v in kwargs.items() if v))
 	return sendPayload(tx)
 
 
-#######################
-#  basic transaction  #
-#######################
+########################
+#  basic transactions  #
+########################
 
 def sendToken(amount, recipientId, secret, secondSecret=None, vendorField=None):
 	return sendTransaction(
@@ -172,20 +173,19 @@ def sendToken(amount, recipientId, secret, secondSecret=None, vendorField=None):
 	)
 
 
-def registerSecondPublicKey(secondPublicKey, secret, secondSecret=None):
+def registerSecondPublicKey(secondPublicKey, secret):
 	keys = crypto.getKeys(secret)
 	return sendTransaction(
 		type=1,
 		publicKey=keys["publicKey"],
 		privateKey=keys["privateKey"],
-		secondSecret=secondSecret,
 		asset={"signature": {"publicKey": secondPublicKey}}
 	)
 
 
-def registerSecondPassphrase(secondPassphrase, secret, secondSecret=None):
-	secondKeys = crypto.getKeys(secondPassphrase)
-	return registerSecondPublicKey(secondKeys["publicKey"], secret, secondSecret)
+def registerSecondPassphrase(secret, secondSecret):
+	secondKeys = crypto.getKeys(secondSecret)
+	return registerSecondPublicKey(secondKeys["publicKey"], secret)
 
 
 def registerDelegate(username, secret, secondSecret=None):

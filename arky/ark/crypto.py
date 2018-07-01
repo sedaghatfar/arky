@@ -205,7 +205,6 @@ def getBytes(tx):
 	if tx.get("recipientId", False):
 		recipientId = tx["recipientId"]
 		recipientId = base58.b58decode_check(str(recipientId) if not isinstance(recipientId , bytes) else recipientId)
-		# recipientId = base58.b58decode_check(tx["recipientId"])
 	else:
 		recipientId = b"\x00" * 21
 	pack_bytes(buf, recipientId)
