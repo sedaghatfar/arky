@@ -181,7 +181,6 @@ class Transaction:
 		else:
 			self.__payload_start = len(self.__data)
 		self.identified = False
-		self.finalized = False
 		self.signSigned = False
 		self.signed = False
 
@@ -225,22 +224,13 @@ class Transaction:
 			self.identified = True
 
 	def serialize(self):
-		start, fmt = Transaction.header["lenVF"]
-		start = start + 2*(struct.calcsize(fmt) + self["lenVF"])
 		keys = list(Transaction.header.keys()) + ["vendorField", "senderPublicKey"]
 		return OrderedDict(
-			header=dict([key,self[key]] for key in keys),
-			payload=self.__data[start:]
+			header=OrderedDict([key,self[key]] for key in keys),
+			payload=self.__data[self.__payload_start:self.__signature_start],
+			signatures=self.__data[self.__signature_start:-32*2],
+			id=self.__data[-32*2:]
 		)
-
-
-def bakeTransaction(**kw):
-	kw = dict([k,v] for k,v in kw.items() if v)
-	tx = Transaction(**kw)
-	tx.finalize(**kw)
-	tx.sign(**kw)
-	tx.identify()
-	return tx
 
 
 def sendPayload(*payloads):
@@ -261,6 +251,15 @@ def sendPayload(*payloads):
 		"transactions": list(ids),
 		"messages": list(msgs)
 	}
+
+
+def bakeTransaction(**kw):
+	kw = dict([k,v] for k,v in kw.items() if v)
+	tx = Transaction(**kw)
+	tx.finalize(**kw)
+	tx.sign(**kw)
+	tx.identify()
+	return tx
 
 
 ####################################################
