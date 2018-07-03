@@ -6,6 +6,7 @@
 	"maxlimit": 50,
 	"maxvotepertx": 1,
 
+<<<<<<< HEAD
 	"compressed": true,
 	"wif": "ef",
 	"marker": "1e",
@@ -14,6 +15,16 @@
 		"private": 70617039,
 		"public": 70615956
 	},
+=======
+  "compressed": true,
+  "wif": "aa",
+  "marker": "1e",
+  "slip44": "111",
+  "bip32": {
+    "private": 70617039,
+    "public": 70615956
+  },
+>>>>>>> 1180e890beb4ab232c71027350e7f010887ee684
 
 	"headers" : {
 		"Content-Type" : "application/json; charset=utf-8",
@@ -34,6 +45,12 @@
 	"token" : "dark",
 	"symbol" : "DѦ",
 	"delegate": 51,
+<<<<<<< HEAD
 	"blocktime": 8,
 	"blockreward": 2 
 }
+=======
+  "blocktime": 8,
+  "blockreward": 2 
+}
+>>>>>>> 1180e890beb4ab232c71027350e7f010887ee684
