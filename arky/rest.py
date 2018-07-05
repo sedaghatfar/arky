@@ -191,8 +191,7 @@ def use(network, **kwargs):
 				cfg.peers = [peer]
 				break
 
-	# if endpoints found, create them and update network
-	if len(cfg.peers): # and load_endpoints(cfg.endpoints):
+	if len(cfg.peers):
 		load(cfg.familly)
 		cfg.network = network
 		cfg.hotmode = True
