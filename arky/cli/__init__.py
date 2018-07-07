@@ -292,8 +292,8 @@ def checkSecondKeys():
 
 def floatAmount(amount):
 	account = DATA.account if len(DATA.account) else \
-			  DATA.ledger  if len(DATA.ledger)  else \
-			  {}
+	          DATA.ledger if len(DATA.ledger) else \
+	          {}
 	if not account:
 		return False
 
