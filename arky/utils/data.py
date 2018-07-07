@@ -23,9 +23,9 @@ def findNetworks():
 
 
 def findAccounts():
-    """
-    Get a list of all available account
-    """
+	"""
+	Get a list of all available account
+	"""
 	path = os.path.join(HOME, ".account", cfg.network)
 	if not os.path.exists(path):
 		return []
