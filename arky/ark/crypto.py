@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 # © Toons
 import binascii
-
 import hashlib
-
 import base58
 
 from ecdsa import BadSignatureError
