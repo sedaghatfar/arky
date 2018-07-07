@@ -3,17 +3,17 @@
 
 """
 Usage:
-	account link [<secret>] [<2ndSecret>|-e]
-	account unlink
-	account status
-	account save <name>
-	account register <username>
-	account register 2ndSecret <secret>
-	account register escrow <thirdparty>
-	account validate [<registry>]
-	account vote [-ud] [<delegates>]
-	account send <amount> <address> [<message>]
-	account wsend <amount> <weighting> [<message>]
+    account link [<secret>] [<2ndSecret>|-e]
+    account unlink
+    account status
+    account save <name>
+    account register <username>
+    account register 2ndSecret <secret>
+    account register escrow <thirdparty>
+    account validate [<registry>]
+    account vote [-ud] [<delegates>]
+    account send <amount> <address> [<message>]
+    account wsend <amount> <weighting> [<message>]
 
 Options:
 -e --escrow  link as escrowed account
@@ -21,23 +21,23 @@ Options:
 -d --down    down vote delegate name folowing
 
 Subcommands:
-	link     : link to account using secret passphrases. If secret passphrases
-			   contains spaces, it must be enclosed within double quotes
-			   (ie "secret with spaces").
-	unlink   : unlink account.
-	save     : encrypt account using pin code and save it localy.
-	status   : show information about linked account.
-	register : register linked account as delegate;
-			   or
-			   register second signature to linked account;
-			   or
-			   register an escrower using an account address or a publicKey.
-	validate : validate transaction from registry.
-	vote     : up or down vote delegate(s). <delegates> can be a coma-separated list
-			   or a valid new-line-separated file list conaining delegate names.
-	send     : send token amount to address. You can set a 64-char message.
-	wsend    : send token amount to multiple addresses using <weighting> json file
-			   (address-weight pairs). You can set a 64-char message.
+    link     : link to account using secret passphrases. If secret passphrases
+               contains spaces, it must be enclosed within double quotes
+               (ie "secret with spaces").
+    unlink   : unlink account.
+    save     : encrypt account using pin code and save it localy.
+    status   : show information about linked account.
+    register : register linked account as delegate;
+               or
+               register second signature to linked account;
+               or
+               register an escrower using an account address or a publicKey.
+    validate : validate transaction from registry.
+    vote     : up or down vote delegate(s). <delegates> can be a coma-separated list
+               or a valid new-line-separated file list conaining delegate names.
+    send     : send token amount to address. You can set a 64-char message.
+    wsend    : send token amount to multiple addresses using <weighting> json file
+               (address-weight pairs). You can set a 64-char message.
 """
 
 import io
