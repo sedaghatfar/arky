@@ -12,7 +12,6 @@ from . import crypto
 from . import init
 
 import struct
-import itertools
 		
 
 class Payload(object):
