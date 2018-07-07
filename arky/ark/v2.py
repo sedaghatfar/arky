@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # © Toons
 
-from collections import OrderedDict
 import struct
 
+from collections import OrderedDict
 from six import PY3
 
 from .. import slots
@@ -11,11 +11,8 @@ from .. import rest
 from .. import cfg
 
 from . import crypto
-
 from . import init
 
-import struct
-		
 class Payload(object):
 
 	C = 0.0001 * 100000000
