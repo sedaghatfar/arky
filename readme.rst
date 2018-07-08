@@ -1,4 +1,4 @@
-.. image:: https://github.com/Moustikitos/arky/raw/master/arky-logo.png
+.. image:: https://github.com/ArkEcosystem/arky/blob/aip11-dev/arky-logo.png
    :target: https://ark.io
 
 Copyright 2016-2018 **Toons**, Copyright 2018 **ARK**, `MIT licence`_
