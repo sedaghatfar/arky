@@ -24,7 +24,7 @@ elapsed = lambda: time.time()%60/60
 
 def seed():
 	"""
-	Give a sha 256 hash from utc time srting rounded to minute.
+	Give a sha 256 hash from utc time string rounded to the minute.
 	"""
 	utc_data = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M Z")
 	h = hashlib.sha256(utc_data if isinstance(utc_data, bytes) else utc_data.encode()).hexdigest()
